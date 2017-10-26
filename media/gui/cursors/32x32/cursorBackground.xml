@@ -1,0 +1,12 @@
+<?xml version="1.0" standalone="no" ?>
+<!-- This file contain animation for cursorBackground -->
+<Icon name="cursorBackground">
+	<Frame id="0" file="cursorBackground_1.png" delay="100" />
+	<Frame id="1" file="cursorBackground_2.png" delay="100" />
+	<Frame id="2" file="cursorBackground_3.png" delay="100" />
+	<Frame id="3" file="cursorBackground_4.png" delay="100" />
+	<Frame id="4" file="cursorBackground_5.png" delay="100" />
+	<Frame id="5" file="cursorBackground_6.png" delay="100" />
+	<Frame id="6" file="cursorBackground_7.png" delay="100" />
+	<Frame id="7" file="cursorBackground_8.png" delay="100" />
+</Icon>

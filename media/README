@@ -1,0 +1,21 @@
+=======================
+How to have media files
+=======================
+
+Quick instructions for Linux :
+==============================
+
+Run the getmedia.sh script.
+
+Normal way :
+============
+
+1) Download the samples media archive :
+  at http://objective3d.free.fr/release/Samples%20media/media.tar.gz in gzip
+  or http://objective3d.free.fr/release/Samples%20media/media.zip in zip
+
+If the link no longer works, check at the download section at http://objective3d.free.fr
+
+2) Extract the content of the archive into the examples/media directory.
+
+Enjoy!

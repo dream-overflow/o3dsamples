@@ -1,0 +1,390 @@
+<?xml version="1.0" standalone="no" ?>
+<!-- This file contain font definition for arfont.png -->
+<!-- sU is the start position in x coordinate, and eU the end position -->
+<!-- sV is           -           y coordinate, and eV       -          -->
+<TextureFont>
+    <Global blending="alphablend" charset="ascii" bold="arfont.png" normal="arfont.png" />
+    <Data>
+        <Cursor sU="198" eU="201" sV="82" eV="97" />
+        <Char ascii=" ">
+            <Bold sU="3" eU="12" sV="2" eV="17" />
+            <Normal sU="3" eU="12" sV="130" eV="145" />
+        </Char>
+        <Char ascii="!">
+            <Bold sU="20" eU="27" sV="2" eV="17" />
+            <Normal sU="20" eU="27" sV="130" eV="145" />
+        </Char>
+        <Char ascii='&quot;'>
+            <Bold sU="35" eU="44" sV="2" eV="17" />
+            <Normal sU="35" eU="44" sV="130" eV="145" />
+        </Char>
+        <Char ascii="#">
+            <Bold sU="50" eU="61" sV="2" eV="17" />
+            <Normal sU="50" eU="61" sV="130" eV="145" />
+        </Char>
+        <Char ascii="$">
+            <Bold sU="66" eU="77" sV="2" eV="17" />
+            <Normal sU="66" eU="77" sV="130" eV="145" />
+        </Char>
+        <Char ascii="%">
+            <Bold sU="82" eU="93" sV="2" eV="17" />
+            <Normal sU="82" eU="93" sV="130" eV="145" />
+        </Char>
+        <Char ascii="&amp;">
+            <Bold sU="98" eU="109" sV="2" eV="17" />
+            <Normal sU="98" eU="109" sV="130" eV="145" />
+        </Char>
+        <Char ascii="&apos;">
+            <Bold sU="116" eU="123" sV="2" eV="17" />
+            <Normal sU="116" eU="123" sV="130" eV="145" />
+        </Char>
+        <Char ascii="(">
+            <Bold sU="131" eU="140" sV="2" eV="17" />
+            <Normal sU="131" eU="140" sV="130" eV="145" />
+        </Char>
+        <Char ascii=")">
+            <Bold sU="147" eU="156" sV="2" eV="17" />
+            <Normal sU="147" eU="156" sV="130" eV="145" />
+        </Char>
+        <Char ascii="*">
+            <Bold sU="163" eU="172" sV="2" eV="17" />
+            <Normal sU="163" eU="172" sV="130" eV="145" />
+        </Char>
+        <Char ascii="+">
+            <Bold sU="179" eU="188" sV="2" eV="17" />
+            <Normal sU="179" eU="188" sV="130" eV="145" />
+        </Char>
+        <Char ascii=",">
+            <Bold sU="196" eU="203" sV="2" eV="17" />
+            <Normal sU="196" eU="203" sV="130" eV="145" />
+        </Char>
+        <Char ascii="-">
+            <Bold sU="211" eU="220" sV="2" eV="17" />
+            <Normal sU="211" eU="220" sV="130" eV="145" />
+        </Char>
+        <Char ascii=".">
+            <Bold sU="228" eU="235" sV="2" eV="17" />
+            <Normal sU="228" eU="235" sV="130" eV="145" />
+        </Char>
+        <Char ascii="/">
+            <Bold sU="242" eU="253" sV="2" eV="17" />
+            <Normal sU="242" eU="253" sV="130" eV="145" />
+        </Char>
+        <Char ascii="0">
+            <Bold sU="2" eU="13" sV="18" eV="33" />
+            <Normal sU="2" eU="13" sV="146" eV="161" />
+        </Char>
+        <Char ascii="1">
+            <Bold sU="19" eU="28" sV="18" eV="33" />
+            <Normal sU="19" eU="28" sV="146" eV="161" />
+        </Char>
+        <Char ascii="2">
+            <Bold sU="34" eU="45" sV="18" eV="33" />
+            <Normal sU="34" eU="45" sV="146" eV="161" />
+        </Char>
+        <Char ascii="3">
+            <Bold sU="50" eU="61" sV="18" eV="33" />
+            <Normal sU="50" eU="61" sV="146" eV="161" />
+        </Char>
+        <Char ascii="4">
+            <Bold sU="66" eU="77" sV="18" eV="33" />
+            <Normal sU="66" eU="77" sV="146" eV="161" />
+        </Char>
+        <Char ascii="5">
+            <Bold sU="82" eU="93" sV="18" eV="33" />
+            <Normal sU="82" eU="93" sV="146" eV="161" />
+        </Char>
+        <Char ascii="6">
+            <Bold sU="98" eU="109" sV="18" eV="33" />
+            <Normal sU="98" eU="109" sV="146" eV="161" />
+        </Char>
+        <Char ascii="7">
+            <Bold sU="114" eU="125" sV="18" eV="33" />
+            <Normal sU="114" eU="125" sV="146" eV="161" />
+        </Char>
+        <Char ascii="8">
+            <Bold sU="130" eU="141" sV="18" eV="33" />
+            <Normal sU="130" eU="141" sV="146" eV="161" />
+        </Char>
+        <Char ascii="9">
+            <Bold sU="147" eU="156" sV="18" eV="33" />
+            <Normal sU="147" eU="156" sV="146" eV="161" />
+        </Char>
+        <Char ascii=":">
+            <Bold sU="160" eU="175" sV="18" eV="33" />
+            <Normal sU="160" eU="175" sV="146" eV="161" />
+        </Char>
+        <Char ascii=";">
+            <Bold sU="179" eU="188" sV="18" eV="33" />
+            <Normal sU="179" eU="188" sV="146" eV="161" />
+        </Char>
+        <Char ascii="&lt;">
+            <Bold sU="193" eU="206" sV="18" eV="33" />
+            <Normal sU="193" eU="206" sV="146" eV="161" />
+        </Char>
+        <Char ascii="=">
+            <Bold sU="210" eU="221" sV="18" eV="33" />
+            <Normal sU="210" eU="221" sV="146" eV="161" />
+        </Char>
+        <Char ascii="&gt;">
+            <Bold sU="225" eU="238" sV="18" eV="33" />
+            <Normal sU="225" eU="238" sV="146" eV="161" />
+        </Char>
+        <Char ascii="?">
+            <Bold sU="242" eU="253" sV="18" eV="33" />
+            <Normal sU="242" eU="253" sV="146" eV="161" />
+        </Char>
+        <Char ascii="@">
+            <Bold sU="0" eU="15" sV="34" eV="49" />
+            <Normal sU="0" eU="15" sV="162" eV="177" />
+        </Char>
+        <Char ascii="A">
+            <Bold sU="18" eU="29" sV="34" eV="49" />
+            <Normal sU="18" eU="29" sV="162" eV="177" />
+        </Char>
+        <Char ascii="B">
+            <Bold sU="34" eU="45" sV="34" eV="49" />
+            <Normal sU="34" eU="45" sV="162" eV="177" />
+        </Char>
+        <Char ascii="C">
+            <Bold sU="50" eU="61" sV="34" eV="49" />
+            <Normal sU="50" eU="61" sV="162" eV="177" />
+        </Char>
+        <Char ascii="D">
+            <Bold sU="66" eU="77" sV="34" eV="49" />
+            <Normal sU="66" eU="77" sV="162" eV="177" />
+        </Char>
+        <Char ascii="E">
+            <Bold sU="82" eU="93" sV="34" eV="49" />
+            <Normal sU="82" eU="93" sV="162" eV="177" />
+        </Char>
+        <Char ascii="F">
+            <Bold sU="98" eU="109" sV="34" eV="49" />
+            <Normal sU="98" eU="109" sV="162" eV="177" />
+        </Char>
+        <Char ascii="G">
+            <Bold sU="114" eU="125" sV="34" eV="49" />
+            <Normal sU="114" eU="125" sV="162" eV="177" />
+        </Char>
+        <Char ascii="H">
+            <Bold sU="130" eU="141" sV="34" eV="49" />
+            <Normal sU="130" eU="141" sV="162" eV="177" />
+        </Char>
+        <Char ascii="I">
+            <Bold sU="147" eU="156" sV="34" eV="49" />
+            <Normal sU="147" eU="156" sV="162" eV="177" />
+        </Char>
+        <Char ascii="J">
+            <Bold sU="162" eU="173" sV="34" eV="49" />
+            <Normal sU="162" eU="173" sV="162" eV="177" />
+        </Char>
+        <Char ascii="K">
+            <Bold sU="178" eU="189" sV="34" eV="49" />
+            <Normal sU="178" eU="189" sV="162" eV="177" />
+        </Char>
+        <Char ascii="L">
+            <Bold sU="194" eU="205" sV="34" eV="49" />
+            <Normal sU="194" eU="205" sV="162" eV="177" />
+        </Char>
+        <Char ascii="M">
+            <Bold sU="209" eU="222" sV="34" eV="49" />
+            <Normal sU="209" eU="222" sV="162" eV="177" />
+        </Char>
+        <Char ascii="N">
+            <Bold sU="226" eU="237" sV="34" eV="49" />
+            <Normal sU="226" eU="237" sV="162" eV="177" />
+        </Char>
+        <Char ascii="O">
+            <Bold sU="242" eU="253" sV="34" eV="49" />
+            <Normal sU="242" eU="253" sV="162" eV="177" />
+        </Char>
+        <Char ascii="P">
+            <Bold sU="2" eU="13" sV="50" eV="65" />
+            <Normal sU="2" eU="13" sV="178" eV="193" />
+        </Char>
+        <Char ascii="Q">
+            <Bold sU="18" eU="29" sV="50" eV="65" />
+            <Normal sU="18" eU="29" sV="178" eV="193" />
+        </Char>
+        <Char ascii="R">
+            <Bold sU="34" eU="45" sV="50" eV="65" />
+            <Normal sU="34" eU="45" sV="178" eV="193" />
+        </Char>
+        <Char ascii="S">
+            <Bold sU="50" eU="61" sV="50" eV="65" />
+            <Normal sU="50" eU="61" sV="178" eV="193" />
+        </Char>
+        <Char ascii="T">
+            <Bold sU="66" eU="77" sV="50" eV="65" />
+            <Normal sU="66" eU="77" sV="178" eV="193" />
+        </Char>
+        <Char ascii="U">
+            <Bold sU="82" eU="93" sV="50" eV="65" />
+            <Normal sU="82" eU="93" sV="178" eV="193" />
+        </Char>
+        <Char ascii="V">
+            <Bold sU="98" eU="109" sV="50" eV="65" />
+            <Normal sU="98" eU="109" sV="178" eV="193" />
+        </Char>
+        <Char ascii="W">
+            <Bold sU="112" eU="127" sV="50" eV="65" />
+            <Normal sU="112" eU="127" sV="178" eV="193" />
+        </Char>
+        <Char ascii="X">
+            <Bold sU="126" eU="141" sV="50" eV="65" />
+            <Normal sU="126" eU="141" sV="178" eV="193" />
+        </Char>
+        <Char ascii="Y">
+            <Bold sU="146" eU="157" sV="50" eV="65" />
+            <Normal sU="146" eU="157" sV="178" eV="193" />
+        </Char>
+        <Char ascii="Z">
+            <Bold sU="162" eU="173" sV="50" eV="65" />
+            <Normal sU="162" eU="173" sV="178" eV="193" />
+        </Char>
+        <Char ascii="[">
+            <Bold sU="179" eU="188" sV="50" eV="65" />
+            <Normal sU="179" eU="188" sV="178" eV="193" />
+        </Char>
+        <Char ascii="\">
+            <Bold sU="194" eU="205" sV="50" eV="65" />
+            <Normal sU="194" eU="205" sV="178" eV="193" />
+        </Char>
+        <Char ascii="]">
+            <Bold sU="211" eU="220" sV="50" eV="65" />
+            <Normal sU="211" eU="220" sV="178" eV="193" />
+        </Char>
+        <Char ascii="^">
+            <Bold sU="227" eU="236" sV="50" eV="65" />
+            <Normal sU="227" eU="236" sV="178" eV="193" />
+        </Char>
+        <Char ascii="_">
+            <Bold sU="111" eU="125" sV="116" eV="123" />
+            <Normal sU="111" eU="125" sV="116" eV="123" />
+        </Char>
+        <Char ascii="`">
+            <Bold sU="4" eU="11" sV="66" eV="81" />
+            <Normal sU="4" eU="11" sV="194" eV="209" />
+        </Char>
+        <Char ascii="a">
+            <Bold sU="19" eU="28" sV="66" eV="81" />
+            <Normal sU="19" eU="28" sV="194" eV="209" />
+        </Char>
+        <Char ascii="b">
+            <Bold sU="35" eU="44" sV="66" eV="81" />
+            <Normal sU="35" eU="44" sV="194" eV="209" />
+        </Char>
+        <Char ascii="c">
+            <Bold sU="51" eU="60" sV="66" eV="81" />
+            <Normal sU="51" eU="60" sV="194" eV="209" />
+        </Char>
+        <Char ascii="d">
+            <Bold sU="67" eU="76" sV="66" eV="81" />
+            <Normal sU="67" eU="76" sV="194" eV="209" />
+        </Char>
+        <Char ascii="e">
+            <Bold sU="82" eU="93" sV="66" eV="81" />
+            <Normal sU="82" eU="93" sV="194" eV="209" />
+        </Char>
+        <Char ascii="f">
+            <Bold sU="99" eU="108" sV="66" eV="81" />
+            <Normal sU="99" eU="108" sV="194" eV="209" />
+        </Char>
+        <Char ascii="g">
+            <Bold sU="115" eU="124" sV="66" eV="81" />
+            <Normal sU="115" eU="124" sV="194" eV="209" />
+        </Char>
+        <Char ascii="h">
+            <Bold sU="131" eU="140" sV="66" eV="81" />
+            <Normal sU="131" eU="140" sV="194" eV="209" />
+        </Char>
+        <Char ascii="i">
+            <Bold sU="148" eU="154" sV="66" eV="81" />
+            <Normal sU="148" eU="154" sV="194" eV="209" />
+        </Char>
+        <Char ascii="j">
+            <Bold sU="164" eU="171" sV="66" eV="81" />
+            <Normal sU="164" eU="171" sV="194" eV="209" />
+        </Char>
+        <Char ascii="k">
+            <Bold sU="179" eU="188" sV="66" eV="81" />
+            <Normal sU="179" eU="188" sV="194" eV="209" />
+        </Char>
+        <Char ascii="l">
+            <Bold sU="196" eU="203" sV="66" eV="81" />
+            <Normal sU="196" eU="203" sV="194" eV="209" />
+        </Char>
+        <Char ascii="m">
+            <Bold sU="208" eU="223" sV="66" eV="81" />
+            <Normal sU="208" eU="223" sV="194" eV="209" />
+        </Char>
+        <Char ascii="n">
+            <Bold sU="227" eU="236" sV="66" eV="81" />
+            <Normal sU="227" eU="236" sV="194" eV="209" />
+        </Char>
+        <Char ascii="o">
+            <Bold sU="242" eU="253" sV="66" eV="81" />
+            <Normal sU="242" eU="253" sV="194" eV="209" />
+        </Char>
+        <Char ascii="p">
+            <Bold sU="3" eU="12" sV="82" eV="97" />
+            <Normal sU="3" eU="12" sV="210" eV="225" />
+        </Char>
+        <Char ascii="q">
+            <Bold sU="19" eU="28" sV="82" eV="97" />
+            <Normal sU="19" eU="28" sV="210" eV="225" />
+        </Char>
+        <Char ascii="r">
+            <Bold sU="36" eU="44" sV="82" eV="97" />
+            <Normal sU="36" eU="44" sV="210" eV="225" />
+        </Char>
+        <Char ascii="s">
+            <Bold sU="51" eU="60" sV="82" eV="97" />
+            <Normal sU="51" eU="60" sV="210" eV="225" />
+        </Char>
+        <Char ascii="t">
+            <Bold sU="67" eU="76" sV="82" eV="97" />
+            <Normal sU="67" eU="76" sV="210" eV="225" />
+        </Char>
+        <Char ascii="u">
+            <Bold sU="83" eU="92" sV="82" eV="97" />
+            <Normal sU="83" eU="92" sV="210" eV="225" />
+        </Char>
+        <Char ascii="v">
+            <Bold sU="99" eU="108" sV="82" eV="97" />
+            <Normal sU="99" eU="108" sV="210" eV="225" />
+        </Char>
+        <Char ascii="w">
+            <Bold sU="114" eU="125" sV="82" eV="97" />
+            <Normal sU="114" eU="125" sV="210" eV="225" />
+        </Char>
+        <Char ascii="x">
+            <Bold sU="131" eU="140" sV="82" eV="97" />
+            <Normal sU="131" eU="140" sV="210" eV="225" />
+        </Char>
+        <Char ascii="y">
+            <Bold sU="147" eU="156" sV="82" eV="97" />
+            <Normal sU="147" eU="156" sV="210" eV="225" />
+        </Char>
+        <Char ascii="z">
+            <Bold sU="163" eU="172" sV="82" eV="97" />
+            <Normal sU="163" eU="172" sV="210" eV="225" />
+        </Char>
+        <Char ascii="{">
+            <Bold sU="180" eU="187" sV="82" eV="97" />
+            <Normal sU="180" eU="187" sV="210" eV="225" />
+        </Char>
+        <Char ascii="|">
+            <Bold sU="196" eU="203" sV="82" eV="97" />
+            <Normal sU="196" eU="203" sV="210" eV="225" />
+        </Char>
+        <Char ascii="}">
+            <Bold sU="212" eU="219" sV="82" eV="97" />
+            <Normal sU="212" eU="219" sV="210" eV="225" />
+        </Char>
+        <Char ascii="~">
+            <Bold sU="227" eU="236" sV="82" eV="97" />
+            <Normal sU="227" eU="236" sV="210" eV="225" />
+        </Char>
+    </Data>
+</TextureFont>

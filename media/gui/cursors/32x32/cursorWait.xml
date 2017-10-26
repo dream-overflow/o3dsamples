@@ -1,0 +1,20 @@
+<?xml version="1.0" standalone="no" ?>
+<!-- This file contain animation for cursorWait -->
+<Icon name="cursorWait">
+	<Frame id="0" file="cursorWait_2.png" delay="50" />
+	<Frame id="1" file="cursorWait_a_3.png" delay="50" />
+	<Frame id="2" file="cursorWait_3.png" delay="50" />
+	<Frame id="3" file="cursorWait_a_4.png" delay="50" />
+	<Frame id="4" file="cursorWait_1.png" delay="50" />
+	<Frame id="5" file="cursorWait_a_5.png" delay="50" />
+	<Frame id="6" file="cursorWait_8.png" delay="50" />
+	<Frame id="7" file="cursorWait_a_6.png" delay="50" />
+	<Frame id="8" file="cursorWait_7.png" delay="50" />
+	<Frame id="9" file="cursorWait_a_7.png" delay="50" />
+	<Frame id="10" file="cursorWait_4.png" delay="50" />
+	<Frame id="11" file="cursorWait_a_8.png" delay="50" />
+	<Frame id="12" file="cursorWait_6.png" delay="50" />
+	<Frame id="13" file="cursorWait_a_1.png" delay="50" />
+	<Frame id="14" file="cursorWait_5.png" delay="50" />
+	<Frame id="15" file="cursorWait_a_2.png" delay="50" />
+</Icon>
