@@ -34,26 +34,31 @@ endif()
 # externals libraries
 #----------------------------------------------------------
 
-include(FindOpenGL)
-include(FindOpenAL)
+include(dreamoverflow)
 
-#include(Bullet)
+find_package(OpenGL REQUIRED)
+find_package(OpenAL REQUIRED)
+find_package(Objective3D REQUIRED)
+#find_package(Bullet REQUIRED)
 
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-	include(FindX11)
+	find_package(X11 REQUIRED)
+	find_package(Xrandr REQUIRED)
 ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-	include(FindX11)
+	find_package(X11 REQUIRED)
+	find_package(Xrandr REQUIRED)
 ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-		#	set(O3D_INCLUDES "E:/dev/o3dgit/o3d/api/include")
-		#	set(O3D_LIBRARIES_DIR "E:/dev/o3dgit/o3d/api/dist/lib/Release")
-		#	include_directories(${O3D_INCLUDES})
-		#	link_directories(${O3D_LIBRARIES_DIR})
-		#	link_directories("E:/dev/o3d/trunk/external/lib")
-#	link_directories("E:/dev\o3dgit/o3d/deps/lib")
+#	set(O3D_INCLUDES "E:/dev/dreamoverflow/o3d/include")
+#	set(O3D_LIBRARIES_DIR "E:/dev/dreamoverflow/o3d/build-x86_64/lib")
+#	set(O3D_LIBRARIES_DIR "E:/dev/dreamoverflow/o3d/build-x86_64-dbg/lib")
+#	include_directories(${O3D_INCLUDES})
+#	link_directories(${O3D_LIBRARIES_DIR})
+#	link_directories("E:/dev/dreamoverflow/deps/lib")
+#	link_directories("E:/dev/dreamoverflow/deps/lib")
 #	link_directories("E:/libs/OpenAL/libs/Win32")
 ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 
@@ -68,27 +73,12 @@ include_directories("${PROJECT_SOURCE_DIR}/include")
 
 option(O3D_USE_SSE2 "Use SSE2 optimizations" ON)
 
-# objective3d Config.h
-if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-	if(MINGW)
-		set(LIB_PATH $ENV{CROSSROAD_PREFIX})
-	else()
-		set(LIB_PATH $ENV{LIB_PATH})
-	endif()
-else()
-	set(LIB_PATH $ENV{PREFIX})
-endif()
+include_directories(${OBJECTIVE3D_INCLUDE_DIR})
+include_directories(${OBJECTIVE3D_INCLUDE_DIR_objective3dconfig})
 
-if(${CMAKE_BUILD_TYPE} MATCHES "Debug")
-	include_directories(${LIB_PATH}/lib/objective3d-dbg)
-	set(LIB_EXT "-dbg")
-elseif(${CMAKE_BUILD_TYPE} MATCHES "RelWithDebInfo")
-	include_directories(${LIB_PATH}/lib/objective3d-odbg)
-	set(LIB_EXT "-odbg")
-elseif(${CMAKE_BUILD_TYPE} MATCHES "Release")
-	include_directories(${LIB_PATH}/lib/objective3d)
-	set(LIB_EXT "")
-endif()
+link_directories(${OBJECTIVE3D_LIBRARY_DIR})
+
+# @todo CXX_FLAGS and O3D_USE_SSE2 from Objective3Dconfig.cmake... or ...
 
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++14")
@@ -147,44 +137,34 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 # resources
 #----------------------------------------------------------
 
-IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-	file(COPY ${LIB_PATH}/share/o3d/shaders.zip DESTINATION ${CMAKE_BINARY_DIR})
-ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-
-IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-	file(COPY ${LIB_PATH}/share/o3d/shaders.zip DESTINATION ${CMAKE_BINARY_DIR})
-ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-
-IF(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-	file(COPY ${LIB_PATH}/share/o3d/shaders.zip DESTINATION ${CMAKE_BINARY_DIR})
-ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+file(COPY ${OBJECTIVE3D_SHADERS_ZIP} DESTINATION ${CMAKE_BINARY_DIR})
 
 #----------------------------------------------------------
 # targets
 #----------------------------------------------------------
 
 add_executable(minimal minimal/minimal.cpp)
-target_link_libraries(minimal objective3d${LIB_EXT} ${OPENGL_gl_LIBRARY})
+target_link_libraries(minimal ${OBJECTIVE3D_LIBRARY} ${OPENGL_gl_LIBRARY})
 
 add_library(dynlib SHARED minimal/dynlib.cpp)
 
 add_executable(window window/window.cpp)
-target_link_libraries(window objective3d${LIB_EXT} ${OPENGL_gl_LIBRARY})
+target_link_libraries(window ${OBJECTIVE3D_LIBRARY} ${OPENGL_gl_LIBRARY})
 
 add_executable(audio audio/audio.cpp)
-target_link_libraries(audio objective3d${LIB_EXT} ${OPENGL_gl_LIBRARY})
+target_link_libraries(audio ${OBJECTIVE3D_LIBRARY} ${OPENGL_gl_LIBRARY})
 
 add_executable(ms3d ms3d/ms3d.cpp)
-target_link_libraries(ms3d objective3d${LIB_EXT} ${OPENGL_gl_LIBRARY})
+target_link_libraries(ms3d ${OBJECTIVE3D_LIBRARY} ${OPENGL_gl_LIBRARY})
 
 add_executable(pclodterrain pclodterrain/pclodterrain.cpp)
-target_link_libraries(pclodterrain objective3d${LIB_EXT} ${OPENGL_gl_LIBRARY})
+target_link_libraries(pclodterrain ${OBJECTIVE3D_LIBRARY} ${OPENGL_gl_LIBRARY})
 
 add_executable(heightmap heightmap/heightmap.cpp)
-target_link_libraries(heightmap objective3d${LIB_EXT} ${OPENGL_gl_LIBRARY})
+target_link_libraries(heightmap ${OBJECTIVE3D_LIBRARY} ${OPENGL_gl_LIBRARY})
 
 add_executable(primitives primitives/primitives.cpp)
-target_link_libraries(primitives objective3d${LIB_EXT} ${OPENGL_gl_LIBRARY})
+target_link_libraries(primitives ${OBJECTIVE3D_LIBRARY} ${OPENGL_gl_LIBRARY})
 
 add_executable(gui gui/gui.cpp)
-target_link_libraries(gui objective3d${LIB_EXT} ${OPENGL_gl_LIBRARY})
+target_link_libraries(gui ${OBJECTIVE3D_LIBRARY} ${OPENGL_gl_LIBRARY})
