@@ -1,5 +1,5 @@
-cmake_minimum_required (VERSION 2.6)
-project (O3D_EXAMPLES)
+cmake_minimum_required (VERSION 2.8)
+project (O3DSAMPLES)
 
 # Set a default build type if none was specified
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
@@ -35,6 +35,15 @@ endif()
 #----------------------------------------------------------
 
 include(dreamoverflow)
+
+set (CMAKE_FIND_ROOT_PATH ${CMAKE_FIND_ROOT_PATH} $ENV{PREFIX})
+# set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_ROOT}/Modules)
+# message(${CMAKE_MODULE_PATH})
+
+IF(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+	set(CMAKE_PREFIX_PATH $ENV{PREFIX} ${CMAKE_PREFIX_PATH})
+	set(CMAKE_INCLUDE_PATH $ENV{PREFIX}/include ${CMAKE_INCLUDE_PATH})
+ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 
 find_package(OpenGL REQUIRED)
 find_package(OpenAL REQUIRED)
