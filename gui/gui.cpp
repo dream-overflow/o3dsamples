@@ -1,7 +1,7 @@
 /**
  * @file gui.cpp
  * @brief 
- * @author Frederic SCHERMA (frederic.scherma@gmail.com)
+ * @author Frederic SCHERMA (frederic.scherma@dreamoverflow.org)
  * @date 2015-12-29
  * @copyright Copyright (c) 2001-2017 Dream Overflow. All rights reserved.
  * @details 
@@ -46,7 +46,7 @@ using namespace o3d;
 /**
  * @brief The GuiSample class
  * @date 2015-12-29
- * @author Frederic SCHERMA (frederic.scherma@gmail.com)
+ * @author Frederic SCHERMA (frederic.scherma@dreamoverflow.org)
  */
 class GuiSample : public EvtHandler
 {

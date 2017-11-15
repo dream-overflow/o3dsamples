@@ -1,7 +1,7 @@
 /**
  * @file primitives.cpp
  * @brief 
- * @author Frederic SCHERMA (frederic.scherma@gmail.com)
+ * @author Frederic SCHERMA (frederic.scherma@dreamoverflow.org)
  * @author Emmanuel RUFFIO (emmanuel.ruffio@gmail.com)
  * @date 2008-01-01
  * @copyright Copyright (c) 2001-2017 Dream Overflow. All rights reserved.

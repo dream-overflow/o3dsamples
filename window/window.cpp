@@ -1,7 +1,7 @@
 /**
  * @file window.cpp
  * @brief 
- * @author Frederic SCHERMA (frederic.scherma@gmail.com)
+ * @author Frederic SCHERMA (frederic.scherma@dreamoverflow.org)
  * @date 2004-01-01
  * @copyright Copyright (c) 2001-2017 Dream Overflow. All rights reserved.
  * @details 
@@ -27,7 +27,7 @@ using namespace o3d;
 /**
  * @brief The SoundSample class.
  * @date 2004-01-01
- * @author Frederic SCHERMA (frederic.scherma@gmail.com)
+ * @author Frederic SCHERMA (frederic.scherma@dreamoverflow.org)
  */
 class Window : public EvtHandler
 {
