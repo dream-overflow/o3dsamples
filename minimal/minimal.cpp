@@ -129,6 +129,8 @@ public:
 
 		// Draw a hello world message
 		Application::message("Hello world!", "minimal");
+		Application::message(Application::getAppName(), "My name is");
+		Application::message(Application::getAppPath(), "And I'm located at");
 
 		String c(L"Unicode string àéèêË");
 		CString cc = c.toUtf8();
