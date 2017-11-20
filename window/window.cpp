@@ -62,7 +62,7 @@ public:
         Window *apps = new Window;
 
         DiskFileInfo iconFile("../media/icon.bmp");
-		if (iconFile.isExist())
+        if (iconFile.exists())
             apps->getWindow()->setIcon("../media/icon.bmp");
 
         apps->getScene()->getContext()->setBackgroundColor(Color(1.0f,0,0,1));

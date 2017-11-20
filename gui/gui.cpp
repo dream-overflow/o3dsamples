@@ -102,7 +102,7 @@ public:
 
         // Application icon
         DiskFileInfo iconFile(basePath + '/' +  "icon.bmp");
-        if (iconFile.isExist())
+        if (iconFile.exists())
             m_appWindow->setIcon("../media/icon.bmp");
 
         m_scene->setGlobalAmbient(Color(0.8f, 0.8f, 0.8f, 1.0f));

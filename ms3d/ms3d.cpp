@@ -569,7 +569,7 @@ public:
 
 		// Application icon
 		DiskFileInfo iconFile(basePath + '/' +  "icon.bmp");
-		if (iconFile.isExist())
+        if (iconFile.exists())
             myApp->getWindow()->setIcon("../media/icon.bmp");
 
         myApp->getScene()->setGlobalAmbient(Color(0.8f, 0.8f, 0.8f, 1.0f));

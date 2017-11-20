@@ -11,6 +11,7 @@
 #include <o3d/core/matrix4.h>
 #include <o3d/core/wintools.h>
 #include <o3d/core/application.h>
+#include <o3d/core/uuid.h>
 #include <o3d/core/main.h>
 #include <o3d/core/dynamiclibrary.h>
 
@@ -131,6 +132,9 @@ public:
 		Application::message("Hello world!", "minimal");
 		Application::message(Application::getAppName(), "My name is");
 		Application::message(Application::getAppPath(), "And I'm located at");
+
+        Uuid uuid = Uuid::makeUuid();  // "f81d4fae-7dec-11d0-a765-00a0c91e6bf6");
+        Application::message(uuid.toString(), String::print("I'm an UUID version %i", uuid.version()));
 
 		String c(L"Unicode string àéèêË");
 		CString cc = c.toUtf8();
