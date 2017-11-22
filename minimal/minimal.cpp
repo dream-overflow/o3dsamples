@@ -11,6 +11,8 @@
 #include <o3d/core/matrix4.h>
 #include <o3d/core/wintools.h>
 #include <o3d/core/application.h>
+#include <o3d/core/md5.h>
+#include <o3d/core/sha1.h>
 #include <o3d/core/uuid.h>
 #include <o3d/core/main.h>
 #include <o3d/core/dynamiclibrary.h>
@@ -132,6 +134,17 @@ public:
 		Application::message("Hello world!", "minimal");
 		Application::message(Application::getAppName(), "My name is");
 		Application::message(Application::getAppPath(), "And I'm located at");
+
+        MD5Hash md5;
+        CString toHash("Hash me this string");
+        md5.update(toHash.getBytes());
+        md5.finalize();
+        Application::message(md5.getHex(), String("I'm the MD5 for ") + toHash);
+
+        SHA1Hash sha1;
+        sha1.update(toHash.getBytes());
+        sha1.finalize();
+        Application::message(sha1.getHex(), String("I'm the SHA1 for ") + toHash);
 
         Uuid uuid = Uuid::makeUuid();  // "f81d4fae-7dec-11d0-a765-00a0c91e6bf6");
         Application::message(uuid.toString(), String::print("I'm an UUID version %i", uuid.version()));
