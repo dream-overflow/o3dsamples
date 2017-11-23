@@ -146,7 +146,13 @@ public:
         sha1.finalize();
         Application::message(sha1.getHex(), String("I'm the SHA1 for ") + toHash);
 
-        Uuid uuid = Uuid::makeUuid();
+        Uuid uuid = Uuid::uuid1();
+        Application::message(uuid.toString(), String::print("I'm an UUID version %i", uuid.version()));
+
+        uuid = Uuid::uuid3();
+        Application::message(uuid.toString(), String::print("I'm an UUID version %i", uuid.version()));
+
+        uuid = Uuid::uuid5();
         Application::message(uuid.toString(), String::print("I'm an UUID version %i", uuid.version()));
 
 		String c(L"Unicode string àéèêË");
