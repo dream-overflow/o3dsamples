@@ -161,6 +161,8 @@ public:
 
         Application::message(c, "minimal");
 
+        Application::message(String("This %1, %2 and %3").arg(1).arg("two").arg(3.01f).result(), "arg string");
+
         String d(StringUtils::toHex(SmartArrayUInt8((const UInt8*)"abcdefghijklm", 13)));
         System::print(d, "'abcdefghijklm' -> toHex");
 
