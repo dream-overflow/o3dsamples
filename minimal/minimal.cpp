@@ -92,8 +92,8 @@ public:
 	// main entry
 	static Int32 main()
 	{
-		if (Application::isMappedFileExists("o3d_minimal"))
-		{
+		// Single app instance
+		if (Application::isMappedFileExists("o3d_minimal")) {
 			Application::message("An instance already running", "");
 			return 0;
 		}
@@ -115,7 +115,7 @@ public:
 		// Test of dynamic library loading and calling
 		DynamicLibrary *lib = DynamicLibrary::load("libdynlib.so");
 
-		// C++ style
+		// C++ Style
 		{
 			auto foooo = lib->getFunction<int,int,int>("fooo");
 			System::print(String::print("C++Style libdynlib.so::foo %i", foooo(10,5)), "");
@@ -135,17 +135,20 @@ public:
 		Application::message(Application::getAppName(), "My name is");
 		Application::message(Application::getAppPath(), "And I'm located at");
 
+		// Md5 digest
         MD5Hash md5;
         CString toHash("Hash me this string");
         md5.update(toHash.getBytes());
         md5.finalize();
         Application::message(md5.getHex(), String("I'm the MD5 for ") + toHash);
 
+        // Sha1 digest
         SHA1Hash sha1;
         sha1.update(toHash.getBytes());
         sha1.finalize();
         Application::message(sha1.getHex(), String("I'm the SHA1 for ") + toHash);
 
+        // Uuid 1,3 and 5
         Uuid uuid = Uuid::uuid1();
         Application::message(uuid.toString(), String::print("I'm an UUID version %i", uuid.version()));
 
@@ -155,12 +158,17 @@ public:
         uuid = Uuid::uuid5();
         Application::message(uuid.toString(), String::print("I'm an UUID version %i", uuid.version()));
 
+        // Utf8 conversion
 		String c(L"Unicode string àéèêË");
 		CString cc = c.toUtf8();
 		c.fromUtf8(cc.getData());
 
         Application::message(c, "minimal");
 
+        // Arg string
+        Application::message(String("I'm the {0} and I'm {1}/{2}!").arg("World").arg(4.9f, 1).arg(5), "Arg string");
+
+        // Smart array to string
         String d(StringUtils::toHex(SmartArrayUInt8((const UInt8*)"abcdefghijklm", 13)));
         System::print(d, "'abcdefghijklm' -> toHex");
 
@@ -188,67 +196,61 @@ public:
         System::print(arrayStr, "display array content", System::MSG_DEBUG);
 
 	/*
-		test teste;
-
-		O3DMainWindow::instance()->SetWindow(640,480);
-		O3DMainWindow::instance()->Run();*/
-	/*
 		// Test relative path, make absolute, cd up and finalize with a make full path
 		// output must be /something/api/shaders
-		O3DDiskDir ls("./");
-		ls.MakeAbsolute();
-		ls.CdUp();
-		O3DApps::Message(ls.MakeFullPathName("shaders"),"");
+		DiskDir ls("./");
+		ls.makeAbsolute();
+		ls.cdUp();
+		Application::message(ls.MakeFullPathName("shaders"), "");
+		// ls.removeDir("shaders");
 	*/
 	/*
 		// Create a file with unicode chars
-		O3DDiskFile filed;
-		filed.Open(L"kékàze","wb");
-		filed.Close();
+		DiskFile filed;
+		filed.open(L"kékàze","wb");
+		filed.close();
 	*/
-
 	/*
 		// Test for read the first line of text of '.xml' file from a 'xml.pack' (zip) file found
 		// in the working directory and containing a directory named 'xml' with many *.xml files
-		O3DFileManager::instance()->AddPackFile("xml.pack");
+		FileManager::instance()->addPackFile("xml.pack");
 
-		O3DVirtualFileListing fileListing;
-		fileListing.SetPath("./xml");
-		fileListing.SetType(O3DFileFile);
-		fileListing.SetExt("*.xml");
-		fileListing.SearchFirstFile();
+		VirtualFileListing fileListing;
+		fileListing.setPath("./xml");
+		fileListing.setType(O3DFileFile);
+		fileListing.setExt("*.xml");
+		fileListing.searchFirstFile();
 
-		O3DFLItem *Item;
-		while ((Item = fileListing.SearchNextFile()) != NULL)
+		FLItem *Item;
+		while ((Item = fileListing.SearchNextFile()) != nullptr)
 		{
-			O3DApps::Message(Item->FileName, "minimal");
-			O3DFile *file = O3DFileManager::instance()->OpenFile(fileListing.GetFileFullName(), "rt");
-			O3DString line;
+			Application::message(Item->FileName, "minimal");
+			File *file = FileManager::instance()->openFile(fileListing.GetFileFullName(), "rt");
+			String line;
 			file->ReadLine(line);
-			O3DApps::Message(line, "minimal");
+			Application::message(line, "minimal");
 			deletePtr(file);
 		}
 	*/
-
 	/*
 		// Test for wait condition
-		O3DThread t1,t2;
+		Thread t1,t2;
 		int time1=5000,time2=10000;
 
-		t1.Create(new O3DCallbackFunction(call),(void*)&time1);
-		t2.Create(new O3DCallbackFunction(call),(void*)&time2);
+		t1.create(new CallbackFunction(call),(void*)&time1);
+		t2.create(new CallbackFunction(call),(void*)&time2);
 
-		waitcond.WakeAll();
+		waitcond.wakeAll();
 
-		t1.WaitFinish();
-		t2.WaitFinish();
+		t1.waitFinish();
+		t2.waitFinish();
 
-		time1=time2;
+		time1 = time2;
 	*/
-
 	/*
 		// Test for command line parser
-		O3DCommandLine *commandLine = O3DApps::CommandLine();
+		CommandLine *commandLine = Application::commandLine();
+		
 		commandLine->RegisterArgument("file");
 		commandLine->AddSwitch('t');
 		commandLine->AddOption("verbose");
@@ -261,8 +263,7 @@ public:
 		commandLine->AddOptionalOption("opt2","8");
 		commandLine->Parse();
 		test with: --Rep v1 v2 v3 --opt --inc="my sound" --opt2=15 -O -o150 -D/prout -D/pwet -t --verbose=0 "my texte \"@\""
-		*/
-
+	*/
 	/*
 		// Simple mutex test
 		O3DMutex mu;
@@ -285,7 +286,6 @@ public:
 		mf.Unlock();
 		printf("reBye!\n");
 	*/
-
 	/*
 		// Test of differents sqrt methods
 		Float r;
@@ -302,7 +302,6 @@ public:
 		time = (Float)(O3DSystem::GetTime() - timer) / (Float)O3DSystem::GetTimeFrequency();
 		printf("%f // %f\n",r,time);
 	*/
-
 	/*
 		// Test of the block memory allocator
 		void** myArray = new void*[65536];
@@ -320,7 +319,6 @@ public:
 
 		deleteArray(myArray);
 	*/
-
 	/*
 		// Test of the exception manager
 		O3DString test;
@@ -336,7 +334,6 @@ public:
 
 		//if (0) O3D_ERROR(O3D_E_InvalidFormat("Simulate another crash!"));
 	*/
-
 	/*
 		// Test for matrix products and matrix to string conversion
 		O3DMatrix4 a(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16),b(16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1),c;
@@ -345,7 +342,6 @@ public:
 
 		O3DApps::Message("a*b=" + (O3DString)c);
 	*/
-
 	/*
 		// Matrix product test and fast inverse sqrt
 		O3DMatrix4 *mm = new O3DMatrix4[13];
@@ -366,7 +362,6 @@ public:
 
 		return 0;
 	*/
-
 	/*
 		// Matrix allocation and product test
 		Int64 start = O3DSystem::GetTime();
@@ -399,4 +394,3 @@ public:
 
 // We Call our application using the defaults settings
 O3D_CONSOLE_MAIN(Minimal, O3D_DEFAULT_CLASS_SETTINGS)
-
