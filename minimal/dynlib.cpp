@@ -8,14 +8,20 @@
  */
 
 #include <stdio.h>
+#include <o3d/core/base.h>
+
+#ifdef O3D_WINDOWS
+    #define DLL_API __declspec(dllexport)
+#else
+    #define DLL_API
+#endif
 
 extern "C"
 {
 
-int fooo(int x, int y)
+DLL_API int fooo(int x, int y)
 {
-		return x + y;
+    return x + y;
 }
 
-};
-
+}

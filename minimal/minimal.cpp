@@ -17,6 +17,8 @@
 #include <o3d/core/main.h>
 #include <o3d/core/dynamiclibrary.h>
 
+#include <math.h>
+
 /** You only just to define a like-main function for your program and to call it with O3D_APPLICATION
   * Application::init() and Application::quit are automatically called with him.
   *
@@ -84,16 +86,16 @@ int call(void*data)
 #include <o3d/core/diskdir.h>
 #include <o3d/core/stringutils.h>
 
-inline double inl_sqrt(double x)
+inline Double inl_sqrt(Double x)
 {
-	register float ret;
-	__asm__ __volatile__ ("fsqrt" : "=t"(ret): "0"(x));
-	return ret;
+    Double ret;
+    __asm__ __volatile__ ("fsqrt" : "=t"(ret): "0"(x));
+    return ret;
 }
 
 inline Float inl_sse_sqrt(Float x)
 {
-#if defined(O3D_VC_COMPILER) && defined(O3D_WIN32)
+#if defined(O3D_USE_SIMD) && defined(O3D_VC_COMPILER) && defined(O3D_WINDOWS)
 	static Float half = 0.5f;
 	static Float three = 3.0f;
 	Float y;// = 0.f; not set to 0 otherwise optimization will take 0 as result of the function
@@ -115,32 +117,32 @@ inline Float inl_sse_sqrt(Float x)
 	}
 
 	return y;
-#elif defined(__amd64__) || defined(__x86_64__) || defined(__i686__)
-/*	static Float half = 0.5f;
-	static Float three = 3.0f;
-	Float y;// = 0.f; not set to 0 otherwise optimization will take 0 as result of the function
+#elif defined(O3D_USE_SIMD) && (defined(O3D_IX32) || defined(O3D_IX64))
+    static Float half = 0.5f;
+    static Float three = 3.0f;
+    Float y;// = 0.f; not set to 0 otherwise optimization will take 0 as result of the function
 
-	register Float xx = x;
-	__asm__ __volatile__ ("movss %0,%%xmm3 \n\t" : : "m" (xx));
-	__asm__ __volatile__ ("movss %xmm3,%xmm4 \n\t");
-	__asm__ __volatile__ ("movss %0,%%xmm1 \n\t" : : "m" (half));
-	__asm__ __volatile__ ("movss %0,%%xmm2 \n\t" : : "m" (three));
-	__asm__ __volatile__ ("rsqrtss %xmm3,%xmm0 \n\t");
-	__asm__ __volatile__ ("mulss %xmm0,%xmm3 \n\t");
-	__asm__ __volatile__ ("mulss %xmm0,%xmm1 \n\t");
-	__asm__ __volatile__ ("mulss %xmm0,%xmm3 \n\t");
-	__asm__ __volatile__ ("subss %xmm3,%xmm2 \n\t");
-	__asm__ __volatile__ ("mulss %xmm2,%xmm1 \n\t");
-	__asm__ __volatile__ ("mulss %xmm4,%xmm1 \n\t");
-	__asm__ __volatile__ ("movss %%xmm1,%0" : : "m" (y));
+    __asm__ __volatile__ ("movss %0,%%xmm3 \n\t" : : "m" (x));
+    __asm__ __volatile__ ("movss %xmm3,%xmm4 \n\t");
+    __asm__ __volatile__ ("movss %0,%%xmm1 \n\t" : : "m" (half));
+    __asm__ __volatile__ ("movss %0,%%xmm2 \n\t" : : "m" (three));
+    __asm__ __volatile__ ("rsqrtss %xmm3,%xmm0 \n\t");
+    __asm__ __volatile__ ("mulss %xmm0,%xmm3 \n\t");
+    __asm__ __volatile__ ("mulss %xmm0,%xmm1 \n\t");
+    __asm__ __volatile__ ("mulss %xmm0,%xmm3 \n\t");
+    __asm__ __volatile__ ("subss %xmm3,%xmm2 \n\t");
+    __asm__ __volatile__ ("mulss %xmm2,%xmm1 \n\t");
+    __asm__ __volatile__ ("mulss %xmm4,%xmm1 \n\t");
+    __asm__ __volatile__ ("movss %%xmm1,%0" : : "m" (y));
 
-	return y;*/
+    return y;
+/*    Float y;
 
 	__asm__ __volatile__ ("movss %0,%%xmm3 \n\t" : : "m" (x));
 	__asm__ __volatile__ ("sqrtss %xmm3,%xmm0 \n\t");
-	__asm__ __volatile__ ("movss %%xmm0,%0" : : "m" (x));
+    __asm__ __volatile__ ("movss %%xmm0,%0" : : "m" (y));
 
-	return x;
+    return y;*/
 #else
 	#pragma intrinsic(sqrt, pow)
 	return ::sqrt(x);
