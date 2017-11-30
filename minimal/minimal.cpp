@@ -29,9 +29,9 @@
 
 		#ifdef _MSC_VER
 		Int32 APIENTRY WinMain(HINSTANCE hinstance,
-								 HINSTANCE hPrevinstance,
-								 LPSTR lpCmdLine,
-								 Int32 nCmdShow)
+							   HINSTANCE hPrevinstance,
+							   LPSTR lpCmdLine,
+							   Int32 nCmdShow)
 		{
 		#else
 		Int32 main(int argc, char **argv)
@@ -41,7 +41,7 @@
 			Application::init();
 
 			// Draw a hello world message
-			Application::message(NULL,"Hello world!");
+			Application::message("", "Hello world!");
 
 			// Destruction
 			Application::quit();
@@ -60,29 +60,86 @@
 using namespace o3d;
 
 /*
-O3DWaitCondition waitcond;
-O3DFastMutex mutex;
+WaitCondition waitcond;
+FastMutex mutex;
 
 // Test for wait condition
 int call(void*data)
 {
 	int time = *(int*)data;
 
-	mutex.Lock();
+	mutex.lock();
 
 	waitcond.Wait(mutex);
 
-	mutex.Unlock();
+	mutex.unlock();
 
-	O3DSystem::Wait(time);
-	O3D_MessageBox(NULL,"check");
+	System::waitMs(time);
+	Application::message("", "check");
 	return 0;
 }
 */
+
 #include <o3d/core/filemanager.h>
 #include <o3d/core/diskdir.h>
 #include <o3d/core/stringutils.h>
-//#include <o3d/engine/animation/AnimationTrack.h>
+
+inline double inl_sqrt(double x)
+{
+	register float ret;
+	__asm__ __volatile__ ("fsqrt" : "=t"(ret): "0"(x));
+	return ret;
+}
+
+inline Float inl_sse_sqrt(Float x)
+{
+#if defined(O3D_VC_COMPILER) && defined(O3D_WIN32)
+	static Float half = 0.5f;
+	static Float three = 3.0f;
+	Float y;// = 0.f; not set to 0 otherwise optimization will take 0 as result of the function
+
+	__asm
+	{
+		movss     xmm3, x     // xmm3 = (x, ?, ?, ?)
+		movss     xmm4, xmm3   // xmm4 = (x, ?, ?, ?)
+		movss     xmm1, half   // xmm1 = (0.5, ?, ?, ?)
+		movss     xmm2, three  // xmm2 = (3, ?, ?, ?)
+		rsqrtss   xmm0, xmm3   // xmm0 = (~ 1 / sqrt(x), ?, ?, ?)
+		mulss     xmm3, xmm0   // xmm3 = (~ sqrt(x), ?, ?, ?)
+		mulss     xmm1, xmm0   // xmm1 = (~ 0.5 / sqrt(x), ?, ?, ?)
+		mulss     xmm3, xmm0   // xmm3 = (~ 1, ?, ?, ?)
+		subss     xmm2, xmm3   // xmm2 = (~ 2, ?, ?, ?)
+		mulss     xmm1, xmm2   // xmm1 = (~ 1 / sqrt(x), ?, ?, ?)
+		mulss     xmm1, xmm4   // xmm1 = (sqrt(x), ?, ?, ?)
+		movss     y, xmm1      // store result
+	}
+
+	return y;
+#elif defined(__amd64__) || defined(__x86_64__) || defined(__i686__)
+	static Float half = 0.5f;
+	static Float three = 3.0f;
+	register Float y;// = 0.f; not set to 0 otherwise optimization will take 0 as result of the function
+
+	register Float xx = x;
+	__asm__ __volatile__ ("movss %0,%%xmm3 \n\t" : : "m" (xx));
+	__asm__ __volatile__ ("movss %xmm3,%xmm4 \n\t");
+	__asm__ __volatile__ ("movss %0,%%xmm1 \n\t" : : "m" (half));
+	__asm__ __volatile__ ("movss %0,%%xmm2 \n\t" : : "m" (three));
+	__asm__ __volatile__ ("rsqrtss %xmm3,%xmm0 \n\t");
+	__asm__ __volatile__ ("mulss %xmm0,%xmm3 \n\t");
+	__asm__ __volatile__ ("mulss %xmm0,%xmm1 \n\t");
+	__asm__ __volatile__ ("mulss %xmm0,%xmm3 \n\t");
+	__asm__ __volatile__ ("subss %xmm3,%xmm2 \n\t");
+	__asm__ __volatile__ ("mulss %xmm2,%xmm1 \n\t");
+	__asm__ __volatile__ ("mulss %xmm4,%xmm1 \n\t");
+	__asm__ __volatile__ ("movss %%xmm1,%0" : : "m" (y));
+
+	return y;
+#else
+	#pragma intrinsic(sqrt, pow)
+	return ::sqrt(x);
+#endif
+}
 
 // Main class
 class Minimal {
@@ -234,8 +291,8 @@ public:
 	*/
 	/*
 		// Test for wait condition
-		Thread t1,t2;
-		int time1=5000,time2=10000;
+		Thread t1, t2;
+		int time1=5000, time2=10000;
 
 		t1.create(new CallbackFunction(call),(void*)&time1);
 		t2.create(new CallbackFunction(call),(void*)&time2);
@@ -251,140 +308,186 @@ public:
 		// Test for command line parser
 		CommandLine *commandLine = Application::commandLine();
 		
-		commandLine->RegisterArgument("file");
-		commandLine->AddSwitch('t');
-		commandLine->AddOption("verbose");
-		commandLine->AddOption("inc");
-		commandLine->AddVarLenOption("Rep");
-		commandLine->AddRepeatableOption('D');
-		commandLine->AddOptionalOption('o',"","1");
-		commandLine->AddOptionalOption('O',"","2");
-		commandLine->AddOptionalOption("opt","4");
-		commandLine->AddOptionalOption("opt2","8");
-		commandLine->Parse();
-		test with: --Rep v1 v2 v3 --opt --inc="my sound" --opt2=15 -O -o150 -D/prout -D/pwet -t --verbose=0 "my texte \"@\""
+		commandLine->registerArgument("file");
+		commandLine->addSwitch('t');
+		commandLine->addOption("verbose");
+		commandLine->addOption("inc");
+		commandLine->addVarLenOption("Rep");
+		commandLine->addRepeatableOption('D');
+		commandLine->addOptionalOption('o',"","1");
+		commandLine->addOptionalOption('O',"","2");
+		commandLine->addOptionalOption("opt","4");
+		commandLine->addOptionalOption("opt2","8");
+		commandLine->parse();
+		// test with: --Rep v1 v2 v3 --opt --inc="my value" --opt2=15 -O -o150 -D/prout -D/pwet -t --verbose=0 "my text \"@\""
 	*/
 	/*
 		// Simple mutex test
-		O3DMutex mu;
-		if (mu.Lock(500))
-			printf("Locked!\n");
-		else
+		Mutex mu;
+		if (mu.lock(500)) {
+			printf("Mutex Locked!\n");
+		} else {
 			printf("Bad lock!\n");
-		mu.Unlock();
+		}
+		mu.unlock();
 		printf("Unlocked!\n");
 
-
 		// Recursive mutex test
-		O3DRecursiveMutex mf;
-		mf.Lock();
+		RecursiveMutex mf;
+		mf.lock();
 		printf("hello!\n");
-		mf.Lock();
+		mf.lock();
 		printf("reHello!\n");
-		mf.Unlock();
+		mf.unlock();
 		printf("bye!\n");
-		mf.Unlock();
+		mf.unlock();
 		printf("reBye!\n");
 	*/
-	/*
+		Int64 timer;
+
 		// Test of differents sqrt methods
 		Float r;
 
-		Int64 timer = O3DSystem::GetTime();
-		for (int i=0;i<10000000;i+=1)
-			r = O3DMath::_Std::Sqrt((float)i);
-		Float time = (Float)(O3DSystem::GetTime() - timer) / (Float)O3DSystem::GetTimeFrequency();
-		printf("%f // %f\n",r,time);
+		timer = System::getTime();
+		for (int i=0;i<10000000;i+=1) {
+			r = Math::_Std::sqrt((Float)i);
+		}
+		Float time = (Float)(System::getTime() - timer) / (Float)System::getTimeFrequency();
+		Application::message(String::print("Math::_Std::sqrt %f // time %f",r, time), "Bench");
 
-		timer = O3DSystem::GetTime();
-		for (int j=0;j<10000000;j+=1)
-			r = O3DMath::_SSE::Sqrt((float)j);
-		time = (Float)(O3DSystem::GetTime() - timer) / (Float)O3DSystem::GetTimeFrequency();
-		printf("%f // %f\n",r,time);
-	*/
+		timer = System::getTime();
+		for (int j=0;j<10000000;j+=1) {
+			r = Math::_SSE::sqrt((Float)j);
+		}
+		time = (Float)(System::getTime() - timer) / (Float)System::getTimeFrequency();
+		Application::message(String::print("Math::_SSE::sqrt %f // time %f",r, time), "Bench");
+
+		timer = System::getTime();
+		for (int j=0;j<10000000;j+=1) {
+			r = ::sqrt((Double)j);
+		}
+		time = (Float)(System::getTime() - timer) / (Float)System::getTimeFrequency();
+		Application::message(String::print("::sqrt %f // time %f",r, time), "Bench");
+
+		timer = System::getTime();
+		for (int j=0;j<10000000;j+=1) {
+			r = ::sqrtf((Float)j);
+		}
+		time = (Float)(System::getTime() - timer) / (Float)System::getTimeFrequency();
+		Application::message(String::print("::sqrtf %f // time %f",r, time), "Bench");
+
+		timer = System::getTime();
+		for (int j=0;j<10000000;j+=1) {
+			r = inl_sqrt((Double)j);
+		}
+		time = (Float)(System::getTime() - timer) / (Float)System::getTimeFrequency();
+		Application::message(String::print("inl_sqrt %f // time %f",r, time), "Bench");
+
+		timer = System::getTime();
+		for (int j=0;j<10000000;j+=1) {
+			r = inl_sse_sqrt((Float)j);
+		}
+		time = (Float)(System::getTime() - timer) / (Float)System::getTimeFrequency();
+		Application::message(String::print("inl_sse_sqrt %f // time %f",r, time), "Bench");
+
+		timer = System::getTime();
+		for (int j=0;j<10000000;j+=1) {
+			r = Math::rsqrt((float)j);
+		}
+		time = (Float)(System::getTime() - timer) / (Float)System::getTimeFrequency();
+		Application::message(String::print("Math::rsqrt %f // time %f",r, time), "Bench");
+
 	/*
 		// Test of the block memory allocator
 		void** myArray = new void*[65536];
 
-		for (UInt32 i = 0; i < 65536; ++i)
-		{
+		for (UInt32 i = 0; i < 65536; ++i) {
 			myArray[i] = O3D_FAST_ALLOC(64);
 		}
 
-		for (UInt32 i = 0; i < 65536; ++i)
-		{
+		for (UInt32 i = 0; i < 65536; ++i) {
 			O3D_FAST_FREE(myArray[i],64);
-			myArray[i] = NULL;
+			myArray[i] = nullptr;
 		}
 
 		deleteArray(myArray);
 	*/
 	/*
 		// Test of the exception manager
-		O3DString test;
+		String test;
 
-		try
-		{
+		try {
 			O3D_ERROR(O3D_E_InvalidFormat("Simulate a crash!"));
-		}
-		catch(O3D_E_BaseException e)
-		{
-			test = e.GetDescr();
+		} catch(O3D_E_BaseException e) {
+			test = e.getDescr();
 		}
 
 		//if (0) O3D_ERROR(O3D_E_InvalidFormat("Simulate another crash!"));
 	*/
 	/*
 		// Test for matrix products and matrix to string conversion
-		O3DMatrix4 a(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16),b(16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1),c;
+		Matrix4 a(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16),b(16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1),c;
 		a *= b; c = a;
 		//c = a*b;
 
-		O3DApps::Message("a*b=" + (O3DString)c);
+		Apps::message("a*b=" + (String)c);
 	*/
 	/*
 		// Matrix product test and fast inverse sqrt
-		O3DMatrix4 *mm = new O3DMatrix4[13];
-		O3DMatrix4 a(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16),b(16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1),c;
-		O3DMatrix4 d(0,1,0,36,0,0,1,45,1,0,0,12,0,0,0,1);
+		Matrix4 *mm = new Matrix4[13];
+		Matrix4 a(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16),b(16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1),c;
+		Matrix4 d(0,1,0,36,0,0,1,45,1,0,0,12,0,0,0,1);
 		mm[0] = a;
 		mm[1] = b;
 		mm[2] = c;
 
-		Int64 start = O3DSystem::GetTime();
-		for(unsigned int j = 0 ; j < 20000000; ++j)
-		{
-			a.Mult(b,mm[0]);
+		timer = System::getTime();
+		for(unsigned int j = 0 ; j < 20000000; ++j) {
+			a.mult(b,mm[0]);
 			mm[0] *= c;
 		}
-		Float time = ((O3DSystem::GetTime() - start) * 1000000) / O3DSystem::GetTimeFrequency() / 1000000.f;
-		O3DApps::Message(O3DString::Print("transpose in %f seconds! a=",time) + O3DString(mm[2]) << InvSqrt(0.00137), "minimal");
-
-		return 0;
+		Float time = ((System::getTime() - timer) * 1000000) / System::getTimeFrequency() / 1000000.f;
+		Apps::message(String::print("transpose in %f seconds! a=",time) + String(mm[2]) << invSqrt(0.00137), "minimal");
 	*/
 	/*
 		// Matrix allocation and product test
-		Int64 start = O3DSystem::GetTime();
-		O3DMatrix4 mm;
+		timer = System::getTime();
+		Matrix4 mm;
 
-	//	O3DFastMutex fm;
-
-		for (int j = 0 ; j < 5000000; ++j)
-		{
-	//		fm.Lock();
-	//		fm.Unlock();
-	//		fm.Lock();
-	//		fm.Unlock();
-	//		fm.Lock();
-	//		fm.Unlock();
-			O3DMatrix4 a,b,c,d,e,f,g;//,h,i,jj,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z;
+		for (int j = 0 ; j < 5000000; ++j) {
+			Matrix4 a,b,c,d,e,f,g;//,h,i,jj,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z;
 			mm = a*b*c*d*e*f*g;
 		}
-		Float time2 = ((O3DSystem::GetTime() - start) * 1000000) / O3DSystem::GetTimeFrequency() / 1000000.f;
+		Float time2 = ((System::getTime() - timer) * 1000000) / System::getTimeFrequency() / 1000000.f;
 
-		O3DApps::Message(O3DString::Print("Bench %f seconds!",time2));// + O3DString(mm[2]), "minimal");
+		Application::message(String::print("Bench %f seconds!",time2));// + String(mm[2]), "minimal");
 	*/
+	
+		// Mutex vs FastMutex bench
+		timer = System::getTime();
 
+		FastMutex fm;
+
+		for (int j = 0 ; j < 5000000; ++j) {
+			fm.lock();
+			fm.unlock();
+		}
+		
+		time = ((System::getTime() - timer) * 1000000) / System::getTimeFrequency() / 1000000.f;
+		Application::message(String::print("Fast Mutex %f'", time), "Bench");
+
+		timer = System::getTime();
+
+		Mutex mu;
+
+		for (int j = 0 ; j < 5000000; ++j) {
+			mu.lock();
+			mu.unlock();
+		}
+		
+		time = ((System::getTime() - timer) * 1000000) / System::getTimeFrequency() / 1000000.f;
+		Application::message(String::print("Mutex %f'",time), "Bench");
+			
 		// Write the standard O3D closer banner into the log file
 		Debug::instance()->getDefaultLog().writeFooterLog();
 
