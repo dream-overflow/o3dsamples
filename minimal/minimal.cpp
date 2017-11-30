@@ -116,9 +116,9 @@ inline Float inl_sse_sqrt(Float x)
 
 	return y;
 #elif defined(__amd64__) || defined(__x86_64__) || defined(__i686__)
-	static Float half = 0.5f;
+/*	static Float half = 0.5f;
 	static Float three = 3.0f;
-	register Float y;// = 0.f; not set to 0 otherwise optimization will take 0 as result of the function
+	Float y;// = 0.f; not set to 0 otherwise optimization will take 0 as result of the function
 
 	register Float xx = x;
 	__asm__ __volatile__ ("movss %0,%%xmm3 \n\t" : : "m" (xx));
@@ -134,7 +134,13 @@ inline Float inl_sse_sqrt(Float x)
 	__asm__ __volatile__ ("mulss %xmm4,%xmm1 \n\t");
 	__asm__ __volatile__ ("movss %%xmm1,%0" : : "m" (y));
 
-	return y;
+	return y;*/
+
+	__asm__ __volatile__ ("movss %0,%%xmm3 \n\t" : : "m" (x));
+	__asm__ __volatile__ ("sqrtss %xmm3,%xmm0 \n\t");
+	__asm__ __volatile__ ("movss %%xmm0,%0" : : "m" (x));
+
+	return x;
 #else
 	#pragma intrinsic(sqrt, pow)
 	return ::sqrt(x);
