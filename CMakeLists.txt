@@ -80,14 +80,14 @@ include_directories("${PROJECT_SOURCE_DIR}/include")
 # options
 #----------------------------------------------------------
 
-option(O3D_USE_SSE2 "Use SSE2 optimizations" ON)
+IF(${O3D_USE_SSE2})
+	message("-- SIMD/SSE2 support enabled")
+ENDIF(${O3D_USE_SSE2})
 
 include_directories(${OBJECTIVE3D_INCLUDE_DIR})
 include_directories(${OBJECTIVE3D_INCLUDE_DIR_objective3dconfig})
 
 link_directories(${OBJECTIVE3D_LIBRARY_DIR})
-
-# @todo CXX_FLAGS and O3D_USE_SSE2 from Objective3Dconfig.cmake... or ...
 
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++14")
@@ -121,10 +121,6 @@ IF(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 		set(CMAKE_CREATE_WIN32_EXE "/SUBSYSTEM:WINDOWS /ENTRY:\"mainCRTStartup\"")
 	endif(MSVC)
 ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-
-if (O3D_USE_SSE2)
-	set(O3D_USE_SSE2 "")
-endif (O3D_USE_SSE2)
 
 #----------------------------------------------------------
 # sub-directories
