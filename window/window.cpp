@@ -168,4 +168,3 @@ private:
 
 // We Call our application
 O3D_NOCONSOLE_MAIN(Window, O3D_DEFAULT_CLASS_SETTINGS)
-

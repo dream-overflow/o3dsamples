@@ -102,8 +102,9 @@ public:
 
         // Application icon
         DiskFileInfo iconFile(basePath + '/' +  "icon.bmp");
-        if (iconFile.exists())
-            m_appWindow->setIcon("../media/icon.bmp");
+        if (iconFile.exists()) {
+            m_appWindow->setIcon(iconFile.getFullFileName());
+        }
 
         m_scene->setGlobalAmbient(Color(0.8f, 0.8f, 0.8f, 1.0f));
 
@@ -268,4 +269,3 @@ public:
 };
 
 O3D_NOCONSOLE_MAIN(GuiSample, O3D_DEFAULT_CLASS_SETTINGS)
-

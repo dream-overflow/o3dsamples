@@ -86,41 +86,56 @@ int call(void*data)
 #include <o3d/core/diskdir.h>
 #include <o3d/core/stringutils.h>
 
-inline Double inl_sqrt(Double x)
+inline Float inl_sqrt(Float x)
 {
-    Double ret;
-    __asm__ __volatile__ ("fsqrt" : "=t"(ret): "0"(x));
+#if defined(O3D_IX32) || defined(O3D_IX64)
+  #ifdef _MSC_VER
+    __asm
+    {
+        fld     x
+        fsqrt
+    }
+  #elif defined(__GNUC__)
+    register Float ret;
+    asm("fsqrt" : "=t"(ret): "0"(x));
     return ret;
+  #else
+    return ::sqrtf(x);
+  #endif
+#else
+    return ::sqrtf(x);
+#endif
 }
 
 inline Float inl_sse_sqrt(Float x)
 {
-#if defined(O3D_USE_SIMD) && defined(O3D_VC_COMPILER) && defined(O3D_WINDOWS)
-	static Float half = 0.5f;
-	static Float three = 3.0f;
-	Float y;// = 0.f; not set to 0 otherwise optimization will take 0 as result of the function
-
-	__asm
-	{
-		movss     xmm3, x     // xmm3 = (x, ?, ?, ?)
-		movss     xmm4, xmm3   // xmm4 = (x, ?, ?, ?)
-		movss     xmm1, half   // xmm1 = (0.5, ?, ?, ?)
-		movss     xmm2, three  // xmm2 = (3, ?, ?, ?)
-		rsqrtss   xmm0, xmm3   // xmm0 = (~ 1 / sqrt(x), ?, ?, ?)
-		mulss     xmm3, xmm0   // xmm3 = (~ sqrt(x), ?, ?, ?)
-		mulss     xmm1, xmm0   // xmm1 = (~ 0.5 / sqrt(x), ?, ?, ?)
-		mulss     xmm3, xmm0   // xmm3 = (~ 1, ?, ?, ?)
-		subss     xmm2, xmm3   // xmm2 = (~ 2, ?, ?, ?)
-		mulss     xmm1, xmm2   // xmm1 = (~ 1 / sqrt(x), ?, ?, ?)
-		mulss     xmm1, xmm4   // xmm1 = (sqrt(x), ?, ?, ?)
-		movss     y, xmm1      // store result
-	}
-
-	return y;
-#elif defined(O3D_USE_SIMD) && (defined(O3D_IX32) || defined(O3D_IX64))
+#ifdef O3D_USE_SIMD
+  #if defined(_MSC_VER)
     static Float half = 0.5f;
     static Float three = 3.0f;
-    Float y;// = 0.f; not set to 0 otherwise optimization will take 0 as result of the function
+    Float y;  // = 0.f; not set to 0 otherwise optimization will take 0 as result of the function
+
+    __asm
+    {
+        movss     xmm3, x     // xmm3 = (x, ?, ?, ?)
+                movss     xmm4, xmm3   // xmm4 = (x, ?, ?, ?)
+                movss     xmm1, half   // xmm1 = (0.5, ?, ?, ?)
+                movss     xmm2, three  // xmm2 = (3, ?, ?, ?)
+                rsqrtss   xmm0, xmm3   // xmm0 = (~ 1 / sqrt(x), ?, ?, ?)
+                mulss     xmm3, xmm0   // xmm3 = (~ sqrt(x), ?, ?, ?)
+                mulss     xmm1, xmm0   // xmm1 = (~ 0.5 / sqrt(x), ?, ?, ?)
+                mulss     xmm3, xmm0   // xmm3 = (~ 1, ?, ?, ?)
+                subss     xmm2, xmm3   // xmm2 = (~ 2, ?, ?, ?)
+                mulss     xmm1, xmm2   // xmm1 = (~ 1 / sqrt(x), ?, ?, ?)
+                mulss     xmm1, xmm4   // xmm1 = (sqrt(x), ?, ?, ?)
+                movss     y, xmm1      // store result
+    }
+
+    return y;
+  #elif defined(__GNUC__)
+    static Float half = 0.5f;
+    static Float three = 3.0f;
+    Float y;   // = 0.f; not set to 0 otherwise optimization will take 0 as result of the function
 
     __asm__ __volatile__ ("movss %0,%%xmm3 \n\t" : : "m" (x));
     __asm__ __volatile__ ("movss %xmm3,%xmm4 \n\t");
@@ -135,17 +150,15 @@ inline Float inl_sse_sqrt(Float x)
     __asm__ __volatile__ ("mulss %xmm4,%xmm1 \n\t");
     __asm__ __volatile__ ("movss %%xmm1,%0" : : "m" (y));
 
+    // __asm__ __volatile__ ("sqrtss %xmm3,%xmm0 \n\t");
+    // __asm__ __volatile__ ("movss %%xmm0,%0" : : "m" (y));
+
     return y;
-/*    Float y;
-
-	__asm__ __volatile__ ("movss %0,%%xmm3 \n\t" : : "m" (x));
-	__asm__ __volatile__ ("sqrtss %xmm3,%xmm0 \n\t");
-    __asm__ __volatile__ ("movss %%xmm0,%0" : : "m" (y));
-
-    return y;*/
+  #else
+    return ::sqrt(x);
+  #endif
 #else
-	#pragma intrinsic(sqrt, pow)
-	return ::sqrt(x);
+    return ::sqrtf(x);
 #endif
 }
 
@@ -386,7 +399,7 @@ public:
 
 		timer = System::getTime();
 		for (int j=0;j<10000000;j+=1) {
-			r = inl_sqrt((Double)j);
+            r = inl_sqrt((Float)j);
 		}
 		time = (Float)(System::getTime() - timer) / (Float)System::getTimeFrequency();
 		Application::message(String::print("inl_sqrt %f // time %f",r, time), "Bench");

@@ -502,4 +502,3 @@ public:
 };
 
 O3D_NOCONSOLE_MAIN(PrimitivesSample, O3D_DEFAULT_CLASS_SETTINGS)
-
