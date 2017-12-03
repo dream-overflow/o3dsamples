@@ -301,7 +301,6 @@ public:
         deletePtr(m_glRenderer);
 
         m_appWindow->logFps();
-        m_appWindow->terminate();
 
         // it is deleted by the application
         m_appWindow = nullptr;

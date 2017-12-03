@@ -149,27 +149,27 @@ file(COPY ${OBJECTIVE3D_SHADERS_ZIP} DESTINATION ${CMAKE_BINARY_DIR})
 #----------------------------------------------------------
 
 add_executable(minimal minimal/minimal.cpp)
-target_link_libraries(minimal ${OBJECTIVE3D_LIBRARY} ${OPENGL_gl_LIBRARY})
+target_link_libraries(minimal ${OBJECTIVE3D_LIBRARY}) # ${OPENGL_gl_LIBRARY})
 
 add_library(dynlib SHARED minimal/dynlib.cpp)
 
 add_executable(window window/window.cpp)
-target_link_libraries(window ${OBJECTIVE3D_LIBRARY} ${OPENGL_gl_LIBRARY})
+target_link_libraries(window ${OBJECTIVE3D_LIBRARY}) # ${OPENGL_gl_LIBRARY})
 
 add_executable(audio audio/audio.cpp)
-target_link_libraries(audio ${OBJECTIVE3D_LIBRARY} ${OPENGL_gl_LIBRARY})
+target_link_libraries(audio ${OBJECTIVE3D_LIBRARY}) # ${OPENGL_gl_LIBRARY})
 
 add_executable(ms3d ms3d/ms3d.cpp)
-target_link_libraries(ms3d ${OBJECTIVE3D_LIBRARY} ${OPENGL_gl_LIBRARY})
+target_link_libraries(ms3d ${OBJECTIVE3D_LIBRARY}) # ${OPENGL_gl_LIBRARY})
 
 add_executable(pclodterrain pclodterrain/pclodterrain.cpp)
-target_link_libraries(pclodterrain ${OBJECTIVE3D_LIBRARY} ${OPENGL_gl_LIBRARY})
+target_link_libraries(pclodterrain ${OBJECTIVE3D_LIBRARY}) # ${OPENGL_gl_LIBRARY})
 
 add_executable(heightmap heightmap/heightmap.cpp)
-target_link_libraries(heightmap ${OBJECTIVE3D_LIBRARY} ${OPENGL_gl_LIBRARY})
+target_link_libraries(heightmap ${OBJECTIVE3D_LIBRARY}) # ${OPENGL_gl_LIBRARY})
 
 add_executable(primitives primitives/primitives.cpp)
-target_link_libraries(primitives ${OBJECTIVE3D_LIBRARY} ${OPENGL_gl_LIBRARY})
+target_link_libraries(primitives ${OBJECTIVE3D_LIBRARY}) # ${OPENGL_gl_LIBRARY})
 
 add_executable(gui gui/gui.cpp)
-target_link_libraries(gui ${OBJECTIVE3D_LIBRARY} ${OPENGL_gl_LIBRARY})
+target_link_libraries(gui ${OBJECTIVE3D_LIBRARY}) # ${OPENGL_gl_LIBRARY})
