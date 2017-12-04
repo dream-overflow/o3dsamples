@@ -109,7 +109,7 @@ inline Float inl_sqrt(Float x)
 
 inline Float inl_sse_sqrt(Float x)
 {
-#ifdef O3D_USE_SIMD
+#ifdef O3D_SSE2
   #if defined(_MSC_VER)
     static Float half = 0.5f;
     static Float three = 3.0f;
