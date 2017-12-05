@@ -20,6 +20,7 @@
 #include <o3d/engine/object/primitivemanager.h>
 #include <o3d/engine/viewport.h>
 #include <o3d/engine/renderer.h>
+#include <o3d/core/video.h>
 #include <o3d/core/main.h>
 
 using namespace o3d;
@@ -91,6 +92,9 @@ public:
 
         m_appWindow->setTitle("Objective-3D Window sample");
         m_appWindow->create(800, 600, AppWindow::COLOR_RGBA8, AppWindow::DEPTH_24_STENCIL_8, AppWindow::NO_MSAA, False, False);
+
+        // Resize the window to an available fullscreen resolution (@see Video class).
+        // m_appWindow->setFullScreen(True);
 
         m_glRenderer->create(m_appWindow);
 
