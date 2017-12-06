@@ -190,6 +190,7 @@ public:
 
         m_glRenderer->create(m_appWindow, True);
         m_glRenderer->setDebug();
+        // m_glRenderer->setVSyncMode(Renderer::VSYNC_YES);
 
         // create a scene and attach it to the window
         m_scene = new Scene(nullptr, "../media", m_glRenderer);
