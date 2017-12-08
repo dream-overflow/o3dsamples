@@ -90,11 +90,12 @@ public:
 
         }
 
-        virtual void draw()
+        virtual void draw(ViewPort *viewPort)
         {
             // The camera modelview should be set before draw()
-            if (getScene()->getActiveCamera() == nullptr)
+            if (getScene()->getActiveCamera() == nullptr) {
                 return;
+            }
 
             Context &context = *getScene()->getContext();
             Camera &camera = *getScene()->getActiveCamera();

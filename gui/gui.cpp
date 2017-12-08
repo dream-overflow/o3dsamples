@@ -87,7 +87,7 @@ public:
         m_appWindow->onDraw.connect(this, &GuiSample::onSceneDraw);
         m_appWindow->onKey.connect(this, &GuiSample::onKey);
         m_appWindow->onClose.connect(this, &GuiSample::onClose);
-        m_appWindow->onDestroy.connect(this, &GuiSample::onDestroy);
+        m_appWindow->onDestroy.connect(this, &GuiSample::onDestroy, CONNECTION_ASYNCH);
 
         //m_appWindow->grabMouse();
         //m_appWindow->grabKeyboard();
@@ -233,8 +233,9 @@ public:
 
     void onKey(Keyboard* keyboard, KeyEvent event)
     {
-        if (event.isPressed() && (event.key() == KEY_ESCAPE))
+        if (event.isPressed() && (event.key() == KEY_ESCAPE)) {
             getWindow()->terminate();
+        }
 	}
 
     void onSceneDraw()
