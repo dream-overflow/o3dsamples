@@ -12,7 +12,7 @@
 #include <o3d/core/keyboard.h>
 #include <o3d/core/appwindow.h>
 #include <o3d/core/main.h>
-#include <o3d/core/video.h>
+#include <o3d/core/display.h>
 
 #include <o3d/engine/utils/framemanager.h>
 #include <o3d/engine/utils/ms3d.h>

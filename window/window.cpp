@@ -20,7 +20,7 @@
 #include <o3d/engine/object/primitivemanager.h>
 #include <o3d/engine/viewport.h>
 #include <o3d/engine/renderer.h>
-#include <o3d/core/video.h>
+#include <o3d/core/display.h>
 #include <o3d/core/main.h>
 
 using namespace o3d;
