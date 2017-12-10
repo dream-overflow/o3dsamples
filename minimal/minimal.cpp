@@ -170,7 +170,7 @@ public:
 	// main entry
 	static Int32 main()
 	{
-		// Single app instance
+        // Single app instance
 		if (Application::isMappedFileExists("o3d_minimal")) {
 			Application::message("An instance already running", "");
 			return 0;
@@ -191,7 +191,11 @@ public:
 		proc.reportLog();
 
 		// Test of dynamic library loading and calling
+        #ifdef O3D_WINDOWS
+        DynamicLibrary *lib = DynamicLibrary::load("libdynlib.dll");
+        #else
 		DynamicLibrary *lib = DynamicLibrary::load("libdynlib.so");
+        #endif
 
 		// C++ Style
 		{
