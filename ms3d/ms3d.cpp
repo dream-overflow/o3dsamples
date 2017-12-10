@@ -188,8 +188,8 @@ public:
         m_appWindow->setTitle("Objective-3D Ms3d sample");
         m_appWindow->create(800, 600, AppWindow::COLOR_RGBA8, AppWindow::DEPTH_24_STENCIL_8, AppWindow::MSAA4X, False, True);
 
-        m_glRenderer->create(m_appWindow, True);
-        m_glRenderer->setDebug();
+        m_glRenderer->create(m_appWindow); //, True);  // @todo debug mode crash on Windows
+        // m_glRenderer->setDebug();
         // m_glRenderer->setVSyncMode(Renderer::VSYNC_YES);
 
         // create a scene and attach it to the window
@@ -570,8 +570,9 @@ public:
 
 		// Application icon
 		DiskFileInfo iconFile(basePath + '/' +  "icon.bmp");
-        if (iconFile.exists())
+        if (iconFile.exists()) {
             myApp->getWindow()->setIcon("../media/icon.bmp");
+        }
 
         myApp->getScene()->setGlobalAmbient(Color(0.8f, 0.8f, 0.8f, 1.0f));
 

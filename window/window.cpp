@@ -43,7 +43,7 @@ private:
 public:
 
 	static Int32 main()
-	{
+    {
         // cleared log out file with new header
         Debug::instance()->setDefaultLog("window.log");
         Debug::instance()->getDefaultLog().clearLog();
@@ -63,8 +63,9 @@ public:
         Window *apps = new Window;
 
         DiskFileInfo iconFile("../media/icon.bmp");
-        if (iconFile.exists())
+        if (iconFile.exists()) {
             apps->getWindow()->setIcon("../media/icon.bmp");
+        }
 
         apps->getScene()->getContext()->setBackgroundColor(Color(1.0f,0,0,1));
 		// Unlock the mouse position
