@@ -45,7 +45,10 @@ IF(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 	set(CMAKE_INCLUDE_PATH $ENV{PREFIX}/include ${CMAKE_INCLUDE_PATH})
 ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 
-find_package(OpenGL REQUIRED)
+if(!${O3D_TARGET_ANDROID})
+    find_package(OpenGL REQUIRED)
+endif()
+
 find_package(OpenAL REQUIRED)
 find_package(Objective3D REQUIRED)
 #find_package(Bullet REQUIRED)
@@ -89,6 +92,14 @@ include_directories(${OBJECTIVE3D_INCLUDE_DIR_objective3dconfig})
 
 link_directories(${OBJECTIVE3D_LIBRARY_DIR})
 
+IF(${CMAKE_SYSTEM_NAME} MATCHES "Android")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++14")
+    # set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
+    if (O3D_USE_SSE2)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse2")
+    endif (O3D_USE_SSE2)
+ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Android")
+
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++14")
 	if (O3D_USE_SSE2)
@@ -122,6 +133,14 @@ IF(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 	endif(MSVC)
 ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 
+# android only
+if(${CMAKE_SYSTEM_NAME} MATCHES "Android")
+    set(EXTRA_CXX o3d/third/android/android_native_app_glue.c)  # @todo improve
+    set(ANDROID_LIBRARY "-llog -landroid -ldl -lEGL -lGLESv3")
+else()
+    set(EXTRA_CXX "")
+endif()
+
 #----------------------------------------------------------
 # sub-directories
 #----------------------------------------------------------
@@ -148,28 +167,37 @@ file(COPY ${OBJECTIVE3D_SHADERS_ZIP} DESTINATION ${CMAKE_BINARY_DIR})
 # targets
 #----------------------------------------------------------
 
-add_executable(minimal minimal/minimal.cpp)
-target_link_libraries(minimal ${OBJECTIVE3D_LIBRARY}) # ${OPENGL_gl_LIBRARY})
+if(${CMAKE_SYSTEM_NAME} MATCHES "Android")
+    add_library(minimal SHARED minimal/minimal.cpp android/android_native_app_glue.c)
+    add_library(window SHARED window/window.cpp android/android_native_app_glue.c)
+    add_library(audio SHARED audio/audio.cpp android/android_native_app_glue.c)
+    add_library(ms3d SHARED ms3d/ms3d.cpp android/android_native_app_glue.c)
+    add_library(pclodterrain SHARED pclodterrain/pclodterrain.cpp android/android_native_app_glue.c)
+    add_library(heightmap SHARED heightmap/heightmap.cpp android/android_native_app_glue.c)
+    add_library(primitives SHARED primitives/primitives.cpp android/android_native_app_glue.c)
+    add_library(gui SHARED gui/gui.cpp android/android_native_app_glue.c)
+
+    set(LINKER_EXTRA "${ANDROID_LIBRARY} -u ANativeActivity_onCreate")
+else()
+    add_executable(minimal minimal/minimal.cpp)
+    add_executable(window window/window.cpp)
+    add_executable(audio audio/audio.cpp)
+    add_executable(ms3d ms3d/ms3d.cpp)
+    add_executable(pclodterrain pclodterrain/pclodterrain.cpp)
+    add_executable(heightmap heightmap/heightmap.cpp)
+    add_executable(primitives primitives/primitives.cpp)
+    add_executable(gui gui/gui.cpp)
+
+    set(LINKER_EXTRA "")  # ${OPENGL_gl_LIBRARY}
+endif()
 
 add_library(dynlib SHARED minimal/dynlib.cpp)
 
-add_executable(window window/window.cpp)
-target_link_libraries(window ${OBJECTIVE3D_LIBRARY}) # ${OPENGL_gl_LIBRARY})
-
-add_executable(audio audio/audio.cpp)
-target_link_libraries(audio ${OBJECTIVE3D_LIBRARY}) # ${OPENGL_gl_LIBRARY})
-
-add_executable(ms3d ms3d/ms3d.cpp)
-target_link_libraries(ms3d ${OBJECTIVE3D_LIBRARY}) # ${OPENGL_gl_LIBRARY})
-
-add_executable(pclodterrain pclodterrain/pclodterrain.cpp)
-target_link_libraries(pclodterrain ${OBJECTIVE3D_LIBRARY}) # ${OPENGL_gl_LIBRARY})
-
-add_executable(heightmap heightmap/heightmap.cpp)
-target_link_libraries(heightmap ${OBJECTIVE3D_LIBRARY}) # ${OPENGL_gl_LIBRARY})
-
-add_executable(primitives primitives/primitives.cpp)
-target_link_libraries(primitives ${OBJECTIVE3D_LIBRARY}) # ${OPENGL_gl_LIBRARY})
-
-add_executable(gui gui/gui.cpp)
-target_link_libraries(gui ${OBJECTIVE3D_LIBRARY}) # ${OPENGL_gl_LIBRARY})
+target_link_libraries(minimal ${OBJECTIVE3D_LIBRARY} ${LINKER_EXTRA})
+target_link_libraries(window ${OBJECTIVE3D_LIBRARY} ${LINKER_EXTRA})
+target_link_libraries(audio ${OBJECTIVE3D_LIBRARY} ${LINKER_EXTRA})
+target_link_libraries(ms3d ${OBJECTIVE3D_LIBRARY} ${LINKER_EXTRA})
+target_link_libraries(pclodterrain ${OBJECTIVE3D_LIBRARY} ${LINKER_EXTRA})
+target_link_libraries(heightmap ${OBJECTIVE3D_LIBRARY} ${LINKER_EXTRA})
+target_link_libraries(primitives ${OBJECTIVE3D_LIBRARY} ${LINKER_EXTRA})
+target_link_libraries(gui ${OBJECTIVE3D_LIBRARY} ${LINKER_EXTRA})
