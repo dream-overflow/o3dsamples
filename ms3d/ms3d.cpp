@@ -202,7 +202,7 @@ public:
         m_scene->setGui(m_gui);
         m_gui->defaultAttachment(m_appWindow);
 
-        //getWindow()->grabMouse();
+        getWindow()->grabMouse();
         //getWindow()->grabKeyboard();
         getWindow()->setMinSize(Vector2i(320, 240));
         //getWindow()->resize(1680, 1050);

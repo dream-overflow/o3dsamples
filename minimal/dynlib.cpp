@@ -13,7 +13,7 @@
 #ifdef O3D_WINDOWS
     #define DLL_API __declspec(dllexport)
 #else
-    #define DLL_API
+    #define DLL_API __attribute__ ((visibility ("default")))
 #endif
 
 extern "C"

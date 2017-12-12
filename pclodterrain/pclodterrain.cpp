@@ -609,7 +609,7 @@ public:
         lpFont->setColor(Color(0.0f, 0.0f, 0.0f));
 
 		lpSky->init();
-
+printf("totot\n");
         // Run the event loop
         Application::run();
 
