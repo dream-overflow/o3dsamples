@@ -14,6 +14,7 @@
 #include <o3d/core/appwindow.h>
 #include <o3d/core/application.h>
 #include <o3d/core/main.h>
+#include <o3d/core/diskdir.h>
 
 #include <o3d/engine/viewport.h>
 #include <o3d/engine/renderer.h>
@@ -161,7 +162,7 @@ private:
 
 public:
 
-    PrimitivesSample() :
+    PrimitivesSample(DiskDir basePath) :
             geom(nullptr),
             object(0)
 	{
@@ -176,7 +177,7 @@ public:
         m_glRenderer->create(m_appWindow);
 
         // create a scene and attach it to the window
-        m_scene = new Scene(nullptr, "../media", m_glRenderer);
+        m_scene = new Scene(nullptr, basePath.getFullPathName(), m_glRenderer);
         m_scene->setSceneName("primitives");
         m_scene->defaultAttachment(m_appWindow);
 
@@ -205,7 +206,7 @@ public:
         texturedSphere->setMeshData(lpSphereData);
 
         // Textured sphere
-        Texture2D * lpEarthTexture = getScene()->getTextureManager()->addTexture2D("../media/textures/earth.jpg", True);
+        Texture2D * lpEarthTexture = getScene()->getTextureManager()->addTexture2D("earth.jpg", True);
 
         texturedSphere->setNumMaterialProfiles(1);
         texturedSphere->getMaterialProfile(0).setNumTechniques(1);
@@ -224,7 +225,7 @@ public:
         getScene()->getHierarchyTree()->addNode(texturedSphere);
 
 		// Textured dome
-        Texture2D * lpHemiTexture = getScene()->getTextureManager()->addTexture2D("../media/terrain/hemispherical_2048.png", True);
+        Texture2D * lpHemiTexture = getScene()->getTextureManager()->addTexture2D(basePath.makeFullFileName("terrain/hemispherical_2048.png"), True);
 
         MeshData * lpDomeData = new MeshData(texturedDome);
         Dome lLayerDome(Primitive::GEN_TEX_COORDS);
@@ -335,8 +336,7 @@ public:
         lpCamera->getNode()->getTransform()->translate(Vector3(cam_t_x,cam_t_y,cam_t_z));
 
         // here we are synchrone to mouse smoother update, then we can use the delta value
-        if (getWindow()->getInput().getMouse()->isMouseSmoother())
-        {
+        if (getWindow()->getInput().getMouse()->isMouseSmoother()) {
             lpCamera->getNode()->getTransform()->rotate(Y,-getWindow()->getInput().getMouse()->getSmoothedDelta().x()*0.01f);
             lpCamera->getNode()->getTransform()->rotate(X,-getWindow()->getInput().getMouse()->getSmoothedDelta().y()*0.01f);
         }
@@ -344,70 +344,70 @@ public:
 
     void onKey(Keyboard* keyboard, KeyEvent event)
     {
-        if (event.isPressed() && (event.key() == KEY_ESCAPE))
+        if (event.isPressed() && (event.key() == KEY_ESCAPE)) {
             getWindow()->terminate();
+        }
 
-        if (event.isPressed() && (event.key() == KEY_SPACE))
-        {
+        if (event.isPressed() && (event.key() == KEY_SPACE)) {
 			object++;
             deletePtr(geom);
 
-            if (object == 14)
+            if (object == 14) {
                 object = 0;
-
-            switch (object)
-            {
-            case 0:
-                texturedDome->disable();
-                geom = new GeometryData(m_scene, *primitive);
-                break;
-            case 1:
-                geom = new GeometryData(m_scene, *solidPrimitive);
-                break;
-            case 2:
-                geom = new GeometryData(m_scene, *cylinder);
-                break;
-            case 3:
-                geom = new GeometryData(m_scene, *solidCylinder);
-                break;
-            case 4:
-                geom = new GeometryData(m_scene, *sphere);
-                break;
-            case 5:
-                geom = new GeometryData(m_scene, *solidSphere);
-                break;
-            case 6:
-                texturedSphere->enable();
-                break;
-            case 7:
-                texturedSphere->disable();
-                geom = new GeometryData(m_scene, *surface);
-                break;
-            case 8:
-                geom = new GeometryData(m_scene, *solidSurface);
-                break;
-            case 9:
-                geom = new GeometryData(m_scene, *isoSphere);
-                break;
-            case 10:
-                geom = new GeometryData(m_scene, *solidIsoSphere);
-                break;
-            case 11:
-                geom = new GeometryData(m_scene, *dome);
-                break;
-            case 12:
-                geom = new GeometryData(m_scene, *solidDome);
-                break;
-            case 13:
-                texturedDome->enable();
-                break;
             }
 
-            if (geom)
-            {
+            switch (object) {
+                case 0:
+                    texturedDome->disable();
+                    geom = new GeometryData(m_scene, *primitive);
+                    break;
+                case 1:
+                    geom = new GeometryData(m_scene, *solidPrimitive);
+                    break;
+                case 2:
+                    geom = new GeometryData(m_scene, *cylinder);
+                    break;
+                case 3:
+                    geom = new GeometryData(m_scene, *solidCylinder);
+                    break;
+                case 4:
+                    geom = new GeometryData(m_scene, *sphere);
+                    break;
+                case 5:
+                    geom = new GeometryData(m_scene, *solidSphere);
+                    break;
+                case 6:
+                    texturedSphere->enable();
+                    break;
+                case 7:
+                    texturedSphere->disable();
+                    geom = new GeometryData(m_scene, *surface);
+                    break;
+                case 8:
+                    geom = new GeometryData(m_scene, *solidSurface);
+                    break;
+                case 9:
+                    geom = new GeometryData(m_scene, *isoSphere);
+                    break;
+                case 10:
+                    geom = new GeometryData(m_scene, *solidIsoSphere);
+                    break;
+                case 11:
+                    geom = new GeometryData(m_scene, *dome);
+                    break;
+                case 12:
+                    geom = new GeometryData(m_scene, *solidDome);
+                    break;
+                case 13:
+                    texturedDome->enable();
+                    break;
+                default:
+                    break;
+            }
+
+            if (geom) {
                 SmartArrayFloat colorArray(geom->getNumVertices()*4);
-                for (UInt32 i = 0; i < colorArray.getNumElt(); ++i)
-                {
+                for (UInt32 i = 0; i < colorArray.getNumElt(); ++i) {
                     colorArray.getData()[i] = 1.0f;
                 }
 
@@ -418,11 +418,13 @@ public:
             }
         }
 
-        if (event.isPressed() && (event.key() == KEY_C))
+        if (event.isPressed() && (event.key() == KEY_C)) {
             getScene()->getContext()->setDrawingMode(Context::DRAWING_WIREFRAME);
+        }
 
-        if (event.isPressed() && (event.key() == KEY_X))
+        if (event.isPressed() && (event.key() == KEY_X)) {
             getScene()->getContext()->setDrawingMode(Context::DRAWING_FILLED);
+        }
 	}
 
     void onSceneDraw()
@@ -430,8 +432,7 @@ public:
         m_scene->getPrimitiveManager()->bind();
         m_scene->getPrimitiveManager()->drawLocalAxis();
 
-        if (geom)
-        {
+        if (geom) {
             Camera *lpCamera = (Camera*)getScene()->getSceneObjectManager()->searchName("CameraFPS");
             getScene()->getContext()->modelView().set(lpCamera->getModelviewMatrix());
 
@@ -451,8 +452,7 @@ public:
 
     void onMouseMotion(Mouse* mouse)
     {
-        if (!mouse->isMouseSmoother())
-        {
+        if (!mouse->isMouseSmoother()) {
             Camera *lpCamera = (Camera*)getScene()->getSceneObjectManager()->searchName("CameraFPS");
             lpCamera->getNode()->getTransform()->rotate(Y,-mouse->getDeltaX()*0.01f);
             lpCamera->getNode()->getTransform()->rotate(X,-mouse->getDeltaY()*0.01f);
@@ -469,7 +469,16 @@ public:
         MemoryManager::instance()->enableLog(MemoryManager::MEM_RAM,128);
         MemoryManager::instance()->enableLog(MemoryManager::MEM_GFX);
 
-        PrimitivesSample *primitivesApp = new PrimitivesSample;
+        DiskDir basePath("media");
+        if (!basePath.exists()) {
+            basePath.setPathName("../media");
+            if (!basePath.exists()) {
+                Application::message("Missing media content", "Error");
+                return -1;
+            }
+        }
+
+        PrimitivesSample *primitivesApp = new PrimitivesSample(basePath);
 
         Camera *lpFPSCamera = new Camera(primitivesApp->getScene());
         primitivesApp->getScene()->getViewPortManager()->addScreenViewPort(

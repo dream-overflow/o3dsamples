@@ -9,6 +9,7 @@
 
 #include <o3d/core/appwindow.h>
 
+#include <o3d/core/diskdir.h>
 #include <o3d/core/diskfileinfo.h>
 #include <o3d/image/perlinnoise2d.h>
 
@@ -60,11 +61,21 @@ public:
 
 		return 0;
 	*/
-        Window *apps = new Window;
 
-        DiskFileInfo iconFile("../media/icon.bmp");
+        DiskDir basePath("media");
+        if (!basePath.exists()) {
+            basePath.setPathName("../media");
+            if (!basePath.exists()) {
+                Application::message("Missing media content", "Error");
+                return -1;
+            }
+        }
+
+        Window *apps = new Window(basePath);
+
+        DiskFileInfo iconFile(basePath.makeFullFileName("icon.bmp"));
         if (iconFile.exists()) {
-            apps->getWindow()->setIcon("../media/icon.bmp");
+            apps->getWindow()->setIcon(iconFile.getFullFileName());
         }
 
         apps->getScene()->getContext()->setBackgroundColor(Color(1.0f,0,0,1));
@@ -83,7 +94,7 @@ public:
 		return 0;
 	}
 
-	Window() :
+    Window(DiskDir basePath) :
         m_camera(nullptr)
 	{
         m_appWindow = new AppWindow;
@@ -100,7 +111,7 @@ public:
         m_glRenderer->create(m_appWindow);
 
         // create a scene and attach it to the window
-        m_scene = new Scene(nullptr, "../media", m_glRenderer);
+        m_scene = new Scene(nullptr, basePath.getFullPathName(), m_glRenderer);
         m_scene->setSceneName("window");
         m_scene->defaultAttachment(m_appWindow);
 

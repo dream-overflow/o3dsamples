@@ -21,6 +21,7 @@
 #include <o3d/core/mouse.h>
 #include <o3d/core/appwindow.h>
 #include <o3d/core/main.h>
+#include <o3d/core/diskdir.h>
 #include <o3d/gui/gui.h>
 #include <o3d/gui/truetypefont.h>
 #include <o3d/gui/fontmanager.h>
@@ -71,7 +72,7 @@ private:
 
 public:
 
-    HeightmapSample()
+    HeightmapSample(DiskDir basePath)
 	{
         m_appWindow = new AppWindow;
 
@@ -84,7 +85,7 @@ public:
         m_glRenderer->create(m_appWindow);
 
         // create a scene and attach it to the window
-        m_scene = new Scene(nullptr, "../media", m_glRenderer);
+        m_scene = new Scene(nullptr, basePath.getFullPathName(), m_glRenderer);
         m_scene->setSceneName("heigthmap");
         m_scene->defaultAttachment(m_appWindow);
 
@@ -101,7 +102,7 @@ public:
         m_appWindow->onMouseButton.connect(this, &HeightmapSample::onMouseButton);
         m_appWindow->onDestroy.connect(this, &HeightmapSample::onDestroy);
 
-		getWindow()->grabMouse();
+        // getWindow()->grabMouse();
 	}
 
     virtual ~HeightmapSample()
@@ -164,8 +165,19 @@ public:
 
     void onKey(Keyboard* keyboard, KeyEvent event)
 	{
-		if (event.isPressed() && (event.key() == KEY_ESCAPE))
+        if (event.isPressed() && (event.key() == KEY_ESCAPE)) {
 			getWindow()->terminate();
+        }
+
+        if (event.isPressed() && (event.key() == KEY_F12)) {
+            if (getWindow()->isMouseGrabbed()) {
+                getWindow()->grabMouse(False);
+                System::print("Ungrab mouse", "Change");
+            } else {
+                getWindow()->grabMouse(True);
+                System::print("Grab mouse", "Change");
+            }
+        }
 	}
 
 	void onClose()
@@ -180,14 +192,21 @@ public:
         Debug::instance()->getDefaultLog().clearLog();
         Debug::instance()->getDefaultLog().writeHeaderLog();
 
-        HeightmapSample *lTerrainApp = new HeightmapSample;
+        DiskDir basePath("media");
+        if (!basePath.exists()) {
+            basePath.setPathName("../media");
+            if (!basePath.exists()) {
+                Application::message("Missing media content", "Error");
+                return -1;
+            }
+        }
+
+        HeightmapSample *lTerrainApp = new HeightmapSample(basePath);
 
 		// Window initialisation
         lTerrainApp->getScene()->getContext()->setBackgroundColor(0.633f,0.792f,.914f,0.0f);
 
-		String lBasePath("../media/terrain/");
-
-        TrueTypeFont * lpFont = lTerrainApp->getGui()->getFontManager()->addTrueTypeFont(lBasePath + "../gui/arial.ttf");
+        TrueTypeFont * lpFont = lTerrainApp->getGui()->getFontManager()->addTrueTypeFont(basePath.makeFullFileName("gui/arial.ttf"));
 		lpFont->setTextHeight(12);
         lpFont->setColor(Color(0.0f, 0.0f, 0.0f));
 
@@ -211,11 +230,11 @@ public:
 		lnode->addTransform(ftransform);
 
 		// Terrain loading
-		Image lHeightmap(lBasePath + "heightmap/L3DT_Heightmap.jpg");
-		Image lNormalmap(lBasePath + "heightmap/L3DT_Normal.jpg");
-		Image lColormap(lBasePath + "heightmap/L3DT_Colormap.jpg");
-		Image lLightmap(lBasePath + "heightmap/L3DT_Lightmap.jpg");
-		Image lNoise(lBasePath + "heightmap/Noise.jpg");
+        Image lHeightmap(basePath.makeFullFileName("terrain/heightmap/L3DT_Heightmap.jpg"));
+        Image lNormalmap(basePath.makeFullFileName("terrain/heightmap/L3DT_Normal.jpg"));
+        Image lColormap(basePath.makeFullFileName("terrain/heightmap/L3DT_Colormap.jpg"));
+        Image lLightmap(basePath.makeFullFileName("terrain/heightmap/L3DT_Lightmap.jpg"));
+        Image lNoise(basePath.makeFullFileName("terrain/heightmap/Noise.jpg"));
 
 		// Flip those two images so that they will appear as they are shown in your OS
 		Bool lRet = lHeightmap.hFlip();
@@ -246,4 +265,3 @@ public:
 };
 
 O3D_NOCONSOLE_MAIN(HeightmapSample, O3D_DEFAULT_CLASS_SETTINGS)
-

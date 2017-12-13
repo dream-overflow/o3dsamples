@@ -13,6 +13,7 @@
 #include <o3d/core/appwindow.h>
 #include <o3d/core/main.h>
 #include <o3d/core/display.h>
+#include <o3d/core/diskdir.h>
 
 #include <o3d/engine/utils/framemanager.h>
 #include <o3d/engine/utils/ms3d.h>
@@ -175,7 +176,7 @@ private:
 
 public:
 
-    Ms3dSample()
+    Ms3dSample(DiskDir basePath)
 	{
         m_keys = new KeyMapAzerty;
 
@@ -193,7 +194,7 @@ public:
         // m_glRenderer->setVSyncMode(Renderer::VSYNC_YES);
 
         // create a scene and attach it to the window
-        m_scene = new Scene(nullptr, "../media", m_glRenderer);
+        m_scene = new Scene(nullptr, basePath.getFullPathName(), m_glRenderer);
         m_scene->setSceneName("ms3d");
         m_scene->defaultAttachment(m_appWindow);
 
@@ -202,7 +203,7 @@ public:
         m_scene->setGui(m_gui);
         m_gui->defaultAttachment(m_appWindow);
 
-        getWindow()->grabMouse();
+        //getWindow()->grabMouse();
         //getWindow()->grabKeyboard();
         getWindow()->setMinSize(Vector2i(320, 240));
         //getWindow()->resize(1680, 1050);
@@ -255,8 +256,7 @@ public:
 
 		// move the camera using ESDFQA
 		BaseNode *cameraNode = getScene()->getSceneObjectManager()->searchName("Camera")->getNode();
-		if (cameraNode)
-		{
+        if (cameraNode) {
             cameraNode->getTransform()->translate(m_camVelocity*elapsed);
 		}
 
@@ -267,19 +267,18 @@ public:
 		// to cast. It's like a dynamic_cast operator with RTTI, but it doesn't use the C++ RTTI.
 		Node *dwarf = dynamicCast<Node*>(getScene()->getSceneObjectManager()->searchName("dwarf1"));
 		//Node *dwarf = o3d::dynamicCast<Node*>(getScene()->getSceneObjectManager()->searchName("monster"));
-		if (dwarf)
-        {
+        if (dwarf) {
             Float run = o3d::abs(dwarf->getRigidBody()->getSpeed().x() + dwarf->getRigidBody()->getSpeed().z());
 
-            if ((run >= 0.1f) && (m_animationPlayer->getAnimRangeName() == "idle1"))
+            if ((run >= 0.1f) && (m_animationPlayer->getAnimRangeName() == "idle1")) {
                 m_animationPlayer->playAnimRange("walk");
-            else if ((run <= 0.1f) && (m_animationPlayer->getAnimRangeName() == "walk"))
+            } else if ((run <= 0.1f) && (m_animationPlayer->getAnimRangeName() == "walk")) {
                 m_animationPlayer->playAnimRange("idle1");
+            }
 
 			// We want to apply the rotation to this node, but by default there is no
 			// transformation, so we create ones if necessary.
-			if (!dwarf->getTransform())
-			{
+            if (!dwarf->getTransform()) {
 				// Its a simple matrix transform using a {Position,Quaternion,Scale} uplet
 				// that is transformed into a 4x4 matrix.
 				MTransform *transform = new MTransform;
@@ -287,8 +286,7 @@ public:
 			}
 
             // simulate the plane collision
-            if (dwarf->getRigidBody()->getPosition().y() < 0.0f)
-            {
+            if (dwarf->getRigidBody()->getPosition().y() < 0.0f) {
                 Vector3 pos = dwarf->getRigidBody()->getPosition();
                 Vector3 speed = dwarf->getRigidBody()->getSpeed();
                 pos.y() = 0.0f;
@@ -298,20 +296,21 @@ public:
             }
 
 			// Rotate on the Y axis
-            if (m_dwarfRotVelocity.y() != 0.f)
+            if (m_dwarfRotVelocity.y() != 0.f) {
                 dwarf->getTransform()->rotate(Y, m_dwarfRotVelocity.y()*elapsed);
+            }
 
             // Rotate on the X axis
-            if (m_dwarfRotVelocity.x() != 0.f)
+            if (m_dwarfRotVelocity.x() != 0.f) {
                 dwarf->getTransform()->rotate(X, m_dwarfRotVelocity.x()*elapsed);
+            }
 		}
 	}
 
 	void onSceneDraw()
 	{
 		// Check for a hit
-		if (getScene()->getPicking()->getSingleHit())
-		{
+        if (getScene()->getPicking()->getSingleHit()) {
 			// Dynamic cast to scene object, or you can use two static_cast.
 			// Casts are tested using pointer and reference.
 			SceneObject *object = o3d::dynamicCast<SceneObject*>(getScene()->getPicking()->getSingleHit());
@@ -331,13 +330,11 @@ public:
 		Float elapsed = getScene()->getFrameManager()->getFrameDuration();
 
 		// camera rotation
-		if (mouse->isRightDown())
-		{
+        if (mouse->isRightDown()) {
 			Mouse *mouse = getWindow()->getInput().getMouse();
 
 			BaseNode *cameraNode = getScene()->getSceneObjectManager()->searchName("Camera")->getNode();
-			if (cameraNode)
-			{
+            if (cameraNode) {
 				cameraNode->getTransform()->rotate(Y, -mouse->getDeltaX() * elapsed);
 				cameraNode->getTransform()->rotate(X, -mouse->getDeltaY() * elapsed);
 			}
@@ -346,9 +343,7 @@ public:
 
     void onMouseButton(Mouse* mouse, ButtonEvent event)
 	{
-		if (event.isPressed() && (event.button() == Mouse::LEFT))
-		{
-
+        if (event.isPressed() && (event.button() == Mouse::LEFT)) {
 			// Process to a picking a next draw pass.
 			// The mouse Y coordinate should be inverted because Y+ is on top of the screen for OpenGL.
 			getScene()->getPicking()->postPickingEvent(
@@ -359,14 +354,27 @@ public:
 
     void onKey(Keyboard* keyboard, KeyEvent event)
 	{
-        if (event.isPressed() && (event.key() == KEY_F1))
-        {
-            if (m_keys->type() == 0)
+        if (event.isPressed() && (event.key() == KEY_F1)) {
+            if (m_keys->type() == 0) {
                 m_keys = new KeyMapQwerty;
-            else if (m_keys->type() == 1)
+                System::print("Switch to QWERTY", "Change");
+            } else if (m_keys->type() == 1) {
                 m_keys = new KeyMapBepo;
-            else if (m_keys->type() == 2)
+                System::print("Switch to BEPO", "Change");
+            } else if (m_keys->type() == 2) {
                 m_keys = new KeyMapAzerty;
+                System::print("Switch to AZERTY", "Change");
+            }
+        }
+
+        if (event.isPressed() && (event.key() == KEY_F12)) {
+            if (getWindow()->isMouseGrabbed()) {
+                getWindow()->grabMouse(False);
+                System::print("Ungrab mouse", "Change");
+            } else {
+                getWindow()->grabMouse(True);
+                System::print("Grab mouse", "Change");
+            }
         }
 
         // rotate player
@@ -381,11 +389,9 @@ public:
         //m_dwarfPosVelocity.z() += event.action(KEY_DOWN, -10000.f, 10000.f, 0.f);
 
         Node *dwarf = dynamicCast<Node*>(getScene()->getSceneObjectManager()->searchName("dwarf1"));
-        if (dwarf)
-        {
+        if (dwarf) {
             // simulate the plane collision
-            if (dwarf->getRigidBody()->getPosition().y() < 0.0f)
-            {
+            if (dwarf->getRigidBody()->getPosition().y() < 0.0f) {
                 Vector3 pos = dwarf->getRigidBody()->getPosition();
                 Vector3 speed = dwarf->getRigidBody()->getSpeed();
                 pos.y() = 0.0f;
@@ -396,21 +402,17 @@ public:
 
             Float dwarfImpulse = 0, dwarfJumpImpulse = 0;
             System::print("", dwarf->getRigidBody()->getP());
-            if (o3d::abs(dwarf->getRigidBody()->getP().y()) <= 0.01f)
-            {
-                if (event.isPressed() && !event.isRepeat())
-                {
-                    if (event.key() == KEY_UP)
+            if (o3d::abs(dwarf->getRigidBody()->getP().y()) <= 0.01f) {
+                if (event.isPressed() && !event.isRepeat()) {
+                    if (event.key() == KEY_UP) {
                         dwarfImpulse = -40000.f;
-                    else if (event.key() == KEY_DOWN)
+                    } else if (event.key() == KEY_DOWN) {
                         dwarfImpulse = 40000.f;
-                    else if (event.key() == KEY_SPACE)
+                    } else if (event.key() == KEY_SPACE) {
                         dwarfJumpImpulse = 70000.f;
-                }
-                else if (event.isReleased())
-                {
-                    if ((event.key() == KEY_UP) || (event.key() == KEY_DOWN))
-                    {
+                    }
+                } else if (event.isReleased()) {
+                    if ((event.key() == KEY_UP) || (event.key() == KEY_DOWN)) {
                         dwarf->getRigidBody()->setP(Vector3());
                         m_dwarfPosVelocity.z() = 0;
                     }
@@ -421,8 +423,7 @@ public:
             Float oldRotY = rotY;
             rotY += m_dwarfRotVelocity.y();
 
-            if (rotY != oldRotY)
-            {
+            if (rotY != oldRotY) {
                 dwarfImpulse = m_dwarfPosVelocity.z();
             }
 
@@ -431,13 +432,11 @@ public:
 
             dwarf->getRigidBody()->setRotation(rot);
 
-            if (o3d::abs(dwarfJumpImpulse) > o3d::Limits<Float>::epsilon())
-            {
+            if (o3d::abs(dwarfJumpImpulse) > o3d::Limits<Float>::epsilon()) {
                 dwarf->getRigidBody()->addForceImpulse(Vector3(0.f, dwarfJumpImpulse, 0.f));
             }
 
-            if ((o3d::abs(dwarfImpulse) > o3d::Limits<Float>::epsilon()) || (rotY != oldRotY))
-            {
+            if ((o3d::abs(dwarfImpulse) > o3d::Limits<Float>::epsilon()) || (rotY != oldRotY)) {
                 Matrix3 rotMat;
                 rotMat.rotateY(rotY);
 
@@ -470,45 +469,50 @@ public:
         m_velocity.z() += event.action( m_keys->forward(), -speed, -min(speed, m_velocity.z()), 0.f);
         m_velocity.z() += event.action( m_keys->backward(), speed, -max(-speed, m_velocity.z()), 0.f);
 */
-        if (m_camVelocity.length() > speed)
-        {
+        if (m_camVelocity.length() > speed) {
             m_camVelocity *= speed / m_camVelocity.length();
         }
 
-        if (event.isPressed() && (event.key() == KEY_F3))
-        {
-            if (getScene()->getViewPortManager()->getViewPort(1)->getActivity())
-            {
+        if (event.isPressed() && (event.key() == KEY_F3)) {
+            if (getScene()->getViewPortManager()->getViewPort(1)->getActivity()) {
                 getScene()->getViewPortManager()->getViewPort(1)->disable();
                 getScene()->getViewPortManager()->getViewPort(2)->enable();
-            }
-            else
-            {
+                System::print("Switch to Deferred Shading", "Change");
+            } else {
                 getScene()->getViewPortManager()->getViewPort(2)->disable();
                 getScene()->getViewPortManager()->getViewPort(1)->enable();
+                System::print("Switch to Shadow Volume Forward Renderering", "Change");
             }
         }
 
-        if (event.isPressed() && (event.character() == KEY_1))
+        if (event.isPressed() && (event.character() == KEY_1)) {
             getScene()->getSceneObjectManager()->searchName("light1")->toggleActivity();
-        if (event.isPressed() && (event.character() == KEY_2))
+            System::print("Toggle light1", "Change");
+        }
+        if (event.isPressed() && (event.character() == KEY_2)) {
             getScene()->getSceneObjectManager()->searchName("light2")->toggleActivity();
-        if (event.isPressed() && (event.character() == KEY_3))
+            System::print("Toggle light2", "Change");
+        }
+        if (event.isPressed() && (event.character() == KEY_3)) {
             getScene()->getSceneObjectManager()->searchName("light3")->toggleActivity();
-        if (event.isPressed() && (event.character() == KEY_4))
+            System::print("Toggle light3", "Change");
+        }
+        if (event.isPressed() && (event.character() == KEY_4)) {
             getScene()->getSceneObjectManager()->searchName("light4")->toggleActivity();
+            System::print("Toggle light4", "Change");
+        }
 
-		if (event.isPressed() && (event.key() == KEY_SPACE))
+        if (event.isPressed() && (event.key() == KEY_SPACE)) {
   			m_animationPlayer->togglePlayPause();
+            System::print("Toggle player play/pause", "Change");
+        }
 
-		if (event.isPressed() && (event.key() == KEY_J))
-		{
+        if (event.isPressed() && (event.key() == KEY_J)) {
 			m_animationPlayer->enqueueAnimRange("attack1SwipeAxe", AnimationPlayer::MODE_CONTINUE);
 			m_animationPlayer->enqueueAnimRange("idle1", AnimationPlayer::MODE_LOOP);
 		}
 
-        if (event.isPressed() && (event.key() == KEY_F2))
-		{
+        if (event.isPressed() && (event.key() == KEY_F2)) {
             FeedbackViewPort *vp = o3d::dynamicCast<FeedbackViewPort*>(getScene()->getViewPortManager()->getViewPort(2));
 			Image im;
 			const UInt8 *d = vp->mapData();
@@ -516,14 +520,18 @@ public:
             im.save("feedback.png", Image::PNG);
             im.save("feedback.jpg", Image::JPEG);
 			vp->unmapData();
+            System::print("Take a screenshot using the feeback viewport", "Action");
 		}
 
-		if (event.isPressed() && (event.key() == KEY_ESCAPE))
+        if (event.isPressed() && (event.key() == KEY_ESCAPE)) {
+            System::print("Terminate", "Action");
 			getWindow()->terminate();
+        }
 	}
 
 	void onClose()
 	{
+        System::print("Terminate", "Action");
 		getWindow()->terminate();
 	}
 
@@ -563,15 +571,22 @@ public:
 		// or deletion, vbo, fbo.
 		MemoryManager::instance()->enableLog(MemoryManager::MEM_GFX);
 
-		// Our application object
-        Ms3dSample *myApp = new Ms3dSample;
+        DiskDir basePath("media");
+        if (!basePath.exists()) {
+            basePath.setPathName("../media");
+            if (!basePath.exists()) {
+                Application::message("Missing media content", "Error");
+                return -1;
+            }
+        }
 
-		String basePath("../media/");
+		// Our application object
+        Ms3dSample *myApp = new Ms3dSample(basePath);
 
 		// Application icon
-		DiskFileInfo iconFile(basePath + '/' +  "icon.bmp");
+        DiskFileInfo iconFile(basePath.getFullPathName() + '/' + "icon.bmp");
         if (iconFile.exists()) {
-            myApp->getWindow()->setIcon("../media/icon.bmp");
+            myApp->getWindow()->setIcon(basePath.makeFullFileName("icon.bmp"));
         }
 
         myApp->getScene()->setGlobalAmbient(Color(0.8f, 0.8f, 0.8f, 1.0f));
@@ -842,7 +857,7 @@ public:
 		cubeNode->getTransform()->rotate(Y,3.14f/4);
 
 		// Import an MS3D animated mesh
-        //myApp->getScene()->importScene(basePath + "media/models/Sample ms3d.o3dsc", nullptr);
+        //myApp->getScene()->importScene(basePath.makeFullFileName("models/Sample ms3d.o3dsc"), nullptr);
 
 		// Use the next line to enable asynchronous texture loading
         //myApp->getScene()->getTextureManager()->enableAsynchronous();
@@ -855,7 +870,7 @@ public:
 		Ms3dResult result;
 		settings.setResultContainer(&result);
 		settings.setBoundingVolumeGen(GeometryData::BOUNDING_FAST);
-        Ms3d::import(myApp->getScene(), basePath + "models/dwarf1.ms3d", settings);
+        Ms3d::import(myApp->getScene(), basePath.makeFullFileName("models/dwarf1.ms3d"), settings);
 
 		// We change the duration of the animation to 22 seconds
 		result.getAnimation()->setDuration(22.f);
@@ -925,7 +940,7 @@ public:
 		// import the monster.ms3d
 		//
 
-        Ms3d::import(myApp->getScene(), basePath + "models/monster.ms3d", settings);
+        Ms3d::import(myApp->getScene(), basePath.makeFullFileName("models/monster.ms3d"), settings);
 
 		result.getAnimation()->addAnimRange("walk", 0, 120, 30);
 		result.getAnimation()->addAnimRange("run", 150, 210, 190);
@@ -973,8 +988,7 @@ public:
         myApp->getScene()->getPicking()->setCamera(lpCamera);
 
 		// We need a mouse look to pick on the screen, so simply load a GUI theme
-        Theme *theme = myApp->getGui()->getThemeManager()->addTheme(
-				basePath + "gui/revolutioning.xml");
+        Theme *theme = myApp->getGui()->getThemeManager()->addTheme(basePath.makeFullFileName("gui/revolutioning.xml"));
 
 		// and set it as the default theme to use
         myApp->getGui()->getWidgetManager()->setDefaultTheme(theme);
@@ -1132,7 +1146,7 @@ public:
 
 		lensEffect->setDirection(Vector3(0.f,0.5f,-1.0f));
 
-        //myApp->getScene()->exportScene(basePath + "media/models/",SceneIO());
+        //myApp->getScene()->exportScene(basePath.makeFullFileName("models") ,SceneIO());
 
 		// Run the event loop
         Application::run();

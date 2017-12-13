@@ -32,6 +32,7 @@
 #include <o3d/engine/renderer.h>
 
 #include <o3d/core/diskfileinfo.h>
+#include <o3d/core/diskdir.h>
 #include <o3d/core/main.h>
 
 using namespace o3d;
@@ -55,7 +56,7 @@ private:
 
 public:
 
-    SoundSample()
+    SoundSample(DiskDir basePath)
 	{
         m_appWindow = new AppWindow;
 
@@ -71,12 +72,12 @@ public:
         m_glRenderer->create(m_appWindow);
 
         // create a scene and attach it to the window
-        m_scene = new Scene(nullptr, "../media", m_glRenderer);
+        m_scene = new Scene(nullptr, basePath.getFullPathName(), m_glRenderer);
         m_scene->setSceneName("audio");
         m_scene->defaultAttachment(m_appWindow);
 
         // define our audio controller
-        m_audio = new Audio(m_scene, "../media", m_alRenderer);
+        m_audio = new Audio(m_scene, basePath.getFullPathName(), m_alRenderer);
         m_scene->setAudio(m_audio);
 
 		// We listen synchronously to each update event coming from the main window.
@@ -173,8 +174,18 @@ public:
 		// And log sound allocation
 		MemoryManager::instance()->enableLog(MemoryManager::MEM_SFX);
 
+        // Base media directory
+        DiskDir basePath("media");
+        if (!basePath.exists()) {
+            basePath.setPathName("../media");
+            if (!basePath.exists()) {
+                Application::message("Missing media content", "Error");
+                return -1;
+            }
+        }
+
 		// Our application object
-        SoundSample *myApp = new SoundSample;
+        SoundSample *myApp = new SoundSample(basePath);
 
 		// Create a camera into the scene. You notice that we always need a parent
 		// to build an object. We simply set directly the scene as its parent.
@@ -214,8 +225,7 @@ public:
         myApp->getAudio()->getBufferManager()->enableAsynchronous();
 
 		// Insert a 3d sound source
-        if (myApp->getAudio()->getBufferManager()->isResourceExists("walk.wav"))
-		{
+        if (myApp->getAudio()->getBufferManager()->isResourceExists("walk.wav")) {
 			// Set 5 seconds (samples duration is 3 seconds) of decodeMaxDuration because we want this sample fully decoded (not streamed).
             SndBuffer *sndBuffer = myApp->getAudio()->getBufferManager()->addSndBuffer("walk.wav", 5.f);
             OmniSource *sndSource = new OmniSource(myApp->getScene());
@@ -231,15 +241,12 @@ public:
 
 			// add it to the scene root
             Node *sndSourceNode = myApp->getScene()->getHierarchyTree()->addNode(sndSource);
-		}
-		else
-		{
+        } else {
 			O3D_WARNING("missing media/sounds/walk.wav");
 		}
 
 		// Insert an ambient sound source (like a music)
-        if (myApp->getAudio()->getBufferManager()->isResourceExists("music.ogg"))
-		{
+        if (myApp->getAudio()->getBufferManager()->isResourceExists("music.ogg")) {
 			// This sample will be streamed because it is greater than the default decodeMaxDuration of 2 seconds.
             SndBuffer *sndBuffer = myApp->getAudio()->getBufferManager()->addSndBuffer("music.ogg");
             OmniSource *music = new OmniSource(myApp->getScene());
@@ -258,9 +265,7 @@ public:
 
 			// add it to the scene root
             Node *sndSourceNode = myApp->getScene()->getHierarchyTree()->addNode(music);
-		}
-		else
-		{
+        } else {
 			O3D_WARNING("missing media/sounds/music.ogg");
 		}
 
@@ -293,4 +298,3 @@ public:
 };
 
 O3D_CONSOLE_MAIN(SoundSample, O3D_DEFAULT_CLASS_SETTINGS)
-

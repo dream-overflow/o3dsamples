@@ -42,6 +42,7 @@
 #include <o3d/core/appwindow.h>
 #include <o3d/core/objects.h>
 #include <o3d/core/main.h>
+#include <o3d/core/diskdir.h>
 
 #include <iostream>
 #include <cstdlib>
@@ -58,7 +59,7 @@ SkyScattering * lpSky = nullptr;
 TrueTypeFont * lpFont = nullptr;
 
 #ifdef _MSC_VER
-#pragma comment(lib,"opengl32.lib")
+#pragma comment(lib, "opengl32.lib")
 #endif
 
 /**
@@ -81,7 +82,7 @@ private:
 
 public:
 
-    TerrainSample()
+    TerrainSample(DiskDir basePath)
 	{
         m_appWindow = new AppWindow;
 
@@ -94,7 +95,7 @@ public:
         m_glRenderer->create(m_appWindow);
 
         // create a scene and attach it to the window
-        m_scene = new Scene(nullptr, "../media", m_glRenderer);
+        m_scene = new Scene(nullptr, basePath.getFullPathName(), m_glRenderer);
         m_scene->setSceneName("pclodterrain");
         m_scene->defaultAttachment(m_appWindow);
 
@@ -159,8 +160,7 @@ public:
 
 		static int lCounter = 0;
 
-		if ((++lCounter % 5) == 0)
-		{
+        if ((++lCounter % 5) == 0) {
 			Vector3 lDirection1(0.0f, -0.4f, 2.0f*cos(lCounter/400.0f));
 			lDirection1.normalize();
 
@@ -173,8 +173,9 @@ public:
 
 		m_time = 0.001f*System::getMsTime();
 
-        if (lpSky != nullptr)
+        if (lpSky != nullptr) {
 			lpSky->setTime(m_time);
+        }
 	}
 
 	void onSceneDraw()
@@ -195,10 +196,11 @@ public:
 		const Vector2f lBounds(lpSky->getCurrentTimeBounds());
 		Float lCoef = 0.0f;
 
-		if (lBounds[1] != lBounds[0])
+        if (lBounds[1] != lBounds[0]) {
 			lCoef = Float((lpSky->getTime() - lBounds[0])/(lBounds[1] - lBounds[0]));
-		else
+        } else {
 			lCoef = 0.0f;
+        }
 
 		// primitive draw
 		{
@@ -225,8 +227,7 @@ public:
 				primitive->addVertex(100.0f, 60.0f, 0);
 			primitive->endDraw();
 
-			if (lpSky->isForecast())
-			{
+            if (lpSky->isForecast()) {
 				primitive->setColor(1,0,0,1);
 				primitive->beginDraw(P_TRIANGLE_STRIP);
 					primitive->addVertex(110.0f, 24.0f, 0);
@@ -249,8 +250,7 @@ public:
 		lText = String::print("Time = %.2f    Delta = %.2f", lpSky->getTime(), lpSky->getRequestedTime() - lpSky->getTime());
 		lpFont->write(Vector2i((lViewPort[2]-lpFont->sizeOf(lText))/2, 22), lText);
 
-		if (lpSky->isForecast())
-		{
+        if (lpSky->isForecast()) {
 			lText = String::print("%.2f", lBounds[0]);
 			lpFont->write(Vector2i(110, 52), lText);
 
@@ -270,8 +270,7 @@ public:
 		Float elapsed = getScene()->getFrameManager()->getFrameDuration();
 
 		SceneObject *lpCamera = getScene()->getSceneObjectManager()->searchName("CameraFPS");
-		if (lpCamera)
-		{
+        if (lpCamera) {
 			lpCamera->getNode()->getTransform()->rotate(Y, -mouse->getDeltaX() * elapsed);
 			lpCamera->getNode()->getTransform()->rotate(X, -mouse->getDeltaY() * elapsed);
 		}
@@ -283,8 +282,19 @@ public:
 
     void onKey(Keyboard* keyboard, KeyEvent event)
     {
-		if (event.isPressed() && (event.key() == KEY_ESCAPE))
+        if (event.isPressed() && (event.key() == KEY_ESCAPE)) {
 			getWindow()->terminate();
+        }
+
+        if (event.isPressed() && (event.key() == KEY_F12)) {
+            if (getWindow()->isMouseGrabbed()) {
+                getWindow()->grabMouse(False);
+                System::print("Ungrab mouse", "Change");
+            } else {
+                getWindow()->grabMouse(True);
+                System::print("Grab mouse", "Change");
+            }
+        }
 	}
 
 	void onClose()
@@ -299,10 +309,19 @@ public:
         Debug::instance()->getDefaultLog().clearLog();
         Debug::instance()->getDefaultLog().writeHeaderLog();
 
-	/*	MemoryManager::Instance()->enableLog(MemoryManager::MemoryCentral,128);
-		MemoryManager::Instance()->enableLog(MemoryManager::MemoryGraphic);*/
+        // MemoryManager::Instance()->enableLog(MemoryManager::MemoryCentral, 128);
+        // MemoryManager::Instance()->enableLog(MemoryManager::MemoryGraphic);
 
-        TerrainSample *lTerrainApp = new TerrainSample;
+        DiskDir basePath("media");
+        if (!basePath.exists()) {
+            basePath.setPathName("../media");
+            if (!basePath.exists()) {
+                Application::message("Missing media content", "Error");
+                return -1;
+            }
+        }
+
+        TerrainSample *lTerrainApp = new TerrainSample(basePath);
 
         Camera *lpFPSCamera = new Camera(lTerrainApp->getScene());
         lTerrainApp->getScene()->getViewPortManager()->addScreenViewPort(lpFPSCamera,0,0);
@@ -325,20 +344,18 @@ public:
         PCLODTerrain *pTerrain = new PCLODTerrain(lTerrainApp->getScene(), lpFPSCamera);
         lTerrainApp->getScene()->getLandscape()->getTerrainManager().addTerrain(pTerrain);
 
-		String basePath("../media/terrain/");
-
 		//String headerFile = basePath + String("TerrainTerragen_LightmapTest.hclm");
 		//String headerFile = basePath + String("TerrainTerragen1zone_WithMaterials.hclm");
 		//MAUVAIS FORMAT String headerFile = basePath + String("TerrainTerragen_WithMaterials.hclm");
 
 		//String headerFile = basePath + String("Terrain_Tower.hclm");
-		String headerFile = basePath + String("TerrainTerragen_64.hclm");
-		//String headerFile = basePath + String("TerrainTerragen_LightmapTest.hclm");
-		String dataDir = basePath;
-		String materialDir = basePath + String("Materials/");
-		String colormapDir = basePath + String("Colormaps/");
+        String headerFile = basePath.makeFullFileName("terrain/TerrainTerragen_64.hclm");
+        //String headerFile = basePath.makeFileName("terrain/TerrainTerragen_LightmapTest.hclm");
+        String dataDir = basePath.makeFullPathName("terrain");
+        String materialDir = basePath.makeFullPathName("terrain/Materials");
+        String colormapDir = basePath.makeFullPathName("terrain/Colormaps");
 
-		Image noise(basePath + String("noise.jpg"));
+        Image noise(basePath.makeFullFileName("terrain/noise.jpg"));
 
 		pTerrain->getCurrentConfigs().setColormapPolicy(PCLODConfigs::COLORMAP_AUTO);
 		pTerrain->getCurrentConfigs().setColormapPrecision(2);
@@ -355,7 +372,7 @@ public:
 		pTerrain->getCurrentConfigs().setFrontToBackMinViewMove(10.0f);
 		pTerrain->getCurrentConfigs().setFrontToBackRefreshPeriodicity(100);
 		pTerrain->getCurrentConfigs().setLightMinAngleVariation(0.5f * 3.14159f/180.0f);
-        pTerrain->getCurrentConfigs().setText2D(lTerrainApp->getGui()->getFontManager()->addTrueTypeFont(basePath + "../gui/arial.ttf"));
+        pTerrain->getCurrentConfigs().setText2D(lTerrainApp->getGui()->getFontManager()->addTrueTypeFont(basePath.makeFullFileName("gui/arial.ttf")));
 		pTerrain->getCurrentConfigs().enableDebugLabel(True);
 
 		pTerrain->getCurrentConfigs().enableLightmapLod(False);
@@ -502,15 +519,13 @@ public:
 		//
 
 		SkyObject * lpSun = new SkyObject(lpSky);
-	//	lpSun->setPosition(O3DVector3(0.0f, -0.25f, 150E9f)); // a night position
+    //	lpSun->setPosition(Vector3(0.0f, -0.25f, 150E9f)); // a night position
 		lpSun->setPosition(Vector3(0.0f, 0.7f, 150E9f));   // a day position
 		lpSun->setApparentAngle(Vector2f(2.0f*o3d::toRadian(0.53f), 2.0f*o3d::toRadian(0.53f)));
 		lpSun->setIntensity(Vector3(200.0f, 220.0f, 250.0f));
 		lpSun->setWaveLength(Vector3(650.0e-9f, 610.0e-9f, 475.0e-9f));
 
-		Texture2D * lpSunTexture = new Texture2D(
-				lpSun,
-				basePath + String("sun.png"));
+		Texture2D * lpSunTexture = new Texture2D(lpSun, basePath.makeFullFileName("terrain/sun.png"));
 		lpSunTexture->create(True);
 		lpSun->setTexture(lpSunTexture);
 		lpSky->addObject(lpSun);
@@ -520,14 +535,12 @@ public:
 		//
 
 		SkyObject * lpMoon = new SkyObject(lpSky);
-		//lpMoon->setPosition(O3DVector3(1.0f, 0.7f, 384E6f));  // visible moon
+        //lpMoon->setPosition(Vector3(1.0f, 0.7f, 384E6f));  // visible moon
 		lpMoon->setApparentAngle(Vector2f(3.0f*o3d::toRadian(0.53f), 3.0f*o3d::toRadian(0.53f)));
 		lpMoon->setIntensity(Vector3(400E-6f, 440E-6f, 500E-6f));
 		lpMoon->setWaveLength(Vector3(650.0e-9f, 610.0e-9f, 475.0e-9f));
 
-		Texture2D * lpMoonTexture = new Texture2D(
-			lpMoon,
-			basePath + String("moon256.png"));
+        Texture2D * lpMoonTexture = new Texture2D(lpMoon, basePath.makeFullFileName("terrain/moon256.png"));
 		lpMoonTexture->create(True);
 		lpMoon->setTexture(lpMoonTexture);
 		lpSky->addObject(lpMoon);
@@ -551,7 +564,7 @@ public:
 		lpCloudLayer->setCoveringRate(0.45f);
 		lpCloudLayer->setScale(1.0f);
 		lpCloudLayer->setAverageSize(1);
-		//lpCloudLayer->setLightDirection(O3DVector3(1.0f, 0.0f, 0.0f));
+        //lpCloudLayer->setLightDirection(Vector3(1.0f, 0.0f, 0.0f));
 		Vector3 lSunDirection = lpSun->getCartesianPosition();
 		lSunDirection.normalize();
 
@@ -596,14 +609,14 @@ public:
 		lpSky->setDomePrecision(3);
 
 		Texture2D * lpTexture = new Texture2D(lpSky, basePath + "hemispherical_2048.png");
-		lpTexture->setWarp(O3DTextureRepeat);
+        lpTexture->setWarp(TextureRepeat);
 		lpTexture->create(True);
 
 		lpSky->setTexture(lpTexture);
 	*/
 		pTerrain->setSky(lpSky);
 
-        lpFont = lTerrainApp->getGui()->getFontManager()->addTrueTypeFont(basePath + "../gui/arial.ttf");
+        lpFont = lTerrainApp->getGui()->getFontManager()->addTrueTypeFont(basePath.makeFullFileName("gui/arial.ttf"));
 		lpFont->setTextHeight(12);
         lpFont->setColor(Color(0.0f, 0.0f, 0.0f));
 
@@ -624,4 +637,3 @@ public:
 };
 
 O3D_NOCONSOLE_MAIN(TerrainSample, O3D_DEFAULT_CLASS_SETTINGS)
-
