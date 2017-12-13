@@ -178,7 +178,7 @@ public:
 	}
 
 	void onSceneDraw()
-	{
+    {
 		Int32 lViewPort[4];
 		getScene()->getContext()->getViewPort(lViewPort);
 
@@ -282,7 +282,7 @@ public:
 	}
 
     void onKey(Keyboard* keyboard, KeyEvent event)
-	{
+    {
 		if (event.isPressed() && (event.key() == KEY_ESCAPE))
 			getWindow()->terminate();
 	}
@@ -294,7 +294,6 @@ public:
 
 	static Int32 main()
     {
-
         // cleared log out file with new header
         Debug::instance()->setDefaultLog("pclodterrainMain.log");
         Debug::instance()->getDefaultLog().clearLog();
@@ -346,7 +345,7 @@ public:
 		pTerrain->getCurrentConfigs().setDistanceOnlyMaterial(10.0f);
 		pTerrain->getCurrentConfigs().setDistanceOnlyColormap(25.0f);
 		pTerrain->getCurrentConfigs().setViewDistance(40);
-		pTerrain->getCurrentConfigs().enableAsynchRefresh(True);
+        pTerrain->getCurrentConfigs().enableAsynchRefresh(True);
 		pTerrain->getCurrentConfigs().setRefreshFrequency(10);
 		pTerrain->getCurrentConfigs().setColormapStaticNoise(noise);
         pTerrain->getCurrentConfigs().enableColormapStaticNoise(noise.isValid());
@@ -609,7 +608,7 @@ public:
         lpFont->setColor(Color(0.0f, 0.0f, 0.0f));
 
 		lpSky->init();
-printf("totot\n");
+
         // Run the event loop
         Application::run();
 
