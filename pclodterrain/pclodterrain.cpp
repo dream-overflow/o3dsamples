@@ -42,7 +42,7 @@
 #include <o3d/core/appwindow.h>
 #include <o3d/core/objects.h>
 #include <o3d/core/main.h>
-#include <o3d/core/diskdir.h>
+#include <o3d/core/dir.h>
 
 #include <cstdlib>
 
@@ -81,7 +81,7 @@ private:
 
 public:
 
-    TerrainSample(DiskDir basePath)
+    TerrainSample(Dir basePath)
 	{
         m_appWindow = new AppWindow;
 
@@ -310,7 +310,7 @@ public:
         // MemoryManager::Instance()->enableLog(MemoryManager::MemoryCentral, 128);
         // MemoryManager::Instance()->enableLog(MemoryManager::MemoryGraphic);
 
-        DiskDir basePath("media");
+        Dir basePath("media");
         if (!basePath.exists()) {
             basePath.setPathName("../media");
             if (!basePath.exists()) {

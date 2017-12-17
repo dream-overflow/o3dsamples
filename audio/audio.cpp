@@ -31,8 +31,8 @@
 #include <o3d/engine/object/camera.h>
 #include <o3d/engine/renderer.h>
 
-#include <o3d/core/diskfileinfo.h>
-#include <o3d/core/diskdir.h>
+#include <o3d/core/fileinfo.h>
+#include <o3d/core/dir.h>
 #include <o3d/core/main.h>
 
 using namespace o3d;
@@ -56,7 +56,7 @@ private:
 
 public:
 
-    SoundSample(DiskDir basePath)
+    SoundSample(Dir basePath)
 	{
         m_appWindow = new AppWindow;
 
@@ -174,7 +174,7 @@ public:
 		MemoryManager::instance()->enableLog(MemoryManager::MEM_SFX);
 
         // Base media directory
-        DiskDir basePath("media");
+        Dir basePath("media");
         if (!basePath.exists()) {
             basePath.setPathName("../media");
             if (!basePath.exists()) {

@@ -9,8 +9,8 @@
 
 #include <o3d/core/appwindow.h>
 
-#include <o3d/core/diskdir.h>
-#include <o3d/core/diskfileinfo.h>
+#include <o3d/core/dir.h>
+#include <o3d/core/fileinfo.h>
 #include <o3d/image/perlinnoise2d.h>
 
 #include <o3d/engine/context.h>
@@ -45,76 +45,69 @@ public:
 
 	static Int32 main()
     {
-        // cleared log out file with new header
-        Debug::instance()->setDefaultLog("window.log");
-        Debug::instance()->getDefaultLog().clearLog();
+    //	{
+        //		PerlinNoise2d lPerlin;
+        //		Image lPicture;
+        //		Bool lRet = lPerlin.ToPicture(lPicture);
+        //		lPicture.save("PerlinGen.jpg", Image::Jpeg);
+    //	}
 
-	/*	{
-		PerlinNoise2d lPerlin;
-
-		Image lPicture;
-		Bool lRet = lPerlin.ToPicture(lPicture);
-
-		lPicture.save("PerlinGen.jpg", Image::Jpeg);
-		}
-
-		return 0;
-	*/
-
-        DiskDir basePath("media");
+        Dir basePath("media");
         if (!basePath.exists()) {
             basePath.setPathName("../media");
             if (!basePath.exists()) {
+            O3D_MESSAGE("00002222");
                 Application::message("Missing media content", "Error");
                 return -1;
             }
         }
-
+O3D_MESSAGE("00002");
         Window *apps = new Window(basePath);
-
-        DiskFileInfo iconFile(basePath.makeFullFileName("icon.bmp"));
+O3D_MESSAGE("00003");
+        FileInfo iconFile(basePath.makeFullFileName("icon.bmp"));
         if (iconFile.exists()) {
             apps->getWindow()->setIcon(iconFile.getFullFileName());
         }
-
+O3D_MESSAGE("00004");
         apps->getScene()->getContext()->setBackgroundColor(Color(1.0f,0,0,1));
 		// Unlock the mouse position
         apps->getWindow()->getInput().getMouse()->setGrab(False);
-
+O3D_MESSAGE("00005");
         // Run the event loop
         Application::run();
-
+O3D_MESSAGE("00006");
         // Destroy any content
         deletePtr(apps);
 
 		return 0;
 	}
 
-    Window(DiskDir basePath) :
+    Window(Dir basePath) :
         m_camera(nullptr)
 	{
+        O3D_MESSAGE("000");
         m_appWindow = new AppWindow;
-
+O3D_MESSAGE("001");
         // OpenGL renderer
         m_glRenderer = new Renderer;
-
+O3D_MESSAGE("002");
         m_appWindow->setTitle("Objective-3D Window sample");
         m_appWindow->create(800, 600, AppWindow::COLOR_RGBA8, AppWindow::DEPTH_24_STENCIL_8, AppWindow::NO_MSAA, False, False);
-
+O3D_MESSAGE("003");
         // Resize the window to an available fullscreen resolution (@see Video class).
         // m_appWindow->setFullScreen(True);
-
+O3D_MESSAGE("004");
         m_glRenderer->create(m_appWindow);
-
+O3D_MESSAGE("005");
         // create a scene and attach it to the window
         m_scene = new Scene(nullptr, basePath.getFullPathName(), m_glRenderer);
         m_scene->setSceneName("window");
         m_scene->defaultAttachment(m_appWindow);
-
+O3D_MESSAGE("006");
 		m_appWindow->onClose.connect(this, &Window::onClose);
 		m_appWindow->onDraw.connect(this, &Window::onDraw);
         m_appWindow->onDestroy.connect(this, &Window::onDestroy);
-
+O3D_MESSAGE("007");
 		// create a simple camera
 		m_camera = new Camera(getScene());
 		Node *node = getScene()->getHierarchyTree()->addNode(m_camera);

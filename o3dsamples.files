@@ -45,6 +45,7 @@ media/gui/cursors/32x32/cursorWait_a_5.png
 media/gui/cursors/32x32/cursorWait_a_6.png
 media/gui/cursors/32x32/cursorWait_a_7.png
 media/gui/cursors/32x32/cursorWait_a_8.png
+media/gui/cursors/manifest
 media/gui/icons/32x32/about.png
 media/gui/icons/32x32/add.png
 media/gui/icons/32x32/alert.png
@@ -80,6 +81,7 @@ media/gui/arfont.xml
 media/gui/arial.ttf
 media/gui/WindowsLook.tga
 media/gui/WindowsLook.xml
+media/gui/icons/manifest
 media/models/dwarf1.ms3d
 media/models/dwarf1.txt
 media/models/monster.ms3d

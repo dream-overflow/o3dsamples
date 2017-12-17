@@ -43,3 +43,5 @@ minimal
 gui
 primitives
 android
+media/gui/cursors
+media/gui/icons

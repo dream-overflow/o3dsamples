@@ -13,7 +13,7 @@
 #include <o3d/core/appwindow.h>
 #include <o3d/core/application.h>
 #include <o3d/core/main.h>
-#include <o3d/core/diskfileinfo.h>
+#include <o3d/core/fileinfo.h>
 
 #include <o3d/engine/viewport.h>
 #include <o3d/engine/renderer.h>
@@ -101,7 +101,7 @@ public:
         m_gui->defaultAttachment(m_appWindow);
 
         // Application icon
-        DiskFileInfo iconFile(basePath + '/' +  "icon.bmp");
+        FileInfo iconFile(basePath + '/' +  "icon.bmp");
         if (iconFile.exists()) {
             m_appWindow->setIcon(iconFile.getFullFileName());
         }

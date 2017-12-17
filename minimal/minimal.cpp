@@ -83,7 +83,7 @@ int call(void*data)
 */
 
 #include <o3d/core/filemanager.h>
-#include <o3d/core/diskdir.h>
+#include <o3d/core/dir.h>
 #include <o3d/core/stringutils.h>
 
 inline Float inl_sqrt(Float x)

@@ -14,7 +14,7 @@
 #include <o3d/core/appwindow.h>
 #include <o3d/core/application.h>
 #include <o3d/core/main.h>
-#include <o3d/core/diskdir.h>
+#include <o3d/core/dir.h>
 
 #include <o3d/engine/viewport.h>
 #include <o3d/engine/renderer.h>
@@ -162,7 +162,7 @@ private:
 
 public:
 
-    PrimitivesSample(DiskDir basePath) :
+    PrimitivesSample(Dir basePath) :
             geom(nullptr),
             object(0)
 	{
@@ -468,7 +468,7 @@ public:
         MemoryManager::instance()->enableLog(MemoryManager::MEM_RAM,128);
         MemoryManager::instance()->enableLog(MemoryManager::MEM_GFX);
 
-        DiskDir basePath("media");
+        Dir basePath("media");
         if (!basePath.exists()) {
             basePath.setPathName("../media");
             if (!basePath.exists()) {
