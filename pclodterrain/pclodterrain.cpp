@@ -44,7 +44,6 @@
 #include <o3d/core/main.h>
 #include <o3d/core/diskdir.h>
 
-#include <iostream>
 #include <cstdlib>
 
 using namespace o3d;
@@ -307,7 +306,6 @@ public:
         // cleared log out file with new header
         Debug::instance()->setDefaultLog("pclodterrainMain.log");
         Debug::instance()->getDefaultLog().clearLog();
-        Debug::instance()->getDefaultLog().writeHeaderLog();
 
         // MemoryManager::Instance()->enableLog(MemoryManager::MemoryCentral, 128);
         // MemoryManager::Instance()->enableLog(MemoryManager::MemoryGraphic);
@@ -627,10 +625,6 @@ public:
 
         // Destroy any content
         deletePtr(lTerrainApp);
-
-        // write a footer banner in log out file
-        Debug::instance()->getDefaultLog().writeFooterLog();
-
 
 		return 0;
 	}

@@ -1,16 +1,17 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0"?>
 <manifest package="org.dreamoverflow.objective3d" android:versionCode="1" android:versionName="1.0">
-    <uses-sdk android:minSdkVersion="23" />
-    <uses-feature android:name="glEsVersion" android:required="true" android:glEsVersion="0x00030000" />
+    <uses-sdk android:minSdkVersion="23" android:targetSdkVersion="23"/>
+    <uses-feature android:name="glEsVersion" android:required="true" android:glEsVersion="0x00030000"/>
     <application android:icon="@drawable/ic_launcher" android:label="@string/Window Sample">
         <!-- Our activity is the built-in NativeActivity framework class. This will take care of integrating with our NDK code. -->
         <activity android:name="android.app.NativeActivity" android:label="@string/o3d_window_sample" android:configChanges="orientation|keyboardHidden">
             <!-- Tell NativeActivity the name of or .so -->
-            <meta-data android:name="libwindow" android:value="NativeActivitySimpleExample" />
+            <meta-data android:name="libwindow" android:value="NativeActivitySimpleExample"/>
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+        <meta-data android:name="android.app.lib_name" android:value=""/>
         </activity>
     </application>
 </manifest>

@@ -178,13 +178,6 @@ public:
 
 		Application::mapSingleFile("o3d_minimal");
 
-		// Set the default log filename
-        Debug::instance()->setDefaultLog("minimal.log");
-		// Clear the output log file
-		Debug::instance()->getDefaultLog().clearLog();
-		// Write the standard O3D banner into the log file
-		Debug::instance()->getDefaultLog().writeHeaderLog();
-
 		// If you want to check processor information
 		Processor proc;
 		// And to log it...
@@ -197,18 +190,19 @@ public:
 		DynamicLibrary *lib = DynamicLibrary::load("libdynlib.so");
         #endif
 
-		// C++ Style
-		{
-			auto foooo = lib->getFunction<int,int,int>("fooo");
-			System::print(String::print("C++Style libdynlib.so::foo %i", foooo(10,5)), "");
-		}
-
 		// C style
 		{
 			typedef int Fooo(int,int);
 			Fooo *foooo = (Fooo*)lib->getFunctionPtr("fooo");
+            System::print(String("libdynlib.so::foo found @0x{0}").arg(UInt64(foooo), 16, 16, '0'), "");
 			System::print(String::print("CStyle libdynlib.so::foo %i", foooo(10,5)), "");
 		}
+
+        // C++ Style
+        {
+            auto foooo = lib->getFunction<int,int,int>("fooo");
+            System::print(String::print("C++Style libdynlib.so::foo %i", foooo(10,5)), "");
+        }
 
 		DynamicLibrary::unload(lib);
 
@@ -512,9 +506,6 @@ public:
 		
 		time = ((System::getTime() - timer) * 1000000) / System::getTimeFrequency() / 1000000.f;
 		Application::message(String::print("Mutex %f'",time), "Bench");
-			
-		// Write the standard O3D closer banner into the log file
-		Debug::instance()->getDefaultLog().writeFooterLog();
 
 		return 0;
 	}

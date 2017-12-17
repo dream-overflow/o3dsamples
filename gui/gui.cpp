@@ -251,7 +251,6 @@ public:
         // cleared log out file with new header
         Debug::instance()->setDefaultLog("gui.log");
         Debug::instance()->getDefaultLog().clearLog();
-        Debug::instance()->getDefaultLog().writeHeaderLog();
 
         MemoryManager::instance()->enableLog(MemoryManager::MEM_RAM, 128);
         MemoryManager::instance()->enableLog(MemoryManager::MEM_GFX);
@@ -261,9 +260,6 @@ public:
         Application::run();
 
         deletePtr(guiApp);
-
-        // write a footer banner in log out file
-        Debug::instance()->getDefaultLog().writeFooterLog();
 
         return 0;
     }

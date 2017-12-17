@@ -48,7 +48,6 @@ public:
         // cleared log out file with new header
         Debug::instance()->setDefaultLog("window.log");
         Debug::instance()->getDefaultLog().clearLog();
-        Debug::instance()->getDefaultLog().writeHeaderLog();
 
 	/*	{
 		PerlinNoise2d lPerlin;
@@ -87,9 +86,6 @@ public:
 
         // Destroy any content
         deletePtr(apps);
-
-        // write a footer banner in log out file
-        Debug::instance()->getDefaultLog().writeFooterLog();
 
 		return 0;
 	}

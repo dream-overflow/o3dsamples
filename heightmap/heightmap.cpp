@@ -190,7 +190,6 @@ public:
         // cleared log out file with new header
         Debug::instance()->setDefaultLog("heightmap.log");
         Debug::instance()->getDefaultLog().clearLog();
-        Debug::instance()->getDefaultLog().writeHeaderLog();
 
         DiskDir basePath("media");
         if (!basePath.exists()) {
@@ -256,9 +255,6 @@ public:
 
         // Destroy any content
         deletePtr(lTerrainApp);
-
-        // write a footer banner in log out file
-        Debug::instance()->getDefaultLog().writeFooterLog();
 
 		return 0;
 	}

@@ -1,3 +1,5 @@
+android/android_native_app_glue.c
+android/android_native_app_glue.h
 audio/audio.cpp
 heightmap/heightmap.cpp
 media/gui/cursors/32x32/cursor.xml
@@ -134,6 +136,7 @@ minimal/minimal.cpp
 ms3d/ms3d.cpp
 pclodterrain/pclodterrain.cpp
 primitives/primitives.cpp
+window/AndroidManifest.xml
 window/window.cpp
 CMakeLists.txt
 COPYING

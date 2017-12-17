@@ -164,7 +164,6 @@ public:
         // cleared log out file with new header
         Debug::instance()->setDefaultLog("audio.log");
         Debug::instance()->getDefaultLog().clearLog();
-        Debug::instance()->getDefaultLog().writeHeaderLog();
 
 		// We want to log memory allocation higher than 128 bytes.
 		MemoryManager::instance()->enableLog(MemoryManager::MEM_RAM,128);
@@ -289,9 +288,6 @@ public:
 
 		// Destroy any content
         deletePtr(myApp);
-
-        // write a footer banner in log out file
-        Debug::instance()->getDefaultLog().writeFooterLog();
 
 		return 0;
 	}

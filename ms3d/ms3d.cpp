@@ -563,7 +563,6 @@ public:
         // cleared log out file with new header
         Debug::instance()->setDefaultLog("ms3d.log");
         Debug::instance()->getDefaultLog().clearLog();
-        Debug::instance()->getDefaultLog().writeHeaderLog();
 
 		// We want to log memory allocation higher than 128 bytes.
 		MemoryManager::instance()->enableLog(MemoryManager::MEM_RAM,128);
@@ -1153,9 +1152,6 @@ public:
 	
 		// Destroy any contents
         deletePtr(myApp);
-
-        // write footer log
-        Debug::instance()->getDefaultLog().writeFooterLog();
 
 		return 0;
 	}
