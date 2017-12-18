@@ -101,7 +101,7 @@ public:
         m_gui->defaultAttachment(m_appWindow);
 
         // Application icon
-        FileInfo iconFile(basePath + '/' +  "icon.bmp");
+        File iconFile(basePath + '/' +  "icon.bmp");
         if (iconFile.exists()) {
             m_appWindow->setIcon(iconFile.getFullFileName());
         }

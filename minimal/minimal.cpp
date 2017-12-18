@@ -274,7 +274,7 @@ public:
 	/*
 		// Test relative path, make absolute, cd up and finalize with a make full path
 		// output must be /something/api/shaders
-		DiskDir ls("./");
+        Dir ls("./");
 		ls.makeAbsolute();
 		ls.cdUp();
 		Application::message(ls.MakeFullPathName("shaders"), "");
@@ -282,9 +282,9 @@ public:
 	*/
 	/*
 		// Create a file with unicode chars
-		DiskFile filed;
-		filed.open(L"kékàze","wb");
-		filed.close();
+        FileOutStream fileos;
+        fileos.open(L"kékàze");
+        fileos.close();
 	*/
 	/*
 		// Test for read the first line of text of '.xml' file from a 'xml.pack' (zip) file found
@@ -293,17 +293,16 @@ public:
 
 		VirtualFileListing fileListing;
 		fileListing.setPath("./xml");
-		fileListing.setType(O3DFileFile);
+        fileListing.setType(FILE_FILE);
 		fileListing.setExt("*.xml");
 		fileListing.searchFirstFile();
 
 		FLItem *Item;
-		while ((Item = fileListing.SearchNextFile()) != nullptr)
-		{
+        while ((Item = fileListing.searchNextFile()) != nullptr) {
 			Application::message(Item->FileName, "minimal");
-			File *file = FileManager::instance()->openFile(fileListing.GetFileFullName(), "rt");
+            File *file = FileManager::instance()->openFile(fileListing.getFileFullName(), "rt");
 			String line;
-			file->ReadLine(line);
+            file->readLine(line);
 			Application::message(line, "minimal");
 			deletePtr(file);
 		}
