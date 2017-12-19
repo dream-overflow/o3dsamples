@@ -21,7 +21,7 @@
 #include <o3d/core/mouse.h>
 #include <o3d/core/appwindow.h>
 #include <o3d/core/main.h>
-#include <o3d/core/dir.h>
+#include <o3d/core/localdir.h>
 #include <o3d/gui/gui.h>
 #include <o3d/gui/truetypefont.h>
 #include <o3d/gui/fontmanager.h>
@@ -72,7 +72,7 @@ private:
 
 public:
 
-    HeightmapSample(Dir basePath)
+    HeightmapSample(LocalDir basePath)
 	{
         m_appWindow = new AppWindow;
 
@@ -191,7 +191,7 @@ public:
         Debug::instance()->setDefaultLog("heightmap.log");
         Debug::instance()->getDefaultLog().clearLog();
 
-        Dir basePath("media");
+        LocalDir basePath("media");
         if (!basePath.exists()) {
             basePath.setPathName("../media");
             if (!basePath.exists()) {

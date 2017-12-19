@@ -13,7 +13,7 @@
 #include <o3d/core/appwindow.h>
 #include <o3d/core/main.h>
 #include <o3d/core/display.h>
-#include <o3d/core/dir.h>
+#include <o3d/core/localdir.h>
 
 #include <o3d/engine/utils/framemanager.h>
 #include <o3d/engine/utils/ms3d.h>
@@ -56,7 +56,7 @@
 #include <o3d/engine/lodstrategy.h>
 #include <o3d/engine/renderer.h>
 
-#include <o3d/core/fileinfo.h>
+#include <o3d/core/localfile.h>
 #include <o3d/core/wintools.h>
 
 #include <o3d/gui/thememanager.h>
@@ -176,7 +176,7 @@ private:
 
 public:
 
-    Ms3dSample(Dir basePath)
+    Ms3dSample(LocalDir basePath)
 	{
         m_keys = new KeyMapAzerty;
 
@@ -570,7 +570,7 @@ public:
 		// or deletion, vbo, fbo.
 		MemoryManager::instance()->enableLog(MemoryManager::MEM_GFX);
 
-        Dir basePath("media");
+        LocalDir basePath("media");
         if (!basePath.exists()) {
             basePath.setPathName("../media");
             if (!basePath.exists()) {
@@ -583,7 +583,7 @@ public:
         Ms3dSample *myApp = new Ms3dSample(basePath);
 
 		// Application icon
-        FileInfo iconFile(basePath.getFullPathName() + '/' + "icon.bmp");
+        LocalFile iconFile(basePath.getFullPathName() + '/' + "icon.bmp");
         if (iconFile.exists()) {
             myApp->getWindow()->setIcon(basePath.makeFullFileName("icon.bmp"));
         }

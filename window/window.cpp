@@ -10,7 +10,7 @@
 #include <o3d/core/appwindow.h>
 
 #include <o3d/core/dir.h>
-#include <o3d/core/fileinfo.h>
+#include <o3d/core/file.h>
 #include <o3d/image/perlinnoise2d.h>
 
 #include <o3d/engine/context.h>
@@ -53,19 +53,20 @@ public:
         //		lPicture.save("PerlinGen.jpg", Image::Jpeg);
     //	}
 
-        BaseDir* basePath = FileManager::instance()->dir("media");
-        if (!basePath) {
-            basePath = FileManager::instance()->dir("../media");
-            if (!basePath) {
+        Dir basePath("media");
+        if (!basePath.exists()) {
+            basePath = Dir("../media");
+            if (!basePath.exists()) {
             O3D_MESSAGE("00002222");
                 Application::message("Missing media content", "Error");
                 return -1;
             }
         }
 O3D_MESSAGE("00002");
-        Window *apps = new Window(*basePath);
+        Window *apps = new Window(basePath);
 O3D_MESSAGE("00003");
-        File iconFile = File(basePath->makeFullFileName("icon.bmp"));
+
+        File iconFile(basePath.makeFullFileName("icon.bmp"));
         if (iconFile.exists()) {
             apps->getWindow()->setIcon(iconFile.getFullFileName());
         }
@@ -79,12 +80,10 @@ O3D_MESSAGE("00005");
         O3D_MESSAGE("00006");
         // Destroy any content
         deletePtr(apps);
-        deletePtr(basePath);
-
 		return 0;
 	}
 
-    Window(BaseDir &basePath) :
+    Window(Dir &basePath) :
         m_camera(nullptr)
 	{
         O3D_MESSAGE("000");
