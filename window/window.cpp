@@ -57,20 +57,18 @@ public:
         if (!basePath.exists()) {
             basePath = Dir("../media");
             if (!basePath.exists()) {
-            O3D_MESSAGE("00002222");
                 Application::message("Missing media content", "Error");
                 return -1;
             }
         }
-O3D_MESSAGE("00002");
+
         Window *apps = new Window(basePath);
-O3D_MESSAGE("00003");
 
         File iconFile(basePath.makeFullFileName("icon.bmp"));
         if (iconFile.exists()) {
             apps->getWindow()->setIcon(iconFile.getFullFileName());
         }
-O3D_MESSAGE("00004");
+
         apps->getScene()->getContext()->setBackgroundColor(Color(1.0f,0,0,1));
 		// Unlock the mouse position
         apps->getWindow()->getInput().getMouse()->setGrab(False);
@@ -86,18 +84,17 @@ O3D_MESSAGE("00005");
     Window(Dir &basePath) :
         m_camera(nullptr)
 	{
-        O3D_MESSAGE("000");
         m_appWindow = new AppWindow;
-O3D_MESSAGE("001");
+
         // OpenGL renderer
         m_glRenderer = new Renderer;
-O3D_MESSAGE("002");
+
         m_appWindow->setTitle("Objective-3D Window sample");
         m_appWindow->create(800, 600, AppWindow::COLOR_RGBA8, AppWindow::DEPTH_24_STENCIL_8, AppWindow::NO_MSAA, False, False);
-O3D_MESSAGE("003");
+
         // Resize the window to an available fullscreen resolution (@see Video class).
         // m_appWindow->setFullScreen(True);
-O3D_MESSAGE("004");
+
         m_glRenderer->create(m_appWindow);
 O3D_MESSAGE("005");
         // create a scene and attach it to the window
