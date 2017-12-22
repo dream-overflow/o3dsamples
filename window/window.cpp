@@ -96,7 +96,7 @@ O3D_MESSAGE("00005");
         // m_appWindow->setFullScreen(True);
 
         m_glRenderer->create(m_appWindow);
-O3D_MESSAGE("005");
+
         // create a scene and attach it to the window
         m_scene = new Scene(nullptr, basePath.getFullPathName(), m_glRenderer);
         m_scene->setSceneName("window");
