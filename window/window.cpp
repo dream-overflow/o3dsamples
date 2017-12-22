@@ -72,10 +72,10 @@ public:
         apps->getScene()->getContext()->setBackgroundColor(Color(1.0f,0,0,1));
 		// Unlock the mouse position
         apps->getWindow()->getInput().getMouse()->setGrab(False);
-O3D_MESSAGE("00005");
+
         // Run the event loop
         Application::run();
-        O3D_MESSAGE("00006");
+
         // Destroy any content
         deletePtr(apps);
 		return 0;
@@ -101,11 +101,11 @@ O3D_MESSAGE("00005");
         m_scene = new Scene(nullptr, basePath.getFullPathName(), m_glRenderer);
         m_scene->setSceneName("window");
         m_scene->defaultAttachment(m_appWindow);
-O3D_MESSAGE("006");
+
 		m_appWindow->onClose.connect(this, &Window::onClose);
 		m_appWindow->onDraw.connect(this, &Window::onDraw);
         m_appWindow->onDestroy.connect(this, &Window::onDestroy);
-O3D_MESSAGE("007");
+
 		// create a simple camera
 		m_camera = new Camera(getScene());
 		Node *node = getScene()->getHierarchyTree()->addNode(m_camera);
