@@ -42,7 +42,8 @@
 #include <o3d/core/appwindow.h>
 #include <o3d/core/objects.h>
 #include <o3d/core/main.h>
-#include <o3d/core/localdir.h>
+#include <o3d/core/dir.h>
+#include <o3d/core/file.h>
 
 #include <cstdlib>
 
@@ -81,7 +82,7 @@ private:
 
 public:
 
-    TerrainSample(LocalDir basePath)
+    TerrainSample(Dir &basePath)
 	{
         m_appWindow = new AppWindow;
 
@@ -89,7 +90,7 @@ public:
         m_glRenderer = new Renderer;
 
         m_appWindow->setTitle("Objective-3D Progressive Mesh LOD terrain sample");
-        m_appWindow->create(1024, 600, AppWindow::COLOR_RGBA8, AppWindow::DEPTH_24_STENCIL_8, AppWindow::MSAA8X, False, False);
+        m_appWindow->create(1024, 600, AppWindow::COLOR_RGBA8, AppWindow::DEPTH_24_STENCIL_8, AppWindow::MSAA2X, False, False);
 
         m_glRenderer->create(m_appWindow);
 
@@ -303,16 +304,12 @@ public:
 
 	static Int32 main()
     {
-        // cleared log out file with new header
-        Debug::instance()->setDefaultLog("pclodterrainMain.log");
-        Debug::instance()->getDefaultLog().clearLog();
-
         // MemoryManager::Instance()->enableLog(MemoryManager::MemoryCentral, 128);
         // MemoryManager::Instance()->enableLog(MemoryManager::MemoryGraphic);
 
-        LocalDir basePath("media");
+        Dir basePath("media");
         if (!basePath.exists()) {
-            basePath.setPathName("../media");
+            basePath = Dir("../media");
             if (!basePath.exists()) {
                 Application::message("Missing media content", "Error");
                 return -1;

@@ -14,7 +14,8 @@
 #include <o3d/core/appwindow.h>
 #include <o3d/core/application.h>
 #include <o3d/core/main.h>
-#include <o3d/core/localdir.h>
+#include <o3d/core/dir.h>
+#include <o3d/core/file.h>
 
 #include <o3d/engine/viewport.h>
 #include <o3d/engine/renderer.h>
@@ -162,7 +163,7 @@ private:
 
 public:
 
-    PrimitivesSample(LocalDir basePath) :
+    PrimitivesSample(Dir &basePath) :
             geom(nullptr),
             object(0)
 	{
@@ -265,6 +266,8 @@ public:
         m_appWindow->onKey.connect(this, &PrimitivesSample::onKey);
         m_appWindow->onMouseMotion.connect(this, &PrimitivesSample::onMouseMotion);
         //m_appWindow->onMouseButton.connect(this, &PrimitivesSample::onMouseButton);
+        m_appWindow->onTouchScreenMotion.connect(this, &PrimitivesSample::onTouchScreenMotion);
+        m_appWindow->onTouchScreenChange.connect(this, &PrimitivesSample::onTouchScreenChange);
         m_appWindow->onDestroy.connect(this, &PrimitivesSample::onDestroy);
 
         //getWindow()->grabMouse();
@@ -342,6 +345,76 @@ public:
         }
 	}
 
+    void togglePrimitive() {
+        object++;
+        deletePtr(geom);
+
+        if (object == 14) {
+            object = 0;
+        }
+
+        switch (object) {
+            case 0:
+                texturedDome->disable();
+                geom = new GeometryData(m_scene, *primitive);
+                break;
+            case 1:
+                geom = new GeometryData(m_scene, *solidPrimitive);
+                break;
+            case 2:
+                geom = new GeometryData(m_scene, *cylinder);
+                break;
+            case 3:
+                geom = new GeometryData(m_scene, *solidCylinder);
+                break;
+            case 4:
+                geom = new GeometryData(m_scene, *sphere);
+                break;
+            case 5:
+                geom = new GeometryData(m_scene, *solidSphere);
+                break;
+            case 6:
+                texturedSphere->enable();
+                break;
+            case 7:
+                texturedSphere->disable();
+                geom = new GeometryData(m_scene, *surface);
+                break;
+            case 8:
+                geom = new GeometryData(m_scene, *solidSurface);
+                break;
+            case 9:
+                geom = new GeometryData(m_scene, *isoSphere);
+                break;
+            case 10:
+                geom = new GeometryData(m_scene, *solidIsoSphere);
+                break;
+            case 11:
+                geom = new GeometryData(m_scene, *dome);
+                break;
+            case 12:
+                geom = new GeometryData(m_scene, *solidDome);
+                break;
+            case 13:
+                texturedDome->enable();
+                break;
+            default:
+                break;
+        }
+
+        if (geom) {
+            SmartArrayFloat colorArray(geom->getNumVertices()*4);
+            for (UInt32 i = 0; i < colorArray.getNumElt(); ++i) {
+                colorArray.getData()[i] = 1.0f;
+            }
+
+            geom->createElement(V_COLOR_ARRAY, colorArray);
+
+            geom->create();
+            geom->bindFaceArray(0);
+        }
+    }
+
     void onKey(Keyboard* keyboard, KeyEvent event)
     {
         if (event.isPressed() && (event.key() == KEY_ESCAPE)) {
@@ -349,73 +422,7 @@ public:
         }
 
         if (event.isPressed() && (event.key() == KEY_SPACE)) {
-			object++;
-            deletePtr(geom);
-
-            if (object == 14) {
-                object = 0;
-            }
-
-            switch (object) {
-                case 0:
-                    texturedDome->disable();
-                    geom = new GeometryData(m_scene, *primitive);
-                    break;
-                case 1:
-                    geom = new GeometryData(m_scene, *solidPrimitive);
-                    break;
-                case 2:
-                    geom = new GeometryData(m_scene, *cylinder);
-                    break;
-                case 3:
-                    geom = new GeometryData(m_scene, *solidCylinder);
-                    break;
-                case 4:
-                    geom = new GeometryData(m_scene, *sphere);
-                    break;
-                case 5:
-                    geom = new GeometryData(m_scene, *solidSphere);
-                    break;
-                case 6:
-                    texturedSphere->enable();
-                    break;
-                case 7:
-                    texturedSphere->disable();
-                    geom = new GeometryData(m_scene, *surface);
-                    break;
-                case 8:
-                    geom = new GeometryData(m_scene, *solidSurface);
-                    break;
-                case 9:
-                    geom = new GeometryData(m_scene, *isoSphere);
-                    break;
-                case 10:
-                    geom = new GeometryData(m_scene, *solidIsoSphere);
-                    break;
-                case 11:
-                    geom = new GeometryData(m_scene, *dome);
-                    break;
-                case 12:
-                    geom = new GeometryData(m_scene, *solidDome);
-                    break;
-                case 13:
-                    texturedDome->enable();
-                    break;
-                default:
-                    break;
-            }
-
-            if (geom) {
-                SmartArrayFloat colorArray(geom->getNumVertices()*4);
-                for (UInt32 i = 0; i < colorArray.getNumElt(); ++i) {
-                    colorArray.getData()[i] = 1.0f;
-                }
-
-                geom->createElement(V_COLOR_ARRAY, colorArray);
-
-                geom->create();
-                geom->bindFaceArray(0);
-            }
+            togglePrimitive();
         }
 
         if (event.isPressed() && (event.key() == KEY_C)) {
@@ -459,18 +466,27 @@ public:
         }
 	}
 
+    void onTouchScreenMotion(TouchScreen* touch)
+    {
+        Camera *lpCamera = (Camera*)getScene()->getSceneObjectManager()->searchName("CameraFPS");
+        lpCamera->getNode()->getTransform()->rotate(Y,-touch->getDeltaX()*0.01f);
+        lpCamera->getNode()->getTransform()->rotate(X,-touch->getDeltaY()*0.01f);
+    }
+
+    void onTouchScreenChange(TouchScreen* touch, TouchScreenEvent event)
+    {
+        // @todo
+        togglePrimitive();
+    }
+
     static Int32 main()
     {
-        // cleared log out file with new header
-        Debug::instance()->setDefaultLog("primitives.log");
-        Debug::instance()->getDefaultLog().clearLog();
-
         MemoryManager::instance()->enableLog(MemoryManager::MEM_RAM,128);
         MemoryManager::instance()->enableLog(MemoryManager::MEM_GFX);
 
-        LocalDir basePath("media");
+        Dir basePath("media");
         if (!basePath.exists()) {
-            basePath.setPathName("../media");
+            basePath = Dir("../media");
             if (!basePath.exists()) {
                 Application::message("Missing media content", "Error");
                 return -1;

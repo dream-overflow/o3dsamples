@@ -13,7 +13,8 @@
 #include <o3d/core/appwindow.h>
 #include <o3d/core/application.h>
 #include <o3d/core/main.h>
-#include <o3d/core/localfile.h>
+#include <o3d/core/dir.h>
+#include <o3d/core/file.h>
 
 #include <o3d/engine/viewport.h>
 #include <o3d/engine/renderer.h>
@@ -248,10 +249,6 @@ public:
 
     static Int32 main()
     {
-        // cleared log out file with new header
-        Debug::instance()->setDefaultLog("gui.log");
-        Debug::instance()->getDefaultLog().clearLog();
-
         MemoryManager::instance()->enableLog(MemoryManager::MEM_RAM, 128);
         MemoryManager::instance()->enableLog(MemoryManager::MEM_GFX);
 

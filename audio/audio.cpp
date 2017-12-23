@@ -31,8 +31,8 @@
 #include <o3d/engine/object/camera.h>
 #include <o3d/engine/renderer.h>
 
-#include <o3d/core/localfile.h>
-#include <o3d/core/localdir.h>
+#include <o3d/core/dir.h>
+#include <o3d/core/file.h>
 #include <o3d/core/main.h>
 
 using namespace o3d;
@@ -56,7 +56,7 @@ private:
 
 public:
 
-    SoundSample(LocalDir basePath)
+    SoundSample(Dir &basePath)
 	{
         m_appWindow = new AppWindow;
 
@@ -160,11 +160,7 @@ public:
 	}
 
     static Int32 main()
-	{
-        // cleared log out file with new header
-        Debug::instance()->setDefaultLog("audio.log");
-        Debug::instance()->getDefaultLog().clearLog();
-
+    {
 		// We want to log memory allocation higher than 128 bytes.
 		MemoryManager::instance()->enableLog(MemoryManager::MEM_RAM,128);
 		// And we want to log too, any allocation onto the VRAM, such as texture creation
@@ -173,10 +169,9 @@ public:
 		// And log sound allocation
 		MemoryManager::instance()->enableLog(MemoryManager::MEM_SFX);
 
-        // Base media directory
-        LocalDir basePath("media");
+        Dir basePath("media");
         if (!basePath.exists()) {
-            basePath.setPathName("../media");
+            basePath = Dir("../media");
             if (!basePath.exists()) {
                 Application::message("Missing media content", "Error");
                 return -1;

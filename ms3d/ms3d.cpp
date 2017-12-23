@@ -13,7 +13,8 @@
 #include <o3d/core/appwindow.h>
 #include <o3d/core/main.h>
 #include <o3d/core/display.h>
-#include <o3d/core/localdir.h>
+#include <o3d/core/dir.h>
+#include <o3d/core/file.h>
 
 #include <o3d/engine/utils/framemanager.h>
 #include <o3d/engine/utils/ms3d.h>
@@ -176,7 +177,7 @@ private:
 
 public:
 
-    Ms3dSample(LocalDir basePath)
+    Ms3dSample(Dir &basePath)
 	{
         m_keys = new KeyMapAzerty;
 
@@ -187,7 +188,7 @@ public:
         m_glRenderer = new Renderer;
 
         m_appWindow->setTitle("Objective-3D Ms3d sample");
-        m_appWindow->create(800, 600, AppWindow::COLOR_RGBA8, AppWindow::DEPTH_24_STENCIL_8, AppWindow::MSAA4X, False, True);
+        m_appWindow->create(800, 600, AppWindow::COLOR_RGBA8, AppWindow::DEPTH_24_STENCIL_8, AppWindow::MSAA2X, False, True);
 
         m_glRenderer->create(m_appWindow); //, True);  // @todo debug mode crash on Windows
         // m_glRenderer->setDebug();
@@ -560,19 +561,15 @@ public:
 
 	static Int32 main()
 	{
-        // cleared log out file with new header
-        Debug::instance()->setDefaultLog("ms3d.log");
-        Debug::instance()->getDefaultLog().clearLog();
-
 		// We want to log memory allocation higher than 128 bytes.
 		MemoryManager::instance()->enableLog(MemoryManager::MEM_RAM,128);
 		// And we want to log too, any allocation onto the VRAM, such as texture creation
 		// or deletion, vbo, fbo.
 		MemoryManager::instance()->enableLog(MemoryManager::MEM_GFX);
 
-        LocalDir basePath("media");
+        Dir basePath("media");
         if (!basePath.exists()) {
-            basePath.setPathName("../media");
+            basePath = Dir("../media");
             if (!basePath.exists()) {
                 Application::message("Missing media content", "Error");
                 return -1;
@@ -582,10 +579,9 @@ public:
 		// Our application object
         Ms3dSample *myApp = new Ms3dSample(basePath);
 
-		// Application icon
-        LocalFile iconFile(basePath.getFullPathName() + '/' + "icon.bmp");
+        File iconFile(basePath.makeFullFileName("icon.bmp"));
         if (iconFile.exists()) {
-            myApp->getWindow()->setIcon(basePath.makeFullFileName("icon.bmp"));
+            myApp->getWindow()->setIcon(iconFile.getFullFileName());
         }
 
         myApp->getScene()->setGlobalAmbient(Color(0.8f, 0.8f, 0.8f, 1.0f));

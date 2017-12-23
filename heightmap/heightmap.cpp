@@ -21,7 +21,9 @@
 #include <o3d/core/mouse.h>
 #include <o3d/core/appwindow.h>
 #include <o3d/core/main.h>
-#include <o3d/core/localdir.h>
+#include <o3d/core/dir.h>
+#include <o3d/core/file.h>
+
 #include <o3d/gui/gui.h>
 #include <o3d/gui/truetypefont.h>
 #include <o3d/gui/fontmanager.h>
@@ -72,7 +74,7 @@ private:
 
 public:
 
-    HeightmapSample(LocalDir basePath)
+    HeightmapSample(Dir &basePath)
 	{
         m_appWindow = new AppWindow;
 
@@ -80,7 +82,7 @@ public:
         m_glRenderer = new Renderer;
 
         m_appWindow->setTitle("Objective-3D Heightmap with deffered shading sample");
-        m_appWindow->create(800, 600, AppWindow::COLOR_RGBA8, AppWindow::DEPTH_24_STENCIL_8, AppWindow::MSAA16X, False, True);
+        m_appWindow->create(800, 600, AppWindow::COLOR_RGBA8, AppWindow::DEPTH_24_STENCIL_8, AppWindow::MSAA2X, False, True);
 
         m_glRenderer->create(m_appWindow);
 
@@ -187,13 +189,9 @@ public:
 
 	static Int32 main()
 	{
-        // cleared log out file with new header
-        Debug::instance()->setDefaultLog("heightmap.log");
-        Debug::instance()->getDefaultLog().clearLog();
-
-        LocalDir basePath("media");
+        Dir basePath("media");
         if (!basePath.exists()) {
-            basePath.setPathName("../media");
+            basePath = Dir("../media");
             if (!basePath.exists()) {
                 Application::message("Missing media content", "Error");
                 return -1;
