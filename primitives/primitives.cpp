@@ -468,15 +468,23 @@ public:
 
     void onTouchScreenMotion(TouchScreen* touch)
     {
-        Camera *lpCamera = (Camera*)getScene()->getSceneObjectManager()->searchName("CameraFPS");
-        lpCamera->getNode()->getTransform()->rotate(Y,-touch->getDeltaX()*0.01f);
-        lpCamera->getNode()->getTransform()->rotate(X,-touch->getDeltaY()*0.01f);
+        if (touch->isSize()) {
+            Float z = -touch->getDeltaSize() * 0.01;
+
+            Camera *lpCamera = (Camera*)getScene()->getSceneObjectManager()->searchName("CameraFPS");
+            lpCamera->getNode()->getTransform()->translate(Vector3(0, 0, z));
+        } else {
+            Camera *lpCamera = (Camera*)getScene()->getSceneObjectManager()->searchName("CameraFPS");
+            lpCamera->getNode()->getTransform()->rotate(Y,-touch->getDeltaX()*0.005f);
+            lpCamera->getNode()->getTransform()->rotate(X,-touch->getDeltaY()*0.005f);
+        }
     }
 
     void onTouchScreenChange(TouchScreen* touch, TouchScreenEvent event)
     {
-        // @todo
-        togglePrimitive();
+        if (touch->isTap()) {
+            togglePrimitive();
+        }
     }
 
     static Int32 main()
