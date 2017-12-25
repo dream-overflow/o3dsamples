@@ -603,6 +603,7 @@ public:
 
         Texture2D *lpTexture = new Texture2D(myApp->getScene());
         lpTexture->create(False, 800, 600, PF_RGBA_U8);
+
         FeedbackViewPort *pFbViewPort = myApp->getScene()->getViewPortManager()->addFeedbackViewPort(
                     lpCamera,
                     new DeferredDrawer(myApp->getScene()),
@@ -641,11 +642,11 @@ public:
         myApp->getScene()->getContext()->setBackgroundColor(0.633f, 0.792f, 0.914f, 0.0f);
 
 		// Set this parameter to True if you want to visualize the bones
-        myApp->getScene()->setDrawObject(Scene::DRAW_BONES,True);
+        myApp->getScene()->setDrawObject(Scene::DRAW_BONES, True);
 		// Set the parameter to True if you want to visualize the bounding volumes
-        myApp->getScene()->setDrawObject(Scene::DRAW_BOUNDING_VOLUME,True);
+        myApp->getScene()->setDrawObject(Scene::DRAW_BOUNDING_VOLUME, True);
 		// Set the parameter to False if you want to disable the rendering step of any skinned meshes
-        myApp->getScene()->setDrawObject(Scene::DRAW_SKIN,True);
+        myApp->getScene()->setDrawObject(Scene::DRAW_SKIN, True);
 	#ifndef SYMBOLIC
         myApp->getScene()->hideAllSymbolicObject();
 	#endif
