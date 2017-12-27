@@ -71,6 +71,7 @@ using namespace o3d;
  * @brief The PrimitivesSample class
  * @date 2008-01-01
  * @author Emmanuel RUFFIO (emmanuel.ruffio@gmail.com)
+ * @author Frederic SCHERMA (frederic.scherma@dreamoverflow.org)
  */
 class PrimitivesSample : public EvtHandler
 {

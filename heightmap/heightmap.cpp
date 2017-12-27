@@ -82,7 +82,7 @@ public:
         m_glRenderer = new Renderer;
 
         m_appWindow->setTitle("Objective-3D Heightmap with deffered shading sample");
-        m_appWindow->create(800, 600, AppWindow::COLOR_RGBA8, AppWindow::DEPTH_24_STENCIL_8, AppWindow::MSAA2X, False, True);
+        m_appWindow->create(800, 600, AppWindow::COLOR_RGBA8, AppWindow::DEPTH_24_STENCIL_8, AppWindow::MSAA4X, False, True);
 
         m_glRenderer->create(m_appWindow);
 
@@ -102,6 +102,8 @@ public:
         m_appWindow->onKey.connect(this, &HeightmapSample::onKey);
         m_appWindow->onMouseMotion.connect(this, &HeightmapSample::onMouseMotion);
         m_appWindow->onMouseButton.connect(this, &HeightmapSample::onMouseButton);
+        m_appWindow->onTouchScreenMotion.connect(this, &HeightmapSample::onTouchScreenMotion);
+        m_appWindow->onTouchScreenChange.connect(this, &HeightmapSample::onTouchScreenChange);
         m_appWindow->onDestroy.connect(this, &HeightmapSample::onDestroy);
 
         // getWindow()->grabMouse();
@@ -182,6 +184,29 @@ public:
         }
 	}
 
+    void onTouchScreenMotion(TouchScreen* touch)
+    {
+        if (touch->isSize()) {
+            Float z = -touch->getDeltaSize() * 0.01;
+
+            Camera *lpCamera = (Camera*)getScene()->getSceneObjectManager()->searchName("CameraFPS");
+            lpCamera->getNode()->getTransform()->translate(Vector3(0, 0, z));
+        } else {
+            Camera *lpCamera = (Camera*)getScene()->getSceneObjectManager()->searchName("CameraFPS");
+            lpCamera->getNode()->getTransform()->rotate(Y,-touch->getDeltaX()*0.005f);
+            lpCamera->getNode()->getTransform()->rotate(X,-touch->getDeltaY()*0.005f);
+        }
+    }
+
+    void onTouchScreenChange(TouchScreen* touch, TouchScreenEvent event)
+    {
+        if (touch->isTap()) {
+        }
+
+        if (touch->isLongTap()) {
+        }
+    }
+
 	void onClose()
 	{
 		getWindow()->terminate();
@@ -242,6 +267,7 @@ public:
 		lpHeightmap->setNoiseScale(2.0f);
 		lpHeightmap->setHeightmap(lHeightmap, 0.0f);
 		lpHeightmap->setNormalmap(lNormalmap);
+
 		lpHeightmap->setColormap(lColormap);
 	//	lpHeightmap->setLightmap(lLightmap);
 		lpHeightmap->setNoise(lNoise);

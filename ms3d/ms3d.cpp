@@ -188,9 +188,10 @@ public:
         m_glRenderer = new Renderer;
 
         m_appWindow->setTitle("Objective-3D Ms3d sample");
-        m_appWindow->create(800, 600, AppWindow::COLOR_RGBA8, AppWindow::DEPTH_24_STENCIL_8, AppWindow::MSAA2X, False, True);
+        m_appWindow->create(800, 600, AppWindow::COLOR_RGBA8, AppWindow::DEPTH_24_STENCIL_8, AppWindow::MSAA4X, False, True);
 
-        m_glRenderer->create(m_appWindow); //, True);  // @todo debug mode crash on Windows
+        // @todo init debug mode crash on Windows
+        m_glRenderer->create(m_appWindow); //, True);
         // m_glRenderer->setDebug();
         // m_glRenderer->setVSyncMode(Renderer::VSYNC_YES);
 
@@ -224,6 +225,8 @@ public:
         m_appWindow->onKey.connect(this, &Ms3dSample::onKey);
         m_appWindow->onMouseMotion.connect(this, &Ms3dSample::onMouseMotion);
         m_appWindow->onMouseButton.connect(this, &Ms3dSample::onMouseButton);
+        m_appWindow->onTouchScreenMotion.connect(this, &Ms3dSample::onTouchScreenMotion);
+        m_appWindow->onTouchScreenChange.connect(this, &Ms3dSample::onTouchScreenChange);
         m_appWindow->onDestroy.connect(this, &Ms3dSample::onDestroy);
 
 		// Notice that update and draw event of the window are thrown by two timers.
@@ -353,6 +356,19 @@ public:
 		}
 	}
 
+    void toggleDrawMode()
+    {
+        if (getScene()->getViewPortManager()->getViewPort(1)->getActivity()) {
+            getScene()->getViewPortManager()->getViewPort(1)->disable();
+            getScene()->getViewPortManager()->getViewPort(2)->enable();
+            System::print("Switch to Deferred Shading", "Change");
+        } else {
+            getScene()->getViewPortManager()->getViewPort(2)->disable();
+            getScene()->getViewPortManager()->getViewPort(1)->enable();
+            System::print("Switch to Shadow Volume Forward Renderering", "Change");
+        }
+    }
+
     void onKey(Keyboard* keyboard, KeyEvent event)
 	{
         if (event.isPressed() && (event.key() == KEY_F1)) {
@@ -475,15 +491,7 @@ public:
         }
 
         if (event.isPressed() && (event.key() == KEY_F3)) {
-            if (getScene()->getViewPortManager()->getViewPort(1)->getActivity()) {
-                getScene()->getViewPortManager()->getViewPort(1)->disable();
-                getScene()->getViewPortManager()->getViewPort(2)->enable();
-                System::print("Switch to Deferred Shading", "Change");
-            } else {
-                getScene()->getViewPortManager()->getViewPort(2)->disable();
-                getScene()->getViewPortManager()->getViewPort(1)->enable();
-                System::print("Switch to Shadow Volume Forward Renderering", "Change");
-            }
+            toggleDrawMode();
         }
 
         if (event.isPressed() && (event.character() == KEY_1)) {
@@ -529,6 +537,34 @@ public:
 			getWindow()->terminate();
         }
 	}
+
+    void onTouchScreenMotion(TouchScreen* touch)
+    {
+        if (touch->isSize()) {
+            Float z = -touch->getDeltaSize() * 0.01;
+
+            Camera *lpCamera = (Camera*)getScene()->getSceneObjectManager()->searchName("Camera");
+            lpCamera->getNode()->getTransform()->translate(Vector3(0, 0, z));
+        } else {
+            Camera *lpCamera = (Camera*)getScene()->getSceneObjectManager()->searchName("Camera");
+            lpCamera->getNode()->getTransform()->rotate(Y,-touch->getDeltaX()*0.005f);
+            lpCamera->getNode()->getTransform()->rotate(X,-touch->getDeltaY()*0.005f);
+        }
+    }
+
+    void onTouchScreenChange(TouchScreen* touch, TouchScreenEvent event)
+    {
+        // attack on tap
+        if (touch->isTap()) {
+            m_animationPlayer->enqueueAnimRange("attack1SwipeAxe", AnimationPlayer::MODE_CONTINUE);
+            m_animationPlayer->enqueueAnimRange("idle1", AnimationPlayer::MODE_LOOP);
+        }
+
+        // jump on long tap
+        if (touch->isLongTap()) {
+            toggleDrawMode();
+        }
+    }
 
 	void onClose()
 	{
@@ -610,7 +646,9 @@ public:
                     lpTexture,
                     0);
 
-        pViewPort->disable();
+        // default to deferred or forward
+        pFbViewPort->disable();
+        // pViewPort->disable();
 
         GBuffer *gbuffer = new GBuffer(pFbViewPort);
         gbuffer->create(800, 600, 1);
@@ -902,8 +940,7 @@ public:
 		result.getAnimationPlayer()->playAnimRange("idle1");
 
 		Rigging *rigging = o3d::dynamicCast<Rigging*>(result.getMesh());
-		if (rigging)
-		{
+        if (rigging) {
             //rigging->setCPUMode();
             rigging->enablePicking();
 //			rigging->enableShadowCast();
@@ -923,8 +960,7 @@ public:
 
 		// define the specular for each material
 		UInt32 numProfiles = result.getMesh()->getNumMaterialProfiles();
-		for (UInt32 i = 0; i < numProfiles; ++i)
-		{
+        for (UInt32 i = 0; i < numProfiles; ++i) {
 			result.getMesh()->getMaterialProfile(i).setSpecular(Color(0.8f, 0.8f, 0.8f, 1.f));
 			result.getMesh()->getMaterialProfile(i).setShine(100.f);
 		}
@@ -954,8 +990,7 @@ public:
 		result.getAnimationPlayer()->setFramePerSec(30);
 
 		rigging = dynamicCast<Rigging*>(result.getMesh());
-		if (rigging)
-		{
+        if (rigging) {
 			rigging->enablePicking();
 
 			MTransform *mtransform = new MTransform(rigging->getNode());
@@ -966,8 +1001,7 @@ public:
 
 		// define the specular for each material
 		UInt32 numMaterials = result.getMesh()->getNumMaterialProfiles();
-		for (UInt32 i = 0; i < numMaterials; ++i)
-		{
+        for (UInt32 i = 0; i < numMaterials; ++i) {
 			MaterialProfile &material = result.getMesh()->getMaterialProfile(i);
 			//material.setAmbient(Color(0.5f, 0.5f, 0.5f, 1.f));
 			material.setDiffuse(Color(0.8f, 0.8f, 0.8f, 1.f));
