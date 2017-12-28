@@ -62,10 +62,8 @@ private:
 
 public:
 
-    GuiSample()
+    GuiSample(Dir &basePath)
 	{
-        String basePath("../media/");
-
         m_appWindow = new AppWindow;
 
         // OpenGL renderer
@@ -79,7 +77,7 @@ public:
         m_glRenderer->setDebug();
 
         // create a scene and attach it to the window
-        m_scene = new Scene(nullptr, basePath, m_glRenderer);
+        m_scene = new Scene(nullptr, basePath.getFullPathName(), m_glRenderer);
         m_scene->setSceneName("gui");
         m_scene->defaultAttachment(m_appWindow);
 
@@ -102,7 +100,7 @@ public:
         m_gui->defaultAttachment(m_appWindow);
 
         // Application icon
-        File iconFile(basePath + '/' +  "icon.bmp");
+        File iconFile(basePath.makeFullFileName("icon.bmp"));
         if (iconFile.exists()) {
             m_appWindow->setIcon(iconFile.getFullFileName());
         }
@@ -110,7 +108,7 @@ public:
         m_scene->setGlobalAmbient(Color(0.8f, 0.8f, 0.8f, 1.0f));
 
         // load the gui theme
-        Theme *theme = m_gui->getThemeManager()->addTheme(basePath + "gui/WindowsLook.xml");
+        Theme *theme = m_gui->getThemeManager()->addTheme(basePath.makeFullFileName("gui/WindowsLook.xml"));
 
         // and set it as the default theme to use
         m_gui->getWidgetManager()->setDefaultTheme(theme);
@@ -122,10 +120,17 @@ public:
 
     virtual ~GuiSample()
 	{
+        if (m_appWindow) {
+            onDestroy();
+        }
 	}
 
     void onDestroy()
     {
+        if (!m_appWindow) {
+            return;
+        }
+
         deletePtr(m_scene);
         deletePtr(m_glRenderer);
 
@@ -245,21 +250,70 @@ public:
 
     void onMouseMotion(Mouse* mouse)
     {
-	}
-
-    static Int32 main()
-    {
-        MemoryManager::instance()->enableLog(MemoryManager::MEM_RAM, 128);
-        MemoryManager::instance()->enableLog(MemoryManager::MEM_GFX);
-
-        GuiSample *guiApp = new GuiSample;
-
-        Application::run();
-
-        deletePtr(guiApp);
-
-        return 0;
     }
 };
 
-O3D_NOCONSOLE_MAIN(GuiSample, O3D_DEFAULT_CLASS_SETTINGS)
+class MyActivity : public Activity
+{
+public:
+
+    static Int32 main()
+    {
+        MemoryManager::instance()->enableLog(MemoryManager::MEM_RAM,128);
+        MemoryManager::instance()->enableLog(MemoryManager::MEM_GFX);
+
+        Application::setActivity(new MyActivity);
+
+        Application::start();
+        Application::run();
+        Application::stop();
+
+        return 0;
+    }
+
+    virtual Int32 onStart() override
+    {
+        Dir basePath("media");
+        if (!basePath.exists()) {
+            basePath = Dir("../media");
+            if (!basePath.exists()) {
+                Application::message("Missing media content", "Error");
+                return -1;
+            }
+        }
+
+        m_app = new GuiSample(basePath);
+
+        return 0;
+    }
+
+    virtual Int32 onStop() override
+    {
+        deletePtr(m_app);
+        return 0;
+    }
+
+    virtual Int32 onPause() override
+    {
+        // m_app->pause();
+        return 0;
+    }
+
+    virtual Int32 onResume() override
+    {
+        // m_app->resume();
+        return 0;
+    }
+
+    virtual Int32 onSave() override
+    {
+        // m_app->save();
+        return 0;
+    }
+
+private:
+
+    GuiSample *m_app;
+};
+
+O3D_NOCONSOLE_MAIN(MyActivity, O3D_DEFAULT_CLASS_SETTINGS)

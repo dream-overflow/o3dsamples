@@ -107,10 +107,62 @@ public:
         m_appWindow->onDestroy.connect(this, &HeightmapSample::onDestroy);
 
         // getWindow()->grabMouse();
+
+        // Window initialisation
+        getScene()->getContext()->setBackgroundColor(0.633f,0.792f,.914f,0.0f);
+
+        TrueTypeFont * lpFont = getGui()->getFontManager()->addTrueTypeFont(basePath.makeFullFileName("gui/arial.ttf"));
+        lpFont->setTextHeight(12);
+        lpFont->setColor(Color(0.0f, 0.0f, 0.0f));
+
+        // Camera initialisation
+        Camera *lpFPSCamera = new Camera(getScene());
+        getScene()->getViewPortManager()->addScreenViewPort(lpFPSCamera,0,0);
+        getScene()->setDrawObject(Scene::DRAW_QUADTREE, False);
+        getScene()->getVisibilityManager()->setGlobal(VisibilityManager::QUADTREE, 2, 512.0f);
+
+        lpFPSCamera->setName("CameraFPS");
+        lpFPSCamera->setZnear(0.25f);
+        lpFPSCamera->setZfar(500.0f);
+        lpFPSCamera->setFov(60.0f);
+        lpFPSCamera->computePerspective();
+        lpFPSCamera->disableVisibility();
+
+        Node *lnode = getScene()->getHierarchyTree()->addNode(lpFPSCamera);
+        FTransform *ftransform = new FTransform;
+        ftransform->setPosition(Vector3(0.0f,2.f,0.0f));
+        ftransform->rotate(Y, o3d::PI);
+        lnode->addTransform(ftransform);
+
+        // Terrain loading
+        Image lHeightmap(basePath.makeFullFileName("terrain/heightmap/L3DT_Heightmap.jpg"));
+        Image lNormalmap(basePath.makeFullFileName("terrain/heightmap/L3DT_Normal.jpg"));
+        Image lColormap(basePath.makeFullFileName("terrain/heightmap/L3DT_Colormap.jpg"));
+        Image lLightmap(basePath.makeFullFileName("terrain/heightmap/L3DT_Lightmap.jpg"));
+        Image lNoise(basePath.makeFullFileName("terrain/heightmap/Noise.jpg"));
+
+        // Flip those two images so that they will appear as they are shown in your OS
+        Bool lRet = lHeightmap.hFlip();
+        lRet = lColormap.hFlip();
+
+        HeightmapSplatting * lpHeightmap = new HeightmapSplatting(getScene(), lpFPSCamera, HeightmapSplatting::OPT_NOISE);
+        lpHeightmap->setUnits(Vector3(1.0f, 0.1f, 1.0f));
+        lpHeightmap->setNoiseScale(2.0f);
+        lpHeightmap->setHeightmap(lHeightmap, 0.0f);
+        lpHeightmap->setNormalmap(lNormalmap);
+
+        lpHeightmap->setColormap(lColormap);
+    //	lpHeightmap->setLightmap(lLightmap);
+        lpHeightmap->setNoise(lNoise);
+
+        getScene()->getLandscape()->getTerrainManager().addTerrain(lpHeightmap);
 	}
 
     virtual ~HeightmapSample()
 	{
+        if (m_appWindow) {
+            onDestroy();
+        }
 	}
 
     AppWindow* getWindow() { return m_appWindow; }
@@ -119,6 +171,10 @@ public:
 
     void onDestroy()
     {
+        if (!m_appWindow) {
+            return;
+        }
+
         deletePtr(m_scene);
         deletePtr(m_glRenderer);
 
@@ -211,9 +267,28 @@ public:
 	{
 		getWindow()->terminate();
 	}
+};
 
-	static Int32 main()
-	{
+class MyActivity : public Activity
+{
+public:
+
+    static Int32 main()
+    {
+        MemoryManager::instance()->enableLog(MemoryManager::MEM_RAM,128);
+        MemoryManager::instance()->enableLog(MemoryManager::MEM_GFX);
+
+        Application::setActivity(new MyActivity);
+
+        Application::start();
+        Application::run();
+        Application::stop();
+
+        return 0;
+    }
+
+    virtual Int32 onStart() override
+    {
         Dir basePath("media");
         if (!basePath.exists()) {
             basePath = Dir("../media");
@@ -223,65 +298,38 @@ public:
             }
         }
 
-        HeightmapSample *lTerrainApp = new HeightmapSample(basePath);
+        m_app = new HeightmapSample(basePath);
 
-		// Window initialisation
-        lTerrainApp->getScene()->getContext()->setBackgroundColor(0.633f,0.792f,.914f,0.0f);
+        return 0;
+    }
 
-        TrueTypeFont * lpFont = lTerrainApp->getGui()->getFontManager()->addTrueTypeFont(basePath.makeFullFileName("gui/arial.ttf"));
-		lpFont->setTextHeight(12);
-        lpFont->setColor(Color(0.0f, 0.0f, 0.0f));
+    virtual Int32 onStop() override
+    {
+        deletePtr(m_app);
+        return 0;
+    }
 
-		// Camera initialisation
-        Camera *lpFPSCamera = new Camera(lTerrainApp->getScene());
-        lTerrainApp->getScene()->getViewPortManager()->addScreenViewPort(lpFPSCamera,0,0);
-        lTerrainApp->getScene()->setDrawObject(Scene::DRAW_QUADTREE, False);
-        lTerrainApp->getScene()->getVisibilityManager()->setGlobal(VisibilityManager::QUADTREE, 2, 512.0f);
+    virtual Int32 onPause() override
+    {
+        // m_app->pause();
+        return 0;
+    }
 
-		lpFPSCamera->setName("CameraFPS");
-		lpFPSCamera->setZnear(0.25f);
-		lpFPSCamera->setZfar(500.0f);
-		lpFPSCamera->setFov(60.0f);
-		lpFPSCamera->computePerspective();
-		lpFPSCamera->disableVisibility();
+    virtual Int32 onResume() override
+    {
+        // m_app->resume();
+        return 0;
+    }
 
-        Node *lnode = lTerrainApp->getScene()->getHierarchyTree()->addNode(lpFPSCamera);
-		FTransform *ftransform = new FTransform;
-		ftransform->setPosition(Vector3(0.0f,2.f,0.0f));
-		ftransform->rotate(Y, o3d::PI);
-		lnode->addTransform(ftransform);
+    virtual Int32 onSave() override
+    {
+        // m_app->save();
+        return 0;
+    }
 
-		// Terrain loading
-        Image lHeightmap(basePath.makeFullFileName("terrain/heightmap/L3DT_Heightmap.jpg"));
-        Image lNormalmap(basePath.makeFullFileName("terrain/heightmap/L3DT_Normal.jpg"));
-        Image lColormap(basePath.makeFullFileName("terrain/heightmap/L3DT_Colormap.jpg"));
-        Image lLightmap(basePath.makeFullFileName("terrain/heightmap/L3DT_Lightmap.jpg"));
-        Image lNoise(basePath.makeFullFileName("terrain/heightmap/Noise.jpg"));
+private:
 
-		// Flip those two images so that they will appear as they are shown in your OS
-		Bool lRet = lHeightmap.hFlip();
-		lRet = lColormap.hFlip();
-
-        HeightmapSplatting * lpHeightmap = new HeightmapSplatting(lTerrainApp->getScene(), lpFPSCamera, HeightmapSplatting::OPT_NOISE);
-		lpHeightmap->setUnits(Vector3(1.0f, 0.1f, 1.0f));
-		lpHeightmap->setNoiseScale(2.0f);
-		lpHeightmap->setHeightmap(lHeightmap, 0.0f);
-		lpHeightmap->setNormalmap(lNormalmap);
-
-		lpHeightmap->setColormap(lColormap);
-	//	lpHeightmap->setLightmap(lLightmap);
-		lpHeightmap->setNoise(lNoise);
-
-        lTerrainApp->getScene()->getLandscape()->getTerrainManager().addTerrain(lpHeightmap);
-
-        // Run the event loop
-        Application::run();
-
-        // Destroy any content
-        deletePtr(lTerrainApp);
-
-		return 0;
-	}
+    HeightmapSample *m_app;
 };
 
-O3D_NOCONSOLE_MAIN(HeightmapSample, O3D_DEFAULT_CLASS_SETTINGS)
+O3D_NOCONSOLE_MAIN(MyActivity, O3D_DEFAULT_CLASS_SETTINGS)

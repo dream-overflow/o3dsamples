@@ -69,6 +69,12 @@
 #include <o3d/physic/forcemanager.h>
 #include <o3d/physic/physicentitymanager.h>
 
+#define LIGHT1
+#define LIGHT2
+#define LIGHT3
+#define LIGHT4
+#define SYMBOLIC
+
 using namespace o3d;
 
 class KeyMapping
@@ -231,14 +237,584 @@ public:
 
 		// Notice that update and draw event of the window are thrown by two timers.
 		// And that it is possible to change easily these timings.
+
+        File iconFile(basePath.makeFullFileName("icon.bmp"));
+        if (iconFile.exists()) {
+            getWindow()->setIcon(iconFile.getFullFileName());
+        }
+
+        getScene()->setGlobalAmbient(Color(0.8f, 0.8f, 0.8f, 1.0f));
+
+        // Create a camera into the scene. You notice that we always need a parent
+        // to build an object. We simply set directly the scene as its parent.
+        // We can too add our camera into the getSceneObjectManager() of the scene,
+        // but it is useless in this example.
+        Camera *lpCamera = new Camera(getScene());
+
+        // A viewport is a part of the screen. Each viewport might be attached to a camera.
+        // We can overload the drawing callback, and define a displaying priority.
+        // Because the viewport manager provide the method to create and add a viewport
+        // we don't need to set its parent. In this case its parent is the viewport manager.
+        ScreenViewPort *pViewPort = getScene()->getViewPortManager()->addScreenViewPort(
+                                        lpCamera,
+                                        nullptr,
+                                        0);
+
+        Texture2D *lpTexture = new Texture2D(getScene());
+        lpTexture->create(False, 800, 600, PF_RGBA_U8);
+
+        FeedbackViewPort *pFbViewPort = getScene()->getViewPortManager()->addFeedbackViewPort(
+                    lpCamera,
+                    new DeferredDrawer(getScene()),
+                    lpTexture,
+                    0);
+
+        // default to deferred or forward
+        pFbViewPort->disable();
+        // pViewPort->disable();
+
+        GBuffer *gbuffer = new GBuffer(pFbViewPort);
+        gbuffer->create(800, 600, 1);
+        ((DeferredDrawer*)(pFbViewPort)->getSceneDrawer())->setGBuffer(gbuffer);
+
+        // Set a unique name to our camera. It should be unique to retrieve it by its name
+        // into the hierarchy tree or using the scene object manager.
+        lpCamera->setName("Camera");
+
+        // Define Z clipping plane
+        lpCamera->setZnear(0.25f);
+        lpCamera->setZfar(10000.0f);
+
+        // Compute the projection matrix of the camera as a perspective projection.
+        lpCamera->computePerspective();
+        // We don't want to see it
+        lpCamera->disableVisibility();
+
+        // Create a new node to contain our new camera
+        Node *cameraNode = getScene()->getHierarchyTree()->addNode(lpCamera);
+        // We also need a first view person transformation on this node
+        FTransform *ltransfrom = new FTransform;
+        cameraNode->addTransform(ltransfrom);
+
+        // Initial position at (5,50,120) {x,y,z} with Y+ up screen and Z+ comes to you
+        ltransfrom->translate(Vector3(0.0f, 50.f, 120.0f));
+
+        // Change the clear color
+        getScene()->getContext()->setBackgroundColor(0.633f, 0.792f, 0.914f, 0.0f);
+
+        // Set this parameter to True if you want to visualize the bones
+        getScene()->setDrawObject(Scene::DRAW_BONES, True);
+        // Set the parameter to True if you want to visualize the bounding volumes
+        getScene()->setDrawObject(Scene::DRAW_BOUNDING_VOLUME, True);
+        // Set the parameter to False if you want to disable the rendering step of any skinned meshes
+        getScene()->setDrawObject(Scene::DRAW_SKIN, True);
+    #ifndef SYMBOLIC
+        getScene()->hideAllSymbolicObject();
+    #endif
+
+        //
+        // light 1
+        //
+
+        #ifdef LIGHT1
+        // create a spot light
+        Light *light1 = new Light(getScene(), Light::SPOT_LIGHT);
+        light1->setName("light1");
+        light1->setAmbient(0.0f ,0.0f, 0.0f, 1.f);
+        //light1->setAmbient(0.2f, 0.2f, 0.2f, 1.f);
+        light1->setDiffuse(0.0f, 1.0f, 0.0f, 1.f);
+        light1->setSpecular(0.4f, 0.4f, 0.4f, 1.f);
+        light1->setAttenuation(1.f, 0.0f, 0.0002f);
+        light1->setExponent(0.3f);
+        light1->setCutOff(15.f);
+
+        // Create a new node to contain our new light
+        Node *lightNode1 = getScene()->getHierarchyTree()->addNode(light1);
+        // We also need a first view person transformation on this node
+        MTransform *lightTransform1 = new MTransform;
+        lightNode1->addTransform(lightTransform1);
+
+        // Initial position at (50,50,50) {x,y,z} with Y+ up screen and Z+ comes to you
+        lightTransform1->setPosition(Vector3(50.0f, 50.0f, 50.0f));
+        lightTransform1->setDirectionZ(Vector3(-1.0f, -1.0f, -1.f));
+        #endif
+
+        //
+        // light 2
+        //
+
+        #ifdef LIGHT2
+        // create a second spot light
+        Light *light2 = new Light(getScene(), Light::SPOT_LIGHT);
+        light2->setName("light2");
+        light2->setAmbient(0.0f, 0.0f, 0.0f, 1.f);
+        //light2->setAmbient(0.2f, 0.2f, 0.2f, 1.f);
+        light2->setDiffuse(1.0f, 0.0f, 0.0f, 1.f);
+        light2->setSpecular(0.4f, 0.4f, 0.4f, 1.f);
+        light2->setAttenuation(1.f, 0.0f, 0.0002f);
+        light2->setExponent(0.3f);
+        light2->setCutOff(15.f);
+
+        // Create a new node to contain our new light
+        Node *lightNode2 = getScene()->getHierarchyTree()->addNode(light2);
+        // We also need a first view person transformation on this node
+        MTransform *lightTransform2 = new MTransform;
+        lightNode2->addTransform(lightTransform2);
+
+        // Initial position at (50,50,50) {x,y,z} with Y+ up screen and Z+ comes to you
+        lightTransform2->setPosition(Vector3(-50.0f, 50.f, 50.0f));
+        lightTransform2->setDirectionZ(Vector3(1.0f, -1.0f, -1.f));
+        #endif
+
+        //
+        // light 3
+        //
+
+        #ifdef LIGHT3
+        // create a third point light
+        Light *light3 = new Light(getScene(), Light::POINT_LIGHT);
+        light3->setName("light3");
+        light3->setAmbient(0.0f, 0.0f, 0.0f, 1.f);
+        light3->setDiffuse(0.2f ,0.2f, 1.0f, 1.f);
+        light3->setSpecular(0.4f ,0.4f, 0.4f, 1.f);
+        light3->setAttenuation(1.f, 0.0001f, 0.00005f);
+
+        // Create a new node to contain our new light
+        Node *lightNode3 = getScene()->getHierarchyTree()->addNode(light3);
+        // We also need a first view person transformation on this node
+        MTransform *lightTransform3 = new MTransform;
+        lightNode3->addTransform(lightTransform3);
+
+        // Initial position at (50,50,50) {x,y,z} with Y+ up screen and Z+ comes to you
+        lightTransform3->setPosition(Vector3(0.0f, 200.f, 0.0f));
+        //lightTransform3->setDirectionZ(Vector3(0.0f, -1.0f, 0.f));
+        #endif
+
+        //
+        // light 4
+        //
+
+        #ifdef LIGHT4
+        // create a directionnal light
+        Light *light4 = new Light(getScene(), Light::DIRECTIONAL_LIGHT);
+        light4->setName("light4");
+        light4->setAmbient(0.0f ,0.0f, 0.0f, 1.f);
+        light4->setDiffuse(0.1f, 0.1f, 0.1f, 1.f);
+        light4->setSpecular(0.5f, 0.5f, 0.5f, 1.f);
+
+        // Create a new node to contain our new light
+        Node *lightNode4 = getScene()->getHierarchyTree()->addNode(light4);
+        // We also need a first view person transformation on this node
+        MTransform *lightTransform4 = new MTransform;
+        lightNode4->addTransform(lightTransform4);
+
+        // Y- down screen and Z+ comes to you
+        lightTransform4->setDirectionZ(Vector3(0.0f, -1.0f, 0.0f));
+        #endif
+
+        //
+        // plane ground
+        //
+
+        // Add a simple plane for simulate a ground to project shadow on
+        Surface surface(1000, 1000, 4, 4);
+        Mesh *meshSurface = new Mesh(getScene());
+        meshSurface->setName("plane");
+        MeshData *meshData = new MeshData(getScene());
+
+        GeometryData *surfaceGeometry = new GeometryData(meshData, surface);
+        surfaceGeometry->genNormals();
+        //surfaceGeometry->genTangentSpace();
+
+        meshData->setGeometry(surfaceGeometry);
+        meshData->computeBounding(GeometryData::BOUNDING_BOX);
+        meshData->createGeometry();
+
+        meshSurface->setMeshData(meshData);
+
+        meshSurface->setNumMaterialProfiles(1);
+        meshSurface->getMaterialProfile(0).setNumTechniques(1);
+        meshSurface->getMaterialProfile(0).getTechnique(0).setNumPass(1);
+        meshSurface->getMaterialProfile(0).getTechnique(0).getPass(0).setMaterial(Material::AMBIENT, new AmbientMaterial(getScene()));
+        meshSurface->getMaterialProfile(0).getTechnique(0).getPass(0).setMaterial(Material::LIGHTING, new LambertMaterial(getScene()));
+        meshSurface->getMaterialProfile(0).getTechnique(0).getPass(0).setMaterial(Material::PICKING, new PickingMaterial(getScene()));
+        meshSurface->getMaterialProfile(0).getTechnique(0).getPass(0).setMaterial(Material::DEFERRED, new LambertMaterial(getScene()));
+        meshSurface->getMaterialProfile(0).getTechnique(0).getPass(0).setAmbient(Color(0.0f, 0.0f, 0.0f, 1.f));
+        meshSurface->getMaterialProfile(0).getTechnique(0).getPass(0).setDiffuse(Color(1.0f, 1.0f, 1.0f, 1.f));
+        meshSurface->getMaterialProfile(0).getTechnique(0).getPass(0).setSpecular(Color(0.0f, 0.0f, 0.0f, 1.f));
+        meshSurface->getMaterialProfile(0).getTechnique(0).getPass(0).setShine(1.f);
+        meshSurface->initMaterialProfiles();
+
+        Node *surfaceNode = getScene()->getHierarchyTree()->addNode(meshSurface);
+
+        // a bit of physic to the plane to compute collisions
+        RigidBody *surfaceRigidBody = new RigidBody(surfaceNode);
+        getScene()->getPhysicEntityManager()->addElement(surfaceRigidBody);
+
+        //
+        // cube or sphere object
+        //
+
+        // Add a simple box or a sphere
+    //	Cube cube(50, 1);
+    //	Cylinder cube(25, 25, 50, 16, 2);
+        Sphere cube(25, 16, 16);
+        Mesh *meshCube = new Mesh(getScene());
+        meshCube->setName("shadowCaster");
+        meshData = new MeshData(getScene());
+
+        GeometryData *cubeGeometry = new GeometryData(meshData, cube);
+        cubeGeometry->genNormals();
+        //cubeGeometry->genTangentSpace();
+
+        meshData->setGeometry(cubeGeometry);
+        meshData->computeBounding(GeometryData::BOUNDING_SPHERE);
+        meshData->createGeometry();
+
+        meshCube->setMeshData(meshData);
+
+        std::vector<Float> lodLevels;
+        lodLevels.push_back(0.f);
+        lodLevels.push_back(100.f);
+
+        meshCube->setNumMaterialProfiles(1);
+        meshCube->getMaterialProfile(0).setLodStrategy(new LodStrategy());
+        meshCube->getMaterialProfile(0).setLodLevels(lodLevels);
+        meshCube->getMaterialProfile(0).setNumTechniques(2);
+
+        meshCube->getMaterialProfile(0).getTechnique(0).setNumPass(1);
+        meshCube->getMaterialProfile(0).getTechnique(0).setLodIndex(0);
+        meshCube->getMaterialProfile(0).getTechnique(0).getPass(0).setMaterial(Material::AMBIENT, new AmbientMaterial(getScene()));
+        meshCube->getMaterialProfile(0).getTechnique(0).getPass(0).setMaterial(Material::LIGHTING, new LambertMaterial(getScene()));
+        meshCube->getMaterialProfile(0).getTechnique(0).getPass(0).setMaterial(Material::PICKING, new PickingMaterial(getScene()));
+        meshCube->getMaterialProfile(0).getTechnique(0).getPass(0).setMaterial(Material::DEFERRED, new LambertMaterial(getScene()));
+        meshCube->getMaterialProfile(0).getTechnique(0).getPass(0).setAmbient(Color(0.3f, 0.3f, 0.3f, 1.f));
+        meshCube->getMaterialProfile(0).getTechnique(0).getPass(0).setDiffuse(Color(1.0f, 1.0f, 1.0f, 1.f));
+        meshCube->getMaterialProfile(0).getTechnique(0).getPass(0).setSpecular(Color(0.5f, 0.5f, 0.5f, 1.f));
+        meshCube->getMaterialProfile(0).getTechnique(0).getPass(0).setShine(1000.f);
+
+        meshCube->getMaterialProfile(0).getTechnique(1).setNumPass(1);
+        meshCube->getMaterialProfile(0).getTechnique(1).setLodIndex(1);
+        meshCube->getMaterialProfile(0).getTechnique(1).getPass(0).setMaterial(Material::AMBIENT, new AmbientMaterial(getScene()));
+        meshCube->getMaterialProfile(0).getTechnique(1).getPass(0).setMaterial(Material::LIGHTING, new LambertMaterial(getScene()));
+        meshCube->getMaterialProfile(0).getTechnique(1).getPass(0).setMaterial(Material::PICKING, new PickingMaterial(getScene()));
+        meshCube->getMaterialProfile(0).getTechnique(1).getPass(0).setMaterial(Material::DEFERRED, new LambertMaterial(getScene()));
+        meshCube->getMaterialProfile(0).getTechnique(1).getPass(0).setAmbient(Color(0.3f, 0.3f, 0.3f, 1.f));
+        meshCube->getMaterialProfile(0).getTechnique(1).getPass(0).setDiffuse(Color(1.0f, 0.0f, 0.0f, 1.f));
+        meshCube->getMaterialProfile(0).getTechnique(1).getPass(0).setSpecular(Color(0.5f, 0.5f, 0.5f, 1.f));
+        meshCube->getMaterialProfile(0).getTechnique(1).getPass(0).setShine(1000.f);
+
+        meshCube->initMaterialProfiles();
+
+        meshCube->enableShadowCast();
+
+        Node *cubeNode = getScene()->getHierarchyTree()->addNode(meshCube);
+        cubeNode->addTransform(new MTransform());
+        cubeNode->getTransform()->setPosition(Vector3(0.f, 135.f, 0.f));
+        cubeNode->getTransform()->rotate(Y,3.14f/4);
+
+        // Import an MS3D animated mesh
+        //getScene()->importScene(basePath.makeFullFileName("models/Sample ms3d.o3dsc"), nullptr);
+
+        // Use the next line to enable asynchronous texture loading
+        //getScene()->getTextureManager()->enableAsynchronous();
+
+        //
+        // import the dwarf1.ms3d
+        //
+
+        Ms3dSettings settings;
+        Ms3dResult result;
+        settings.setResultContainer(&result);
+        settings.setBoundingVolumeGen(GeometryData::BOUNDING_FAST);
+        Ms3d::import(getScene(), basePath.makeFullFileName("models/dwarf1.ms3d"), settings);
+
+        // We change the duration of the animation to 22 seconds
+        result.getAnimation()->setDuration(22.f);
+        // And set the frame rate to 30f/s
+        result.getAnimationPlayer()->setFramePerSec(30);
+
+        result.getAnimation()->addAnimRange("walk", 2, 14);
+        result.getAnimation()->addAnimRange("run", 16, 26);
+        result.getAnimation()->addAnimRange("jump", 28, 40);
+        result.getAnimation()->addAnimRange("jumpSpot", 42, 54);
+        result.getAnimation()->addAnimRange("crouchDown", 56, 59);
+        result.getAnimation()->addAnimRange("stayCrouchedLoop", 60, 69);
+        result.getAnimation()->addAnimRange("getUp", 70, 74);
+        result.getAnimation()->addAnimRange("battleIdle1", 75, 88);
+        result.getAnimation()->addAnimRange("battleIdle2", 90, 110);
+        result.getAnimation()->addAnimRange("attack1SwipeAxe", 112, 126, 126);  // this animation cannot be broken before the end
+        result.getAnimation()->addAnimRange("attack2Jump", 128, 142);
+        result.getAnimation()->addAnimRange("attack3Spin360", 144, 160);
+        result.getAnimation()->addAnimRange("attack4Swipes", 162, 180);
+        result.getAnimation()->addAnimRange("attack5Stab", 182, 192);
+        result.getAnimation()->addAnimRange("block", 194, 210);
+        result.getAnimation()->addAnimRange("die1Forwards", 212, 227);
+        result.getAnimation()->addAnimRange("die2Backwards", 230, 251);
+        result.getAnimation()->addAnimRange("nodYes", 253, 272);
+        result.getAnimation()->addAnimRange("shakeHeadNo", 274, 290);
+        result.getAnimation()->addAnimRange("idle1", 292, 325);
+        result.getAnimation()->addAnimRange("idle2", 327, 360);
+
+        // finally we need to setup animation range for the tracks
+        result.getAnimation()->computeAnimRange();
+
+        // and start with player the idle1 animation in loop.
+        result.getAnimationPlayer()->playAnimRange("idle1");
+
+        Rigging *rigging = o3d::dynamicCast<Rigging*>(result.getMesh());
+        if (rigging) {
+            //rigging->setCPUMode();
+            rigging->enablePicking();
+//			rigging->enableShadowCast();
+        }
+
+        // a bit of physic to the dwarf
+        RigidBody *dwarfRigidBody = new RigidBody(result.getRootNode());
+        getScene()->getPhysicEntityManager()->addElement(dwarfRigidBody);
+
+        dwarfRigidBody->setUpMassSphere(1.0f, 5.f);
+
+        GravityForce *gravityForce = new GravityForce(getScene(), Vector3(0.f, -98.1f, 0.f));
+        //getScene()->getPhysicEntityManager()->getForceManager().addElement(gravityForce);
+        ForceManager *dwarfForceManager = new ForceManager(dwarfRigidBody);
+        dwarfRigidBody->setForceManager(dwarfForceManager);
+        dwarfRigidBody->getForceManager()->addElement(gravityForce);
+
+        // define the specular for each material
+        UInt32 numProfiles = result.getMesh()->getNumMaterialProfiles();
+        for (UInt32 i = 0; i < numProfiles; ++i) {
+            result.getMesh()->getMaterialProfile(i).setSpecular(Color(0.8f, 0.8f, 0.8f, 1.f));
+            result.getMesh()->getMaterialProfile(i).setShine(100.f);
+        }
+
+        // animation control set to the dwarf
+        setAnimationPlayer(result.getAnimationPlayer());
+
+        //
+        // import the monster.ms3d
+        //
+
+        Ms3d::import(getScene(), basePath.makeFullFileName("models/monster.ms3d"), settings);
+
+        result.getAnimation()->addAnimRange("walk", 0, 120, 30);
+        result.getAnimation()->addAnimRange("run", 150, 210, 190);
+        result.getAnimation()->addAnimRange("attack01", 250, 333);
+        result.getAnimation()->addAnimRange("attack02", 320, 400);
+        result.getAnimation()->addAnimRange("death01", 390, 418);
+        result.getAnimation()->addAnimRange("growl", 478, 500);
+        result.getAnimation()->addAnimRange("death02", 500, 550);
+        result.getAnimation()->addAnimRange("death03", 565, 650);
+
+        result.getAnimation()->computeAnimRange();
+        result.getAnimationPlayer()->playAnimRange("attack02");
+
+        // And set the frame rate to 30f/s
+        result.getAnimationPlayer()->setFramePerSec(30);
+
+        rigging = dynamicCast<Rigging*>(result.getMesh());
+        if (rigging) {
+            rigging->enablePicking();
+
+            MTransform *mtransform = new MTransform(rigging->getNode());
+            rigging->getNode()->addTransform(mtransform);
+
+            mtransform->translate(Vector3(60.f, 0, 45));
+        }
+
+        // define the specular for each material
+        UInt32 numMaterials = result.getMesh()->getNumMaterialProfiles();
+        for (UInt32 i = 0; i < numMaterials; ++i) {
+            MaterialProfile &material = result.getMesh()->getMaterialProfile(i);
+            //material.setAmbient(Color(0.5f, 0.5f, 0.5f, 1.f));
+            material.setDiffuse(Color(0.8f, 0.8f, 0.8f, 1.f));
+            material.setSpecular(Color(0.8f, 0.8f, 0.8f, 1.f));
+            material.setShine(100.f);
+        }
+
+        // setAnimationPlayer(result->getAnimationPlayer());
+
+        // Enable the color picking mode.
+        getScene()->getPicking()->setMode(Picking::COLOR);
+
+        // This camera is used to compute some unprojection (useful for GetPointerPos or GetHitPos).
+        getScene()->getPicking()->setCamera(lpCamera);
+
+        // We need a mouse look to pick on the screen, so simply load a GUI theme
+        Theme *theme = getGui()->getThemeManager()->addTheme(basePath.makeFullFileName("gui/revolutioning.xml"));
+
+        // and set it as the default theme to use
+        getGui()->getWidgetManager()->setDefaultTheme(theme);
+
+        //
+        // finally, why not to add a simple skybox ?
+        //
+
+        SkyBox *skyBox = new SkyBox(getScene());
+        skyBox->setName("skyBox");
+        skyBox->create(
+                2048.f,
+                "sky01_xp.jpg",
+                "sky01_xn.jpg",
+                "sky01_yp.jpg",
+                "", // no Y down
+                "sky01_zp.jpg",
+                "sky01_zn.jpg",
+                True,
+                Texture::TRILINEAR_ANISOTROPIC,
+                4.f);
+        getScene()->getSpecialEffectsManager()->addSpecialEffects(skyBox);
+
+        //
+        // and a marvelous lens flare ?
+        //
+
+        LensFlareModel lensFlareModel;
+
+        lensFlareModel.setSizeX(10.0f);
+        lensFlareModel.setSizeY(10.0f);
+        lensFlareModel.setMaxDistance(100.0f);
+        lensFlareModel.setMinDistance(0.0f);
+        lensFlareModel.setMaxFadeRange(30.0f);
+        lensFlareModel.setMinFadeRange(10.0f);
+        lensFlareModel.setFadeInPersistence(0.1f);
+        lensFlareModel.setFadeOutPersistence(0.2f);
+        lensFlareModel.setSimpleOcclusion(False);
+
+        // flare0
+        lensFlareModel.addFlare(getScene()->getTextureManager()->addTexture2D("Flare5.bmp", True),0,0,0);
+        lensFlareModel.getFlare(0)->color.set(0.8f, 0.6f, 0.2f, 0.6f);
+        lensFlareModel.getFlare(0)->halfSizeX = 7.0f;
+        lensFlareModel.getFlare(0)->halfSizeY = 7.0f;
+        lensFlareModel.getFlare(0)->position = 0.7f;
+        lensFlareModel.getFlare(0)->attenuationRange = 1.0f;
+
+        // flare1
+        lensFlareModel.addFlare(getScene()->getTextureManager()->addTexture2D("Flare1.bmp", True),0,0,0);
+        lensFlareModel.getFlare(1)->color.set(0.2f, 0.6f, 1.0f, 1.0f);
+        lensFlareModel.getFlare(1)->halfSizeX = 5.0f;
+        lensFlareModel.getFlare(1)->halfSizeY = 5.0f;
+        lensFlareModel.getFlare(1)->position = 0.5f;
+        lensFlareModel.getFlare(1)->attenuationRange = 1.0f;
+
+        // flare2
+        lensFlareModel.addFlare(getScene()->getTextureManager()->addTexture2D("Flare6.bmp", True),0,0,0);
+        lensFlareModel.getFlare(2)->color.set(0.5f, 0.8f, 0.2f, 0.9f);
+        lensFlareModel.getFlare(2)->halfSizeX = 10.0f;
+        lensFlareModel.getFlare(2)->halfSizeY = 10.0f;
+        lensFlareModel.getFlare(2)->position = 0.4f;
+
+        // flare3
+        lensFlareModel.addFlare(getScene()->getTextureManager()->addTexture2D("Flare2.bmp", True),0,0,0);
+        lensFlareModel.getFlare(3)->color.set(0.9f, 0.4f, 0.1f, 1.0f);
+        lensFlareModel.getFlare(3)->halfSizeX = 5.0f;
+        lensFlareModel.getFlare(3)->halfSizeY = 5.0f;
+        lensFlareModel.getFlare(3)->position = 0.25f;
+        lensFlareModel.getFlare(3)->attenuationRange = 1.0f;
+
+        // flare4
+        lensFlareModel.addFlare(getScene()->getTextureManager()->addTexture2D("Flare2.bmp", True),0,0,0);
+        lensFlareModel.getFlare(4)->color.set(1.0f, 1.0f, 0.1f, 1.0f);
+        lensFlareModel.getFlare(4)->halfSizeX = 5.0f;
+        lensFlareModel.getFlare(4)->halfSizeY = 5.0f;
+        lensFlareModel.getFlare(4)->position = 0.12f;
+        lensFlareModel.getFlare(4)->attenuationRange = 1.0f;
+
+        // flare5
+        lensFlareModel.addFlare(getScene()->getTextureManager()->addTexture2D("Flare2.bmp", True),0,0,0);
+        lensFlareModel.getFlare(5)->color.set(1.0f, 0.7f, 0.1f, 1.0f);
+        lensFlareModel.getFlare(5)->halfSizeX = 4.0f;
+        lensFlareModel.getFlare(5)->halfSizeY = 4.0f;
+        lensFlareModel.getFlare(5)->position = 0.05f;
+        lensFlareModel.getFlare(5)->attenuationRange = 1.0f;
+
+        // flare6
+        lensFlareModel.addFlare(getScene()->getTextureManager()->addTexture2D("Flare4.bmp", True),0,0,0);
+        lensFlareModel.getFlare(6)->color.set(1.0f, 0.5f, 0.1f, 0.4f);
+        lensFlareModel.getFlare(6)->halfSizeX = 7.5f;
+        lensFlareModel.getFlare(6)->halfSizeY = 7.5f;
+        lensFlareModel.getFlare(6)->position = -0.2f;
+        lensFlareModel.getFlare(6)->attenuationRange = 1.0f;
+
+        // flare7
+        lensFlareModel.addFlare(getScene()->getTextureManager()->addTexture2D("Flare2.bmp", True),0,0,0);
+        lensFlareModel.getFlare(7)->color.set(0.0f, 0.5f, 1.0f, 1.0f);
+        lensFlareModel.getFlare(7)->halfSizeX = 4.5f;
+        lensFlareModel.getFlare(7)->halfSizeY = 4.5f;
+        lensFlareModel.getFlare(7)->position = -0.4f;
+        lensFlareModel.getFlare(7)->attenuationRange = 1.0f;
+
+        // flare8
+        lensFlareModel.addFlare(getScene()->getTextureManager()->addTexture2D("Flare5.bmp", True),0,0,0);
+        lensFlareModel.getFlare(8)->color.set(1.0f, 1.0f, 0.0f, 1.0f);
+        lensFlareModel.getFlare(8)->halfSizeX = 3.0f;
+        lensFlareModel.getFlare(8)->halfSizeY = 3.0f;
+        lensFlareModel.getFlare(8)->position = -0.58f;
+        lensFlareModel.getFlare(8)->attenuationRange = 1.0f;
+
+        // flare9
+        lensFlareModel.addFlare(getScene()->getTextureManager()->addTexture2D("Flare2.bmp", True),0,0,0);
+        lensFlareModel.getFlare(9)->color.set(1.0f, 0.5f, 0.5f, 1.0f);
+        lensFlareModel.getFlare(9)->halfSizeX = 7.5f;
+        lensFlareModel.getFlare(9)->halfSizeY = 7.5f;
+        lensFlareModel.getFlare(9)->position = -0.9f;
+        lensFlareModel.getFlare(9)->attenuationRange = 1.0f;
+
+        // glow0
+        lensFlareModel.addGlow(getScene()->getTextureManager()->addTexture2D("Flare1.bmp", True),0,0,0);
+        lensFlareModel.getGlow(0)->color.set(0.9f,0.9f,0.32f,1.0f);
+        lensFlareModel.getGlow(0)->halfSizeX = 35.0f;
+        lensFlareModel.getGlow(0)->halfSizeY = 35.0f;
+        lensFlareModel.getGlow(0)->attenuationRange = 1.0f;
+        lensFlareModel.getGlow(0)->minIntensity = 0.5f;
+        lensFlareModel.getGlow(0)->isBehindEffect = True;
+
+        // glow1
+        lensFlareModel.addGlow(getScene()->getTextureManager()->addTexture2D("Flare1.bmp", True),0,0,0);
+        lensFlareModel.getGlow(1)->color.set(0.85f,0.85f,0.3f,0.5f);
+        lensFlareModel.getGlow(1)->halfSizeX = 40.0f;
+        lensFlareModel.getGlow(1)->halfSizeY = 40.0f;
+        lensFlareModel.getGlow(1)->attenuationRange = 1.0f;
+        lensFlareModel.getGlow(1)->isBehindEffect = False;
+
+        // glow2
+        lensFlareModel.addGlow(getScene()->getTextureManager()->addTexture2D("Shine7.bmp", True),0,0,0);
+        lensFlareModel.getGlow(2)->color.set(1.0f,0.85f,0.32f,0.4f);
+        lensFlareModel.getGlow(2)->halfSizeX = 90.f;
+        lensFlareModel.getGlow(2)->halfSizeY = 90.f;
+        lensFlareModel.getGlow(2)->attenuationRange = 1.0f;
+        lensFlareModel.getGlow(2)->isBehindEffect = False;
+
+        // glow3
+        lensFlareModel.addGlow(getScene()->getTextureManager()->addTexture2D("Flare1.bmp", True),0,0,0);
+        lensFlareModel.getGlow(3)->color.set(0.95f,0.95f,0.32f,0.7f);
+        lensFlareModel.getGlow(3)->halfSizeX = 150.0f;
+        lensFlareModel.getGlow(3)->halfSizeY = 100.0f;
+        lensFlareModel.getGlow(3)->attenuationRange = 0.5f;
+        lensFlareModel.getGlow(3)->isBehindEffect = False;
+
+        LensEffect *lensEffect = new LensEffect(getScene(), lensFlareModel, True);
+        lensEffect->setName("sunLensFlare");
+        getScene()->getSpecialEffectsManager()->addSpecialEffects(lensEffect);
+
+        lensEffect->setDirection(Vector3(0.f,0.5f,-1.0f));
+
+        //getScene()->exportScene(basePath.makeFullFileName("models"), SceneIO());
 	}
 
 	virtual ~Ms3dSample()
 	{
+        if (m_appWindow) {
+            onDestroy();
+        }
 	}
 
     void onDestroy()
     {
+        if (!m_appWindow) {
+            return;
+        }
+
         deletePtr(m_scene);
         deletePtr(m_glRenderer);
 
@@ -586,23 +1162,28 @@ private:
 
     Vector3 m_dwarfRotVelocity;
     Vector3 m_dwarfPosVelocity;
+};
 
+class MyActivity : public Activity
+{
 public:
 
-	#define LIGHT1
-	#define LIGHT2
-	#define LIGHT3
-    #define LIGHT4
-    #define SYMBOLIC
+    static Int32 main()
+    {
+        MemoryManager::instance()->enableLog(MemoryManager::MEM_RAM,128);
+        MemoryManager::instance()->enableLog(MemoryManager::MEM_GFX);
 
-	static Int32 main()
-	{
-		// We want to log memory allocation higher than 128 bytes.
-		MemoryManager::instance()->enableLog(MemoryManager::MEM_RAM,128);
-		// And we want to log too, any allocation onto the VRAM, such as texture creation
-		// or deletion, vbo, fbo.
-		MemoryManager::instance()->enableLog(MemoryManager::MEM_GFX);
+        Application::setActivity(new MyActivity);
 
+        Application::start();
+        Application::run();
+        Application::stop();
+
+        return 0;
+    }
+
+    virtual Int32 onStart() override
+    {
         Dir basePath("media");
         if (!basePath.exists()) {
             basePath = Dir("../media");
@@ -612,581 +1193,39 @@ public:
             }
         }
 
-		// Our application object
-        Ms3dSample *myApp = new Ms3dSample(basePath);
-
-        File iconFile(basePath.makeFullFileName("icon.bmp"));
-        if (iconFile.exists()) {
-            myApp->getWindow()->setIcon(iconFile.getFullFileName());
-        }
-
-        myApp->getScene()->setGlobalAmbient(Color(0.8f, 0.8f, 0.8f, 1.0f));
-
-		// Create a camera into the scene. You notice that we always need a parent
-		// to build an object. We simply set directly the scene as its parent.
-		// We can too add our camera into the getSceneObjectManager() of the scene,
-		// but it is useless in this example.
-        Camera *lpCamera = new Camera(myApp->getScene());
-
-		// A viewport is a part of the screen. Each viewport might be attached to a camera.
-		// We can overload the drawing callback, and define a displaying priority.
-		// Because the viewport manager provide the method to create and add a viewport
-		// we don't need to set its parent. In this case its parent is the viewport manager.
-        ScreenViewPort *pViewPort = myApp->getScene()->getViewPortManager()->addScreenViewPort(
-                                        lpCamera,
-                                        nullptr,
-                                        0);
-
-        Texture2D *lpTexture = new Texture2D(myApp->getScene());
-        lpTexture->create(False, 800, 600, PF_RGBA_U8);
-
-        FeedbackViewPort *pFbViewPort = myApp->getScene()->getViewPortManager()->addFeedbackViewPort(
-                    lpCamera,
-                    new DeferredDrawer(myApp->getScene()),
-                    lpTexture,
-                    0);
-
-        // default to deferred or forward
-        pFbViewPort->disable();
-        // pViewPort->disable();
-
-        GBuffer *gbuffer = new GBuffer(pFbViewPort);
-        gbuffer->create(800, 600, 1);
-        ((DeferredDrawer*)(pFbViewPort)->getSceneDrawer())->setGBuffer(gbuffer);
-
-		// Set a unique name to our camera. It should be unique to retrieve it by its name
-		// into the hierarchy tree or using the scene object manager.
-		lpCamera->setName("Camera");
-
-		// Define Z clipping plane
-		lpCamera->setZnear(0.25f);
-        lpCamera->setZfar(10000.0f);
-
-		// Compute the projection matrix of the camera as a perspective projection.
-		lpCamera->computePerspective();
-		// We don't want to see it
-		lpCamera->disableVisibility();
-
-		// Create a new node to contain our new camera
-        Node *cameraNode = myApp->getScene()->getHierarchyTree()->addNode(lpCamera);
-		// We also need a first view person transformation on this node
-		FTransform *ltransfrom = new FTransform;
-		cameraNode->addTransform(ltransfrom);
-
-		// Initial position at (5,50,120) {x,y,z} with Y+ up screen and Z+ comes to you
-		ltransfrom->translate(Vector3(0.0f, 50.f, 120.0f));
-
-		// Change the clear color
-        myApp->getScene()->getContext()->setBackgroundColor(0.633f, 0.792f, 0.914f, 0.0f);
-
-		// Set this parameter to True if you want to visualize the bones
-        myApp->getScene()->setDrawObject(Scene::DRAW_BONES, True);
-		// Set the parameter to True if you want to visualize the bounding volumes
-        myApp->getScene()->setDrawObject(Scene::DRAW_BOUNDING_VOLUME, True);
-		// Set the parameter to False if you want to disable the rendering step of any skinned meshes
-        myApp->getScene()->setDrawObject(Scene::DRAW_SKIN, True);
-	#ifndef SYMBOLIC
-        myApp->getScene()->hideAllSymbolicObject();
-	#endif
-
-		//
-		// light 1
-		//
-
-		#ifdef LIGHT1
-        // create a spot light
-        Light *light1 = new Light(myApp->getScene(), Light::SPOT_LIGHT);
-		light1->setName("light1");
-		light1->setAmbient(0.0f ,0.0f, 0.0f, 1.f);
-		//light1->setAmbient(0.2f, 0.2f, 0.2f, 1.f);
-        light1->setDiffuse(0.0f, 1.0f, 0.0f, 1.f);
-		light1->setSpecular(0.4f, 0.4f, 0.4f, 1.f);
-        light1->setAttenuation(1.f, 0.0f, 0.0002f);
-		light1->setExponent(0.3f);
-		light1->setCutOff(15.f);
-
-		// Create a new node to contain our new light
-        Node *lightNode1 = myApp->getScene()->getHierarchyTree()->addNode(light1);
-		// We also need a first view person transformation on this node
-		MTransform *lightTransform1 = new MTransform;
-		lightNode1->addTransform(lightTransform1);
-
-		// Initial position at (50,50,50) {x,y,z} with Y+ up screen and Z+ comes to you
-		lightTransform1->setPosition(Vector3(50.0f, 50.0f, 50.0f));
-		lightTransform1->setDirectionZ(Vector3(-1.0f, -1.0f, -1.f));
-		#endif
-
-		//
-		// light 2
-		//
-
-		#ifdef LIGHT2
-        // create a second spot light
-        Light *light2 = new Light(myApp->getScene(), Light::SPOT_LIGHT);
-		light2->setName("light2");
-		light2->setAmbient(0.0f, 0.0f, 0.0f, 1.f);
-		//light2->setAmbient(0.2f, 0.2f, 0.2f, 1.f);
-        light2->setDiffuse(1.0f, 0.0f, 0.0f, 1.f);
-		light2->setSpecular(0.4f, 0.4f, 0.4f, 1.f);
-        light2->setAttenuation(1.f, 0.0f, 0.0002f);
-		light2->setExponent(0.3f);
-		light2->setCutOff(15.f);
-
-		// Create a new node to contain our new light
-        Node *lightNode2 = myApp->getScene()->getHierarchyTree()->addNode(light2);
-		// We also need a first view person transformation on this node
-		MTransform *lightTransform2 = new MTransform;
-		lightNode2->addTransform(lightTransform2);
-
-		// Initial position at (50,50,50) {x,y,z} with Y+ up screen and Z+ comes to you
-		lightTransform2->setPosition(Vector3(-50.0f, 50.f, 50.0f));
-		lightTransform2->setDirectionZ(Vector3(1.0f, -1.0f, -1.f));
-		#endif
-
-		//
-		// light 3
-		//
-
-		#ifdef LIGHT3
-		// create a third point light
-        Light *light3 = new Light(myApp->getScene(), Light::POINT_LIGHT);
-		light3->setName("light3");
-		light3->setAmbient(0.0f, 0.0f, 0.0f, 1.f);
-        light3->setDiffuse(0.2f ,0.2f, 1.0f, 1.f);
-		light3->setSpecular(0.4f ,0.4f, 0.4f, 1.f);
-        light3->setAttenuation(1.f, 0.0001f, 0.00005f);
-
-		// Create a new node to contain our new light
-        Node *lightNode3 = myApp->getScene()->getHierarchyTree()->addNode(light3);
-		// We also need a first view person transformation on this node
-		MTransform *lightTransform3 = new MTransform;
-		lightNode3->addTransform(lightTransform3);
-
-		// Initial position at (50,50,50) {x,y,z} with Y+ up screen and Z+ comes to you
-        lightTransform3->setPosition(Vector3(0.0f, 200.f, 0.0f));
-        //lightTransform3->setDirectionZ(Vector3(0.0f, -1.0f, 0.f));
-		#endif
-
-        //
-        // light 4
-        //
-
-        #ifdef LIGHT4
-        // create a directionnal light
-        Light *light4 = new Light(myApp->getScene(), Light::DIRECTIONAL_LIGHT);
-        light4->setName("light4");
-        light4->setAmbient(0.0f ,0.0f, 0.0f, 1.f);
-        light4->setDiffuse(0.1f, 0.1f, 0.1f, 1.f);
-        light4->setSpecular(0.5f, 0.5f, 0.5f, 1.f);
-
-        // Create a new node to contain our new light
-        Node *lightNode4 = myApp->getScene()->getHierarchyTree()->addNode(light4);
-        // We also need a first view person transformation on this node
-        MTransform *lightTransform4 = new MTransform;
-        lightNode4->addTransform(lightTransform4);
-
-        // Y- down screen and Z+ comes to you
-        lightTransform4->setDirectionZ(Vector3(0.0f, -1.0f, 0.0f));
-        #endif
-
-		//
-		// plane ground
-		//
-
-		// Add a simple plane for simulate a ground to project shadow on
-		Surface surface(1000, 1000, 4, 4);
-        Mesh *meshSurface = new Mesh(myApp->getScene());
-		meshSurface->setName("plane");
-        MeshData *meshData = new MeshData(myApp->getScene());
-
-		GeometryData *surfaceGeometry = new GeometryData(meshData, surface);
-		surfaceGeometry->genNormals();
-		//surfaceGeometry->genTangentSpace();
-
-		meshData->setGeometry(surfaceGeometry);
-		meshData->computeBounding(GeometryData::BOUNDING_BOX);
-		meshData->createGeometry();
-
-		meshSurface->setMeshData(meshData);
-
-		meshSurface->setNumMaterialProfiles(1);
-		meshSurface->getMaterialProfile(0).setNumTechniques(1);
-		meshSurface->getMaterialProfile(0).getTechnique(0).setNumPass(1);
-        meshSurface->getMaterialProfile(0).getTechnique(0).getPass(0).setMaterial(Material::AMBIENT, new AmbientMaterial(myApp->getScene()));
-        meshSurface->getMaterialProfile(0).getTechnique(0).getPass(0).setMaterial(Material::LIGHTING, new LambertMaterial(myApp->getScene()));
-        meshSurface->getMaterialProfile(0).getTechnique(0).getPass(0).setMaterial(Material::PICKING, new PickingMaterial(myApp->getScene()));
-        meshSurface->getMaterialProfile(0).getTechnique(0).getPass(0).setMaterial(Material::DEFERRED, new LambertMaterial(myApp->getScene()));
-		meshSurface->getMaterialProfile(0).getTechnique(0).getPass(0).setAmbient(Color(0.0f, 0.0f, 0.0f, 1.f));
-        meshSurface->getMaterialProfile(0).getTechnique(0).getPass(0).setDiffuse(Color(1.0f, 1.0f, 1.0f, 1.f));
-        meshSurface->getMaterialProfile(0).getTechnique(0).getPass(0).setSpecular(Color(0.0f, 0.0f, 0.0f, 1.f));
-        meshSurface->getMaterialProfile(0).getTechnique(0).getPass(0).setShine(1.f);
-		meshSurface->initMaterialProfiles();
-
-        Node *surfaceNode = myApp->getScene()->getHierarchyTree()->addNode(meshSurface);
-
-        // a bit of physic to the plane to compute collisions
-        RigidBody *surfaceRigidBody = new RigidBody(surfaceNode);
-        myApp->getScene()->getPhysicEntityManager()->addElement(surfaceRigidBody);
-
-		//
-        // cube or sphere object
-		//
-
-        // Add a simple box or a sphere
-	//	Cube cube(50, 1);
-	//	Cylinder cube(25, 25, 50, 16, 2);
-		Sphere cube(25, 16, 16);
-        Mesh *meshCube = new Mesh(myApp->getScene());
-		meshCube->setName("shadowCaster");
-        meshData = new MeshData(myApp->getScene());
-
-		GeometryData *cubeGeometry = new GeometryData(meshData, cube);
-		cubeGeometry->genNormals();
-		//cubeGeometry->genTangentSpace();
-
-		meshData->setGeometry(cubeGeometry);
-		meshData->computeBounding(GeometryData::BOUNDING_SPHERE);
-		meshData->createGeometry();
-
-		meshCube->setMeshData(meshData);
-
-		std::vector<Float> lodLevels;
-		lodLevels.push_back(0.f);
-		lodLevels.push_back(100.f);
-
-		meshCube->setNumMaterialProfiles(1);
-		meshCube->getMaterialProfile(0).setLodStrategy(new LodStrategy());
-		meshCube->getMaterialProfile(0).setLodLevels(lodLevels);
-		meshCube->getMaterialProfile(0).setNumTechniques(2);
-
-		meshCube->getMaterialProfile(0).getTechnique(0).setNumPass(1);
-		meshCube->getMaterialProfile(0).getTechnique(0).setLodIndex(0);
-        meshCube->getMaterialProfile(0).getTechnique(0).getPass(0).setMaterial(Material::AMBIENT, new AmbientMaterial(myApp->getScene()));
-        meshCube->getMaterialProfile(0).getTechnique(0).getPass(0).setMaterial(Material::LIGHTING, new LambertMaterial(myApp->getScene()));
-        meshCube->getMaterialProfile(0).getTechnique(0).getPass(0).setMaterial(Material::PICKING, new PickingMaterial(myApp->getScene()));
-        meshCube->getMaterialProfile(0).getTechnique(0).getPass(0).setMaterial(Material::DEFERRED, new LambertMaterial(myApp->getScene()));
-		meshCube->getMaterialProfile(0).getTechnique(0).getPass(0).setAmbient(Color(0.3f, 0.3f, 0.3f, 1.f));
-		meshCube->getMaterialProfile(0).getTechnique(0).getPass(0).setDiffuse(Color(1.0f, 1.0f, 1.0f, 1.f));
-		meshCube->getMaterialProfile(0).getTechnique(0).getPass(0).setSpecular(Color(0.5f, 0.5f, 0.5f, 1.f));
-		meshCube->getMaterialProfile(0).getTechnique(0).getPass(0).setShine(1000.f);
-
-		meshCube->getMaterialProfile(0).getTechnique(1).setNumPass(1);
-		meshCube->getMaterialProfile(0).getTechnique(1).setLodIndex(1);
-        meshCube->getMaterialProfile(0).getTechnique(1).getPass(0).setMaterial(Material::AMBIENT, new AmbientMaterial(myApp->getScene()));
-        meshCube->getMaterialProfile(0).getTechnique(1).getPass(0).setMaterial(Material::LIGHTING, new LambertMaterial(myApp->getScene()));
-        meshCube->getMaterialProfile(0).getTechnique(1).getPass(0).setMaterial(Material::PICKING, new PickingMaterial(myApp->getScene()));
-        meshCube->getMaterialProfile(0).getTechnique(1).getPass(0).setMaterial(Material::DEFERRED, new LambertMaterial(myApp->getScene()));
-		meshCube->getMaterialProfile(0).getTechnique(1).getPass(0).setAmbient(Color(0.3f, 0.3f, 0.3f, 1.f));
-		meshCube->getMaterialProfile(0).getTechnique(1).getPass(0).setDiffuse(Color(1.0f, 0.0f, 0.0f, 1.f));
-		meshCube->getMaterialProfile(0).getTechnique(1).getPass(0).setSpecular(Color(0.5f, 0.5f, 0.5f, 1.f));
-		meshCube->getMaterialProfile(0).getTechnique(1).getPass(0).setShine(1000.f);
-
-		meshCube->initMaterialProfiles();
-
-		meshCube->enableShadowCast();
-
-        Node *cubeNode = myApp->getScene()->getHierarchyTree()->addNode(meshCube);
-		cubeNode->addTransform(new MTransform());
-		cubeNode->getTransform()->setPosition(Vector3(0.f, 135.f, 0.f));
-		cubeNode->getTransform()->rotate(Y,3.14f/4);
-
-		// Import an MS3D animated mesh
-        //myApp->getScene()->importScene(basePath.makeFullFileName("models/Sample ms3d.o3dsc"), nullptr);
-
-		// Use the next line to enable asynchronous texture loading
-        //myApp->getScene()->getTextureManager()->enableAsynchronous();
-
-		//
-		// import the dwarf1.ms3d
-		//
-
-		Ms3dSettings settings;
-		Ms3dResult result;
-		settings.setResultContainer(&result);
-		settings.setBoundingVolumeGen(GeometryData::BOUNDING_FAST);
-        Ms3d::import(myApp->getScene(), basePath.makeFullFileName("models/dwarf1.ms3d"), settings);
-
-		// We change the duration of the animation to 22 seconds
-		result.getAnimation()->setDuration(22.f);
-		// And set the frame rate to 30f/s
-		result.getAnimationPlayer()->setFramePerSec(30);
-
-		result.getAnimation()->addAnimRange("walk", 2, 14);
-		result.getAnimation()->addAnimRange("run", 16, 26);
-		result.getAnimation()->addAnimRange("jump", 28, 40);
-		result.getAnimation()->addAnimRange("jumpSpot", 42, 54);
-		result.getAnimation()->addAnimRange("crouchDown", 56, 59);
-		result.getAnimation()->addAnimRange("stayCrouchedLoop", 60, 69);
-		result.getAnimation()->addAnimRange("getUp", 70, 74);
-		result.getAnimation()->addAnimRange("battleIdle1", 75, 88);
-		result.getAnimation()->addAnimRange("battleIdle2", 90, 110);
-		result.getAnimation()->addAnimRange("attack1SwipeAxe", 112, 126, 126);  // this animation cannot be broken before the end
-		result.getAnimation()->addAnimRange("attack2Jump", 128, 142);
-		result.getAnimation()->addAnimRange("attack3Spin360", 144, 160);
-		result.getAnimation()->addAnimRange("attack4Swipes", 162, 180);
-		result.getAnimation()->addAnimRange("attack5Stab", 182, 192);
-		result.getAnimation()->addAnimRange("block", 194, 210);
-		result.getAnimation()->addAnimRange("die1Forwards", 212, 227);
-		result.getAnimation()->addAnimRange("die2Backwards", 230, 251);
-		result.getAnimation()->addAnimRange("nodYes", 253, 272);
-		result.getAnimation()->addAnimRange("shakeHeadNo", 274, 290);
-		result.getAnimation()->addAnimRange("idle1", 292, 325);
-		result.getAnimation()->addAnimRange("idle2", 327, 360);
-
-		// finally we need to setup animation range for the tracks
-		result.getAnimation()->computeAnimRange();
-
-        // and start with player the idle1 animation in loop.
-		result.getAnimationPlayer()->playAnimRange("idle1");
-
-		Rigging *rigging = o3d::dynamicCast<Rigging*>(result.getMesh());
-        if (rigging) {
-            //rigging->setCPUMode();
-            rigging->enablePicking();
-//			rigging->enableShadowCast();
-		}
-
-        // a bit of physic to the dwarf
-        RigidBody *dwarfRigidBody = new RigidBody(result.getRootNode());
-        myApp->getScene()->getPhysicEntityManager()->addElement(dwarfRigidBody);
-
-        dwarfRigidBody->setUpMassSphere(1.0f, 5.f);
-
-        GravityForce *gravityForce = new GravityForce(myApp->getScene(), Vector3(0.f, -98.1f, 0.f));
-        //myApp->getScene()->getPhysicEntityManager()->getForceManager().addElement(gravityForce);
-        ForceManager *dwarfForceManager = new ForceManager(dwarfRigidBody);
-        dwarfRigidBody->setForceManager(dwarfForceManager);
-        dwarfRigidBody->getForceManager()->addElement(gravityForce);
-
-		// define the specular for each material
-		UInt32 numProfiles = result.getMesh()->getNumMaterialProfiles();
-        for (UInt32 i = 0; i < numProfiles; ++i) {
-			result.getMesh()->getMaterialProfile(i).setSpecular(Color(0.8f, 0.8f, 0.8f, 1.f));
-			result.getMesh()->getMaterialProfile(i).setShine(100.f);
-		}
-
-		// animation control set to the dwarf
-        myApp->setAnimationPlayer(result.getAnimationPlayer());
-
-		//
-		// import the monster.ms3d
-		//
-
-        Ms3d::import(myApp->getScene(), basePath.makeFullFileName("models/monster.ms3d"), settings);
-
-		result.getAnimation()->addAnimRange("walk", 0, 120, 30);
-		result.getAnimation()->addAnimRange("run", 150, 210, 190);
-		result.getAnimation()->addAnimRange("attack01", 250, 333);
-		result.getAnimation()->addAnimRange("attack02", 320, 400);
-		result.getAnimation()->addAnimRange("death01", 390, 418);
-		result.getAnimation()->addAnimRange("growl", 478, 500);
-		result.getAnimation()->addAnimRange("death02", 500, 550);
-		result.getAnimation()->addAnimRange("death03", 565, 650);
-
-		result.getAnimation()->computeAnimRange();
-		result.getAnimationPlayer()->playAnimRange("attack02");
-
-		// And set the frame rate to 30f/s
-		result.getAnimationPlayer()->setFramePerSec(30);
-
-		rigging = dynamicCast<Rigging*>(result.getMesh());
-        if (rigging) {
-			rigging->enablePicking();
-
-			MTransform *mtransform = new MTransform(rigging->getNode());
-			rigging->getNode()->addTransform(mtransform);
-
-			mtransform->translate(Vector3(60.f, 0, 45));
-		}
-
-		// define the specular for each material
-		UInt32 numMaterials = result.getMesh()->getNumMaterialProfiles();
-        for (UInt32 i = 0; i < numMaterials; ++i) {
-			MaterialProfile &material = result.getMesh()->getMaterialProfile(i);
-			//material.setAmbient(Color(0.5f, 0.5f, 0.5f, 1.f));
-			material.setDiffuse(Color(0.8f, 0.8f, 0.8f, 1.f));
-			material.setSpecular(Color(0.8f, 0.8f, 0.8f, 1.f));
-			material.setShine(100.f);
-		}
-
-        //myApp->setAnimationPlayer(result->getAnimationPlayer());
-
-		// Enable the color picking mode.
-        myApp->getScene()->getPicking()->setMode(Picking::COLOR);
-
-		// This camera is used to compute some unprojection (useful for GetPointerPos or GetHitPos).
-        myApp->getScene()->getPicking()->setCamera(lpCamera);
-
-		// We need a mouse look to pick on the screen, so simply load a GUI theme
-        Theme *theme = myApp->getGui()->getThemeManager()->addTheme(basePath.makeFullFileName("gui/revolutioning.xml"));
-
-		// and set it as the default theme to use
-        myApp->getGui()->getWidgetManager()->setDefaultTheme(theme);
-
-		//
-		// finally, why not to add a simple skybox ?
-		//
-
-        SkyBox *skyBox = new SkyBox(myApp->getScene());
-		skyBox->setName("skyBox");
-		skyBox->create(
-				2048.f,
-				"sky01_xp.jpg",
-				"sky01_xn.jpg",
-				"sky01_yp.jpg",
-				"", // no Y down
-				"sky01_zp.jpg",
-				"sky01_zn.jpg",
-				True,
-				Texture::TRILINEAR_ANISOTROPIC,
-				4.f);
-        myApp->getScene()->getSpecialEffectsManager()->addSpecialEffects(skyBox);
-
-		//
-		// and a marvelous lens flare ?
-		//
-
-		LensFlareModel lensFlareModel;
-
-		lensFlareModel.setSizeX(10.0f);
-		lensFlareModel.setSizeY(10.0f);
-		lensFlareModel.setMaxDistance(100.0f);
-		lensFlareModel.setMinDistance(0.0f);
-		lensFlareModel.setMaxFadeRange(30.0f);
-		lensFlareModel.setMinFadeRange(10.0f);
-		lensFlareModel.setFadeInPersistence(0.1f);
-		lensFlareModel.setFadeOutPersistence(0.2f);
-		lensFlareModel.setSimpleOcclusion(False);
-
-		// flare0
-        lensFlareModel.addFlare(myApp->getScene()->getTextureManager()->addTexture2D("Flare5.bmp", True),0,0,0);
-		lensFlareModel.getFlare(0)->color.set(0.8f, 0.6f, 0.2f, 0.6f);
-		lensFlareModel.getFlare(0)->halfSizeX = 7.0f;
-		lensFlareModel.getFlare(0)->halfSizeY = 7.0f;
-		lensFlareModel.getFlare(0)->position = 0.7f;
-		lensFlareModel.getFlare(0)->attenuationRange = 1.0f;
-
-		// flare1
-        lensFlareModel.addFlare(myApp->getScene()->getTextureManager()->addTexture2D("Flare1.bmp", True),0,0,0);
-		lensFlareModel.getFlare(1)->color.set(0.2f, 0.6f, 1.0f, 1.0f);
-		lensFlareModel.getFlare(1)->halfSizeX = 5.0f;
-		lensFlareModel.getFlare(1)->halfSizeY = 5.0f;
-		lensFlareModel.getFlare(1)->position = 0.5f;
-		lensFlareModel.getFlare(1)->attenuationRange = 1.0f;
-
-		// flare2
-        lensFlareModel.addFlare(myApp->getScene()->getTextureManager()->addTexture2D("Flare6.bmp", True),0,0,0);
-		lensFlareModel.getFlare(2)->color.set(0.5f, 0.8f, 0.2f, 0.9f);
-		lensFlareModel.getFlare(2)->halfSizeX = 10.0f;
-		lensFlareModel.getFlare(2)->halfSizeY = 10.0f;
-		lensFlareModel.getFlare(2)->position = 0.4f;
-
-		// flare3
-        lensFlareModel.addFlare(myApp->getScene()->getTextureManager()->addTexture2D("Flare2.bmp", True),0,0,0);
-		lensFlareModel.getFlare(3)->color.set(0.9f, 0.4f, 0.1f, 1.0f);
-		lensFlareModel.getFlare(3)->halfSizeX = 5.0f;
-		lensFlareModel.getFlare(3)->halfSizeY = 5.0f;
-		lensFlareModel.getFlare(3)->position = 0.25f;
-		lensFlareModel.getFlare(3)->attenuationRange = 1.0f;
-
-		// flare4
-        lensFlareModel.addFlare(myApp->getScene()->getTextureManager()->addTexture2D("Flare2.bmp", True),0,0,0);
-		lensFlareModel.getFlare(4)->color.set(1.0f, 1.0f, 0.1f, 1.0f);
-		lensFlareModel.getFlare(4)->halfSizeX = 5.0f;
-		lensFlareModel.getFlare(4)->halfSizeY = 5.0f;
-		lensFlareModel.getFlare(4)->position = 0.12f;
-		lensFlareModel.getFlare(4)->attenuationRange = 1.0f;
-
-		// flare5
-        lensFlareModel.addFlare(myApp->getScene()->getTextureManager()->addTexture2D("Flare2.bmp", True),0,0,0);
-		lensFlareModel.getFlare(5)->color.set(1.0f, 0.7f, 0.1f, 1.0f);
-		lensFlareModel.getFlare(5)->halfSizeX = 4.0f;
-		lensFlareModel.getFlare(5)->halfSizeY = 4.0f;
-		lensFlareModel.getFlare(5)->position = 0.05f;
-		lensFlareModel.getFlare(5)->attenuationRange = 1.0f;
-
-		// flare6
-        lensFlareModel.addFlare(myApp->getScene()->getTextureManager()->addTexture2D("Flare4.bmp", True),0,0,0);
-		lensFlareModel.getFlare(6)->color.set(1.0f, 0.5f, 0.1f, 0.4f);
-		lensFlareModel.getFlare(6)->halfSizeX = 7.5f;
-		lensFlareModel.getFlare(6)->halfSizeY = 7.5f;
-		lensFlareModel.getFlare(6)->position = -0.2f;
-		lensFlareModel.getFlare(6)->attenuationRange = 1.0f;
-
-		// flare7
-        lensFlareModel.addFlare(myApp->getScene()->getTextureManager()->addTexture2D("Flare2.bmp", True),0,0,0);
-		lensFlareModel.getFlare(7)->color.set(0.0f, 0.5f, 1.0f, 1.0f);
-		lensFlareModel.getFlare(7)->halfSizeX = 4.5f;
-		lensFlareModel.getFlare(7)->halfSizeY = 4.5f;
-		lensFlareModel.getFlare(7)->position = -0.4f;
-		lensFlareModel.getFlare(7)->attenuationRange = 1.0f;
-
-		// flare8
-        lensFlareModel.addFlare(myApp->getScene()->getTextureManager()->addTexture2D("Flare5.bmp", True),0,0,0);
-		lensFlareModel.getFlare(8)->color.set(1.0f, 1.0f, 0.0f, 1.0f);
-		lensFlareModel.getFlare(8)->halfSizeX = 3.0f;
-		lensFlareModel.getFlare(8)->halfSizeY = 3.0f;
-		lensFlareModel.getFlare(8)->position = -0.58f;
-		lensFlareModel.getFlare(8)->attenuationRange = 1.0f;
-
-		// flare9
-        lensFlareModel.addFlare(myApp->getScene()->getTextureManager()->addTexture2D("Flare2.bmp", True),0,0,0);
-		lensFlareModel.getFlare(9)->color.set(1.0f, 0.5f, 0.5f, 1.0f);
-		lensFlareModel.getFlare(9)->halfSizeX = 7.5f;
-		lensFlareModel.getFlare(9)->halfSizeY = 7.5f;
-		lensFlareModel.getFlare(9)->position = -0.9f;
-		lensFlareModel.getFlare(9)->attenuationRange = 1.0f;
-
-		// glow0
-        lensFlareModel.addGlow(myApp->getScene()->getTextureManager()->addTexture2D("Flare1.bmp", True),0,0,0);
-		lensFlareModel.getGlow(0)->color.set(0.9f,0.9f,0.32f,1.0f);
-		lensFlareModel.getGlow(0)->halfSizeX = 35.0f;
-		lensFlareModel.getGlow(0)->halfSizeY = 35.0f;
-		lensFlareModel.getGlow(0)->attenuationRange = 1.0f;
-		lensFlareModel.getGlow(0)->minIntensity = 0.5f;
-		lensFlareModel.getGlow(0)->isBehindEffect = True;
-
-		// glow1
-        lensFlareModel.addGlow(myApp->getScene()->getTextureManager()->addTexture2D("Flare1.bmp", True),0,0,0);
-		lensFlareModel.getGlow(1)->color.set(0.85f,0.85f,0.3f,0.5f);
-		lensFlareModel.getGlow(1)->halfSizeX = 40.0f;
-		lensFlareModel.getGlow(1)->halfSizeY = 40.0f;
-		lensFlareModel.getGlow(1)->attenuationRange = 1.0f;
-		lensFlareModel.getGlow(1)->isBehindEffect = False;
-
-		// glow2
-        lensFlareModel.addGlow(myApp->getScene()->getTextureManager()->addTexture2D("Shine7.bmp", True),0,0,0);
-		lensFlareModel.getGlow(2)->color.set(1.0f,0.85f,0.32f,0.4f);
-		lensFlareModel.getGlow(2)->halfSizeX = 90.f;
-		lensFlareModel.getGlow(2)->halfSizeY = 90.f;
-		lensFlareModel.getGlow(2)->attenuationRange = 1.0f;
-		lensFlareModel.getGlow(2)->isBehindEffect = False;
-
-		// glow3
-        lensFlareModel.addGlow(myApp->getScene()->getTextureManager()->addTexture2D("Flare1.bmp", True),0,0,0);
-		lensFlareModel.getGlow(3)->color.set(0.95f,0.95f,0.32f,0.7f);
-		lensFlareModel.getGlow(3)->halfSizeX = 150.0f;
-		lensFlareModel.getGlow(3)->halfSizeY = 100.0f;
-		lensFlareModel.getGlow(3)->attenuationRange = 0.5f;
-		lensFlareModel.getGlow(3)->isBehindEffect = False;
-
-        LensEffect *lensEffect = new LensEffect(myApp->getScene(), lensFlareModel, True);
-		lensEffect->setName("sunLensFlare");
-        myApp->getScene()->getSpecialEffectsManager()->addSpecialEffects(lensEffect);
-
-		lensEffect->setDirection(Vector3(0.f,0.5f,-1.0f));
-
-        //myApp->getScene()->exportScene(basePath.makeFullFileName("models") ,SceneIO());
-
-		// Run the event loop
-        Application::run();
-	
-		// Destroy any contents
-        deletePtr(myApp);
-
-		return 0;
-	}
+        m_app = new Ms3dSample(basePath);
+
+        return 0;
+    }
+
+    virtual Int32 onStop() override
+    {
+        deletePtr(m_app);
+        return 0;
+    }
+
+    virtual Int32 onPause() override
+    {
+        // m_app->pause();
+        return 0;
+    }
+
+    virtual Int32 onResume() override
+    {
+        // m_app->resume();
+        return 0;
+    }
+
+    virtual Int32 onSave() override
+    {
+        // m_app->save();
+        return 0;
+    }
+
+private:
+
+    Ms3dSample *m_app;
 };
 
-//O3D_NOCONSOLE_MAIN(Ms3dSample, O3D_DEFAULT_CLASS_SETTINGS)
-O3D_CONSOLE_MAIN(Ms3dSample, O3D_DEFAULT_CLASS_SETTINGS)
+//O3D_NOCONSOLE_MAIN(MyActivity, O3D_DEFAULT_CLASS_SETTINGS)
+O3D_CONSOLE_MAIN(MyActivity, O3D_DEFAULT_CLASS_SETTINGS)

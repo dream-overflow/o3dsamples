@@ -63,7 +63,7 @@ TrueTypeFont * lpFont = nullptr;
 #endif
 
 /**
- * @brief The HeightmapSample class
+ * @brief The TerrainSample class
  * @date 2008-01-01
  * @author Emmanuel RUFFIO (emmanuel.ruffio@gmail.com)
  */
@@ -110,15 +110,323 @@ public:
         m_appWindow->onKey.connect(this, &TerrainSample::onKey);
         m_appWindow->onMouseMotion.connect(this, &TerrainSample::onMouseMotion);
         m_appWindow->onMouseButton.connect(this, &TerrainSample::onMouseButton);
+        m_appWindow->onTouchScreenMotion.connect(this, &TerrainSample::onTouchScreenMotion);
+        m_appWindow->onTouchScreenChange.connect(this, &TerrainSample::onTouchScreenChange);
         m_appWindow->onDestroy.connect(this, &TerrainSample::onDestroy);
 
 		m_time = 0.001f*System::getMsTime();
 
 		//getWindow()->grabMouse();
+
+        Camera *lpFPSCamera = new Camera(getScene());
+        getScene()->getViewPortManager()->addScreenViewPort(lpFPSCamera,0,0);
+
+        lpFPSCamera->setName("CameraFPS");
+        lpFPSCamera->setZnear(1.0f);
+        lpFPSCamera->setZfar(2000.0f);
+        lpFPSCamera->setFov(60.0f);
+        lpFPSCamera->computePerspective();
+        lpFPSCamera->disableVisibility();
+
+        Node *lnode = getScene()->getHierarchyTree()->addNode(lpFPSCamera);
+        FTransform *ftransform = new FTransform;
+        ftransform->setPosition(Vector3(0.0f,10.f,0.0f));
+        ftransform->rotate(Y, o3d::PI);
+        lnode->addTransform(ftransform);
+
+        getScene()->getContext()->setBackgroundColor(0.633f,0.792f,.914f,0.0f);
+
+        PCLODTerrain *pTerrain = new PCLODTerrain(getScene(), lpFPSCamera);
+        getScene()->getLandscape()->getTerrainManager().addTerrain(pTerrain);
+
+        //String headerFile = basePath + String("TerrainTerragen_LightmapTest.hclm");
+        //String headerFile = basePath + String("TerrainTerragen1zone_WithMaterials.hclm");
+        //MAUVAIS FORMAT String headerFile = basePath + String("TerrainTerragen_WithMaterials.hclm");
+
+        //String headerFile = basePath + String("Terrain_Tower.hclm");
+        String headerFile = basePath.makeFullFileName("terrain/TerrainTerragen_64.hclm");
+        //String headerFile = basePath.makeFileName("terrain/TerrainTerragen_LightmapTest.hclm");
+        String dataDir = basePath.makeFullPathName("terrain");
+        String materialDir = basePath.makeFullPathName("terrain/Materials");
+        String colormapDir = basePath.makeFullPathName("terrain/Colormaps");
+
+        Image noise(basePath.makeFullFileName("terrain/noise.jpg"));
+
+        pTerrain->getCurrentConfigs().setColormapPolicy(PCLODConfigs::COLORMAP_AUTO);
+        pTerrain->getCurrentConfigs().setColormapPrecision(2);
+        pTerrain->getCurrentConfigs().setDistanceOnlyMaterial(10.0f);
+        pTerrain->getCurrentConfigs().setDistanceOnlyColormap(25.0f);
+        pTerrain->getCurrentConfigs().setViewDistance(40);
+        pTerrain->getCurrentConfigs().enableAsynchRefresh(True);
+        pTerrain->getCurrentConfigs().setRefreshFrequency(10);
+        pTerrain->getCurrentConfigs().setColormapStaticNoise(noise);
+        pTerrain->getCurrentConfigs().enableColormapStaticNoise(noise.isValid());
+        pTerrain->getCurrentConfigs().setColormapStaticNoiseFactor(0.1f);
+        pTerrain->getCurrentConfigs().enableFrustumCulling(True);
+        pTerrain->getCurrentConfigs().enableFrontToBack(True);
+        pTerrain->getCurrentConfigs().setFrontToBackMinViewMove(10.0f);
+        pTerrain->getCurrentConfigs().setFrontToBackRefreshPeriodicity(100);
+        pTerrain->getCurrentConfigs().setLightMinAngleVariation(0.5f * 3.14159f/180.0f);
+        pTerrain->getCurrentConfigs().setText2D(getGui()->getFontManager()->addTrueTypeFont(basePath.makeFullFileName("gui/arial.ttf")));
+        pTerrain->getCurrentConfigs().enableDebugLabel(True);
+
+        pTerrain->getCurrentConfigs().enableLightmapLod(False);
+        pTerrain->getCurrentConfigs().setLightmapPoint(0.0f, 0);
+        pTerrain->getCurrentConfigs().setLightmapPoint(50.0f, -1);
+        pTerrain->getCurrentConfigs().setLightmapPoint(100.0f, -2);
+        pTerrain->getCurrentConfigs().setLightmapPoint(200.0f, -3);
+
+        pTerrain->getCurrentConfigs().enableWireFrame(False);
+        pTerrain->getCurrentConfigs().enableLightning(True);
+        pTerrain->getCurrentConfigs().enableSelfShadowing(True);
+
+        pTerrain->load(headerFile, dataDir, materialDir, colormapDir);
+        pTerrain->init(Vector3(0.0, 10.0, 0.0));
+        pTerrain->getCurrentConfigs().showMessage(True);
+
+        //
+        // light 1
+        //
+
+        lpLight1 = new Light(getScene(), Light::DIRECTIONAL_LIGHT);
+        lpLight1->setAmbient(0.0f, 0.0f, 0.0f, 1.0f);
+        lpLight1->setDiffuse(1.2f, 1.2f, 1.2f, 1.0f);
+        lpLight1->setSpecular(0.0f, 0.0f, 0.0f, 0.0f);
+
+        lnode = getScene()->getHierarchyTree()->addNode(lpLight1);
+
+        MTransform *ltransform = new MTransform;
+        ltransform->setPosition(Vector3(4.0f, 10.0f, 4.0f)); // only used to have a symbolic here
+        ltransform->setDirectionZ(Vector3(0.0f, -0.7f, 0.0f));
+
+        lnode->addTransform(ltransform);
+
+        //
+        // light 2
+        //
+
+        lpLight2 = new Light(getScene(), Light::DIRECTIONAL_LIGHT);
+        lpLight2->setAmbient(0.0f, 0.0f, 0.0f, 0.0f);
+        lpLight2->setDiffuse(0.5f, 0.5f, 0.5f, 1.0f);
+        lpLight2->setSpecular(0.0f, 0.0f, 0.0f, 0.0f);
+
+        ltransform = new MTransform;
+        ltransform->setPosition(Vector3(10.f, 10.f, 10.f));
+        ltransform->setDirectionZ(Vector3(-0.714f, -0.5f, 0.0f));
+
+        lnode = getScene()->getHierarchyTree()->addNode(lpLight2);
+        lnode->addTransform(ltransform);
+
+        //
+        // light 3
+        //
+
+        lpLight3 = new Light(getScene(), Light::SPOT_LIGHT);
+        lpLight3->setAmbient(0.0f, 0.0f, 0.0f, 0.0f);
+        lpLight3->setDiffuse(1.0f, 0.0f, 0.0f, 1.0f);
+        lpLight3->setSpecular(0.0f, 0.0f, 0.0f, 0.0f);
+
+        ltransform = new MTransform;
+        ltransform->setPosition(Vector3(15.f, 10.f, 15.f));
+        ltransform->setDirectionZ(Vector3(0.0f, -0.5f, 0.5f));
+
+        lnode = getScene()->getHierarchyTree()->addNode(lpLight3);
+        lnode->addTransform(ltransform);
+
+        lpLight3->setCutOff(28.f);
+        lpLight3->setExponent(1.0f);
+        lpLight3->setConstantAttenuation(1.0f);
+        lpLight3->setLinearAttenuation(0.0f);
+        lpLight3->setQuadraticAttenuation(0.0f);
+
+        //
+        // light 4
+        //
+
+        lpLight4 = new Light(getScene(), Light::SPOT_LIGHT);
+        lpLight4->setAmbient(0.0f, 0.0f, 0.0f, 0.0f);
+        lpLight4->setDiffuse(0.0f, 0.0f, 1.0f, 1.0f);
+        lpLight4->setSpecular(0.0f, 0.0f, 0.0f, 0.0f);
+
+        ltransform = new MTransform;
+        ltransform->setPosition(Vector3(15.f, 10.f, 15.f));
+        ltransform->setDirectionZ(Vector3(0.0f, -0.5f, 0.3f));
+
+        lnode = getScene()->getHierarchyTree()->addNode(lpLight4);
+        lnode->addTransform(ltransform);
+
+        lpLight4->setCutOff(28.f);
+        lpLight4->setExponent(1.0f);
+        lpLight4->setConstantAttenuation(1.0f);
+        lpLight4->setLinearAttenuation(0.0f);
+        lpLight4->setQuadraticAttenuation(0.0f);
+
+        //
+        // debug info
+        //
+
+        getScene()->setDrawObject(Scene::DRAW_DIRECTIONAL_LIGHT, True);
+        getScene()->setDrawObject(Scene::DRAW_SPOT_LIGHT, True);
+        //getScene()->setDrawObject(Scene::GLOBAL_BOUNDING, True);
+        getScene()->setDrawObject(Scene::DRAW_QUADTREE, False);
+        getScene()->setDrawObject(Scene::DRAW_DEBUG, True);
+
+        //
+        // add lights to terrain
+        //
+
+        TerrainBase::LightInfos lLightInfos;
+        lLightInfos.policy = TerrainBase::LIGHT_POLICY_PER_VERTEX;
+        lLightInfos.type = TerrainBase::LIGHT_TYPE_STATIC;
+        lLightInfos.update = TerrainBase::LIGHT_UPDATE_AUTO;
+
+        lLightInfos.pLight = lpLight1;
+        pTerrain->addLight(lLightInfos);
+
+        lLightInfos.pLight = lpLight3;
+        pTerrain->addLight(lLightInfos);
+
+        lLightInfos.pLight = lpLight4;
+        pTerrain->addLight(lLightInfos);
+
+        lLightInfos.pLight = lpLight2;
+        pTerrain->addLight(lLightInfos);
+
+        //
+        // sky object
+        //
+
+        lpSky = new SkyScattering(pTerrain);
+        lpSky->setPlanetRadius(6400.0f);
+        lpSky->setAtmosphereThickness(100.0f);
+        lpSky->setDomePrecision(4);
+        lpSky->setMoleculePhaseFunctionCoefficients(Vector2f(1.75f, 0.25f));
+        lpSky->setIntegrationStepFactor(1.1f);
+        lpSky->setIntegrationStepIndex(5);
+        lpSky->enableForecast(True);
+        lpSky->setTimeStep(30.0f);
+        lpSky->enableAsync(True);
+        lpSky->enableColorInterpolation(False);
+        lpSky->setTime(12.5);
+
+        //
+        // sun
+        //
+
+        SkyObject * lpSun = new SkyObject(lpSky);
+    //	lpSun->setPosition(Vector3(0.0f, -0.25f, 150E9f)); // a night position
+        lpSun->setPosition(Vector3(0.0f, 0.7f, 150E9f));   // a day position
+        lpSun->setApparentAngle(Vector2f(2.0f*o3d::toRadian(0.53f), 2.0f*o3d::toRadian(0.53f)));
+        lpSun->setIntensity(Vector3(200.0f, 220.0f, 250.0f));
+        lpSun->setWaveLength(Vector3(650.0e-9f, 610.0e-9f, 475.0e-9f));
+
+        Texture2D * lpSunTexture = new Texture2D(lpSun, basePath.makeFullFileName("terrain/sun.png"));
+        lpSunTexture->create(True);
+        lpSun->setTexture(lpSunTexture);
+        lpSky->addObject(lpSun);
+
+        //
+        // moon
+        //
+
+        SkyObject * lpMoon = new SkyObject(lpSky);
+        //lpMoon->setPosition(Vector3(1.0f, 0.7f, 384E6f));  // visible moon
+        lpMoon->setApparentAngle(Vector2f(3.0f*o3d::toRadian(0.53f), 3.0f*o3d::toRadian(0.53f)));
+        lpMoon->setIntensity(Vector3(400E-6f, 440E-6f, 500E-6f));
+        lpMoon->setWaveLength(Vector3(650.0e-9f, 610.0e-9f, 475.0e-9f));
+
+        Texture2D * lpMoonTexture = new Texture2D(lpMoon, basePath.makeFullFileName("terrain/moon256.png"));
+        lpMoonTexture->create(True);
+        lpMoon->setTexture(lpMoonTexture);
+        lpSky->addObject(lpMoon);
+
+        //
+        // clouds
+        //
+        //                 radius		cloud altitude
+        Dome lLayerDome(6400.0f,			10.f,			4, Primitive::GEN_TEX_COORDS);
+    //	lLayerDome.setTextureCoordinatePolicy(Dome::TEX_PROJECTION);
+    //	lLayerDome.setTextureCoordinatePolicy(Dome::TEX_LATITUDE_LONGITUDE);
+        lLayerDome.setTextureCoordinatePolicy(Dome::TEX_UNFOLD);
+
+        // The cloud layer is generated
+        CloudLayerPerlin * lpCloudLayer = new CloudLayerPerlin(
+            lpSky,
+            CloudLayerPerlin::CLOUD_SHADING | CloudLayerPerlin::CLOUD_SHADOWING | CloudLayerPerlin::CLOUD_OCCLUSION);
+
+        lpCloudLayer->setDome(lLayerDome);
+        lpCloudLayer->setContrast(20);
+        lpCloudLayer->setCoveringRate(0.45f);
+        lpCloudLayer->setScale(1.0f);
+        lpCloudLayer->setAverageSize(1);
+        //lpCloudLayer->setLightDirection(Vector3(1.0f, 0.0f, 0.0f));
+        Vector3 lSunDirection = lpSun->getCartesianPosition();
+        lSunDirection.normalize();
+
+        lpCloudLayer->setLightDirection(lSunDirection); // Direction of the sun specified above
+        lpCloudLayer->setCloudColor(Vector3(1.0f, 1.0f, 1.0f));
+        lpCloudLayer->setNoiseParameters(Vector4(13.0f, 43.0f, 101.0f, 0.5f));
+        lpCloudLayer->setIntensityParameters(Vector4(0.005f, 0.5f, 1.0f, 0.0f));
+        lpCloudLayer->setColorParameters(Vector4(0.6f, 3.0f, 0.1f, 0.0f));
+        lpCloudLayer->setLightParameters(Vector4(0.6f, 0.4f, -3.0f, 0.5f));
+        lpCloudLayer->setVelocity(Vector2f(0.005f, 0.001f));
+
+        // The perlin cloud texture is generated (optional)
+        PerlinNoise2d lNoise;
+        lNoise.setAmplitudes(PerlinNoise2d::geometricSequence(5, 0.5f, 1.0f));
+        lNoise.setFrequencies(PerlinNoise2d::geometricSequence(5, 2, 4));
+        lNoise.setBoundaryPolicy(PerlinNoise2d::BOUNDARY_REPEAT);
+        lNoise.setOctaveGenerationPolicy(PerlinNoise2d::OCTAVE_POSITIVE);
+        lNoise.setSize(128);
+        lNoise.setRandomSeed(15);
+
+        lpCloudLayer->setPerlin(lNoise);
+
+#if 0  // debug output of perlin noise to image
+        Image lPerlinPict;
+        lNoise.toImage(lPerlinPict);
+        lPerlinPict.save("PerlinCloud.jpg", Image::JPEG);
+#endif
+
+        // The noise texture is retrieved, its random seed is set
+        lNoise = lpCloudLayer->getNoise();
+        lNoise.setRandomSeed(10);
+
+        lpCloudLayer->setNoise(lNoise);
+
+#if 0  // debug output of perlin noise to image
+        Image lPerlinPict2;
+        lpCloudLayer->getNoise().toImage(lPerlinPict2);
+        lPerlinPict2.save("PerlinNoise.jpg", Image::JPEG);
+#endif
+
+        // Finally, the layer is added to the sky
+        lpSky->addCloudLayer(lpCloudLayer);
+
+    /*
+        lpSky = new SkyTexture(pTerrain);
+        lpSky->setDomePrecision(3);
+
+        Texture2D * lpTexture = new Texture2D(lpSky, basePath + "hemispherical_2048.png");
+        lpTexture->setWarp(TextureRepeat);
+        lpTexture->create(True);
+
+        lpSky->setTexture(lpTexture);
+    */
+        pTerrain->setSky(lpSky);
+
+        lpFont = getGui()->getFontManager()->addTrueTypeFont(basePath.makeFullFileName("gui/arial.ttf"));
+        lpFont->setTextHeight(12);
+        lpFont->setColor(Color(0.0f, 0.0f, 0.0f));
+
+        lpSky->init();
 	}
 
     virtual ~TerrainSample()
 	{
+        if (m_appWindow) {
+            onDestroy();
+        }
 	}
 
     AppWindow* getWindow() { return m_appWindow; }
@@ -127,6 +435,10 @@ public:
 
     void onDestroy()
     {
+        if (!m_appWindow) {
+            return;
+        }
+
         deletePtr(m_scene);
         deletePtr(m_glRenderer);
 
@@ -297,16 +609,57 @@ public:
         }
 	}
 
+    void onTouchScreenMotion(TouchScreen* touch)
+    {
+        if (touch->isSize()) {
+            Float z = -touch->getDeltaSize() * 0.01;
+
+            Camera *lpCamera = (Camera*)getScene()->getSceneObjectManager()->searchName("CameraFPS");
+            lpCamera->getNode()->getTransform()->translate(Vector3(0, 0, z));
+        } else {
+            Camera *lpCamera = (Camera*)getScene()->getSceneObjectManager()->searchName("CameraFPS");
+            lpCamera->getNode()->getTransform()->rotate(Y,-touch->getDeltaX()*0.005f);
+            lpCamera->getNode()->getTransform()->rotate(X,-touch->getDeltaY()*0.005f);
+        }
+    }
+
+    void onTouchScreenChange(TouchScreen* touch, TouchScreenEvent event)
+    {
+        // attack on tap
+        if (touch->isTap()) {
+        }
+
+        // jump on long tap
+        if (touch->isLongTap()) {
+        }
+    }
+
 	void onClose()
 	{
 		getWindow()->terminate();
-	}
+    }
+};
 
-	static Int32 main()
+class MyActivity : public Activity
+{
+public:
+
+    static Int32 main()
     {
-        // MemoryManager::Instance()->enableLog(MemoryManager::MemoryCentral, 128);
-        // MemoryManager::Instance()->enableLog(MemoryManager::MemoryGraphic);
+        MemoryManager::instance()->enableLog(MemoryManager::MEM_RAM, 128);
+        MemoryManager::instance()->enableLog(MemoryManager::MEM_GFX);
 
+        Application::setActivity(new MyActivity);
+
+        Application::start();
+        Application::run();
+        Application::stop();
+
+        return 0;
+    }
+
+    virtual Int32 onStart() override
+    {
         Dir basePath("media");
         if (!basePath.exists()) {
             basePath = Dir("../media");
@@ -316,315 +669,38 @@ public:
             }
         }
 
-        TerrainSample *lTerrainApp = new TerrainSample(basePath);
-
-        Camera *lpFPSCamera = new Camera(lTerrainApp->getScene());
-        lTerrainApp->getScene()->getViewPortManager()->addScreenViewPort(lpFPSCamera,0,0);
-
-		lpFPSCamera->setName("CameraFPS");
-		lpFPSCamera->setZnear(1.0f);
-		lpFPSCamera->setZfar(2000.0f);
-		lpFPSCamera->setFov(60.0f);
-		lpFPSCamera->computePerspective();
-		lpFPSCamera->disableVisibility();
-
-        Node *lnode = lTerrainApp->getScene()->getHierarchyTree()->addNode(lpFPSCamera);
-		FTransform *ftransform = new FTransform;
-		ftransform->setPosition(Vector3(0.0f,10.f,0.0f));
-		ftransform->rotate(Y, o3d::PI);
-		lnode->addTransform(ftransform);
-
-        lTerrainApp->getScene()->getContext()->setBackgroundColor(0.633f,0.792f,.914f,0.0f);
-
-        PCLODTerrain *pTerrain = new PCLODTerrain(lTerrainApp->getScene(), lpFPSCamera);
-        lTerrainApp->getScene()->getLandscape()->getTerrainManager().addTerrain(pTerrain);
-
-		//String headerFile = basePath + String("TerrainTerragen_LightmapTest.hclm");
-		//String headerFile = basePath + String("TerrainTerragen1zone_WithMaterials.hclm");
-		//MAUVAIS FORMAT String headerFile = basePath + String("TerrainTerragen_WithMaterials.hclm");
-
-		//String headerFile = basePath + String("Terrain_Tower.hclm");
-        String headerFile = basePath.makeFullFileName("terrain/TerrainTerragen_64.hclm");
-        //String headerFile = basePath.makeFileName("terrain/TerrainTerragen_LightmapTest.hclm");
-        String dataDir = basePath.makeFullPathName("terrain");
-        String materialDir = basePath.makeFullPathName("terrain/Materials");
-        String colormapDir = basePath.makeFullPathName("terrain/Colormaps");
-
-        Image noise(basePath.makeFullFileName("terrain/noise.jpg"));
-
-		pTerrain->getCurrentConfigs().setColormapPolicy(PCLODConfigs::COLORMAP_AUTO);
-		pTerrain->getCurrentConfigs().setColormapPrecision(2);
-		pTerrain->getCurrentConfigs().setDistanceOnlyMaterial(10.0f);
-		pTerrain->getCurrentConfigs().setDistanceOnlyColormap(25.0f);
-		pTerrain->getCurrentConfigs().setViewDistance(40);
-        pTerrain->getCurrentConfigs().enableAsynchRefresh(True);
-		pTerrain->getCurrentConfigs().setRefreshFrequency(10);
-		pTerrain->getCurrentConfigs().setColormapStaticNoise(noise);
-        pTerrain->getCurrentConfigs().enableColormapStaticNoise(noise.isValid());
-		pTerrain->getCurrentConfigs().setColormapStaticNoiseFactor(0.1f);
-		pTerrain->getCurrentConfigs().enableFrustumCulling(True);
-		pTerrain->getCurrentConfigs().enableFrontToBack(True);
-		pTerrain->getCurrentConfigs().setFrontToBackMinViewMove(10.0f);
-		pTerrain->getCurrentConfigs().setFrontToBackRefreshPeriodicity(100);
-		pTerrain->getCurrentConfigs().setLightMinAngleVariation(0.5f * 3.14159f/180.0f);
-        pTerrain->getCurrentConfigs().setText2D(lTerrainApp->getGui()->getFontManager()->addTrueTypeFont(basePath.makeFullFileName("gui/arial.ttf")));
-		pTerrain->getCurrentConfigs().enableDebugLabel(True);
-
-		pTerrain->getCurrentConfigs().enableLightmapLod(False);
-		pTerrain->getCurrentConfigs().setLightmapPoint(0.0f, 0);
-		pTerrain->getCurrentConfigs().setLightmapPoint(50.0f, -1);
-		pTerrain->getCurrentConfigs().setLightmapPoint(100.0f, -2);
-		pTerrain->getCurrentConfigs().setLightmapPoint(200.0f, -3);
-
-		pTerrain->getCurrentConfigs().enableWireFrame(False);
-		pTerrain->getCurrentConfigs().enableLightning(True);
-		pTerrain->getCurrentConfigs().enableSelfShadowing(True);
-
-		pTerrain->load(headerFile, dataDir, materialDir, colormapDir);
-		pTerrain->init(Vector3(0.0, 10.0, 0.0));
-		pTerrain->getCurrentConfigs().showMessage(True);
-
-		//
-		// light 1
-		//
-
-        lpLight1 = new Light(lTerrainApp->getScene(), Light::DIRECTIONAL_LIGHT);
-		lpLight1->setAmbient(0.0f, 0.0f, 0.0f, 1.0f);
-		lpLight1->setDiffuse(1.2f, 1.2f, 1.2f, 1.0f);
-		lpLight1->setSpecular(0.0f, 0.0f, 0.0f, 0.0f);
-
-        lnode = lTerrainApp->getScene()->getHierarchyTree()->addNode(lpLight1);
-
-		MTransform *ltransform = new MTransform;
-		ltransform->setPosition(Vector3(4.0f, 10.0f, 4.0f)); // only used to have a symbolic here
-		ltransform->setDirectionZ(Vector3(0.0f, -0.7f, 0.0f));
-
-		lnode->addTransform(ltransform);
-
-		//
-		// light 2
-		//
-
-        lpLight2 = new Light(lTerrainApp->getScene(), Light::DIRECTIONAL_LIGHT);
-		lpLight2->setAmbient(0.0f, 0.0f, 0.0f, 0.0f);
-		lpLight2->setDiffuse(0.5f, 0.5f, 0.5f, 1.0f);
-		lpLight2->setSpecular(0.0f, 0.0f, 0.0f, 0.0f);
-
-		ltransform = new MTransform;
-		ltransform->setPosition(Vector3(10.f, 10.f, 10.f));
-		ltransform->setDirectionZ(Vector3(-0.714f, -0.5f, 0.0f));
-
-        lnode = lTerrainApp->getScene()->getHierarchyTree()->addNode(lpLight2);
-		lnode->addTransform(ltransform);
-
-		//
-		// light 3
-		//
-
-        lpLight3 = new Light(lTerrainApp->getScene(), Light::SPOT_LIGHT);
-		lpLight3->setAmbient(0.0f, 0.0f, 0.0f, 0.0f);
-		lpLight3->setDiffuse(1.0f, 0.0f, 0.0f, 1.0f);
-		lpLight3->setSpecular(0.0f, 0.0f, 0.0f, 0.0f);
-
-		ltransform = new MTransform;
-		ltransform->setPosition(Vector3(15.f, 10.f, 15.f));
-		ltransform->setDirectionZ(Vector3(0.0f, -0.5f, 0.5f));
-
-        lnode = lTerrainApp->getScene()->getHierarchyTree()->addNode(lpLight3);
-		lnode->addTransform(ltransform);
-
-		lpLight3->setCutOff(28.f);
-		lpLight3->setExponent(1.0f);
-		lpLight3->setConstantAttenuation(1.0f);
-		lpLight3->setLinearAttenuation(0.0f);
-		lpLight3->setQuadraticAttenuation(0.0f);
-
-		//
-		// light 4
-		//
-
-        lpLight4 = new Light(lTerrainApp->getScene(), Light::SPOT_LIGHT);
-		lpLight4->setAmbient(0.0f, 0.0f, 0.0f, 0.0f);
-		lpLight4->setDiffuse(0.0f, 0.0f, 1.0f, 1.0f);
-		lpLight4->setSpecular(0.0f, 0.0f, 0.0f, 0.0f);
-
-		ltransform = new MTransform;
-		ltransform->setPosition(Vector3(15.f, 10.f, 15.f));
-		ltransform->setDirectionZ(Vector3(0.0f, -0.5f, 0.3f));
-
-        lnode = lTerrainApp->getScene()->getHierarchyTree()->addNode(lpLight4);
-		lnode->addTransform(ltransform);
-
-		lpLight4->setCutOff(28.f);
-		lpLight4->setExponent(1.0f);
-		lpLight4->setConstantAttenuation(1.0f);
-		lpLight4->setLinearAttenuation(0.0f);
-		lpLight4->setQuadraticAttenuation(0.0f);
-
-		//
-		// debug info
-		//
-
-        lTerrainApp->getScene()->setDrawObject(Scene::DRAW_DIRECTIONAL_LIGHT, True);
-        lTerrainApp->getScene()->setDrawObject(Scene::DRAW_SPOT_LIGHT, True);
-        //lTerrainApp->getScene()->setDrawObject(Scene::GLOBAL_BOUNDING, True);
-        lTerrainApp->getScene()->setDrawObject(Scene::DRAW_QUADTREE, False);
-        lTerrainApp->getScene()->setDrawObject(Scene::DRAW_DEBUG, True);
-
-		//
-		// add lights to terrain
-		//
-
-		TerrainBase::LightInfos lLightInfos;
-		lLightInfos.policy = TerrainBase::LIGHT_POLICY_PER_VERTEX;
-		lLightInfos.type = TerrainBase::LIGHT_TYPE_STATIC;
-		lLightInfos.update = TerrainBase::LIGHT_UPDATE_AUTO;
-
-		lLightInfos.pLight = lpLight1;
-		pTerrain->addLight(lLightInfos);
-
-		lLightInfos.pLight = lpLight3;
-		pTerrain->addLight(lLightInfos);
-
-		lLightInfos.pLight = lpLight4;
-		pTerrain->addLight(lLightInfos);
-
-		lLightInfos.pLight = lpLight2;
-		pTerrain->addLight(lLightInfos);
-
-		//
-		// sky object
-		//
-
-		lpSky = new SkyScattering(pTerrain);
-		lpSky->setPlanetRadius(6400.0f);
-		lpSky->setAtmosphereThickness(100.0f);
-		lpSky->setDomePrecision(4);
-		lpSky->setMoleculePhaseFunctionCoefficients(Vector2f(1.75f, 0.25f));
-		lpSky->setIntegrationStepFactor(1.1f);
-		lpSky->setIntegrationStepIndex(5);
-		lpSky->enableForecast(True);
-		lpSky->setTimeStep(30.0f);
-		lpSky->enableAsync(True);
-		lpSky->enableColorInterpolation(False);
-		lpSky->setTime(12.5);
-
-		//
-		// sun
-		//
-
-		SkyObject * lpSun = new SkyObject(lpSky);
-    //	lpSun->setPosition(Vector3(0.0f, -0.25f, 150E9f)); // a night position
-		lpSun->setPosition(Vector3(0.0f, 0.7f, 150E9f));   // a day position
-		lpSun->setApparentAngle(Vector2f(2.0f*o3d::toRadian(0.53f), 2.0f*o3d::toRadian(0.53f)));
-		lpSun->setIntensity(Vector3(200.0f, 220.0f, 250.0f));
-		lpSun->setWaveLength(Vector3(650.0e-9f, 610.0e-9f, 475.0e-9f));
-
-		Texture2D * lpSunTexture = new Texture2D(lpSun, basePath.makeFullFileName("terrain/sun.png"));
-		lpSunTexture->create(True);
-		lpSun->setTexture(lpSunTexture);
-		lpSky->addObject(lpSun);
-
-		//
-		// moon
-		//
-
-		SkyObject * lpMoon = new SkyObject(lpSky);
-        //lpMoon->setPosition(Vector3(1.0f, 0.7f, 384E6f));  // visible moon
-		lpMoon->setApparentAngle(Vector2f(3.0f*o3d::toRadian(0.53f), 3.0f*o3d::toRadian(0.53f)));
-		lpMoon->setIntensity(Vector3(400E-6f, 440E-6f, 500E-6f));
-		lpMoon->setWaveLength(Vector3(650.0e-9f, 610.0e-9f, 475.0e-9f));
-
-        Texture2D * lpMoonTexture = new Texture2D(lpMoon, basePath.makeFullFileName("terrain/moon256.png"));
-		lpMoonTexture->create(True);
-		lpMoon->setTexture(lpMoonTexture);
-		lpSky->addObject(lpMoon);
-
-		//
-		// clouds
-		//
-		//                 radius		cloud altitude
-		Dome lLayerDome(6400.0f,			10.f,			4, Primitive::GEN_TEX_COORDS);
-	//	lLayerDome.setTextureCoordinatePolicy(Dome::TEX_PROJECTION);
-    //	lLayerDome.setTextureCoordinatePolicy(Dome::TEX_LATITUDE_LONGITUDE);
-        lLayerDome.setTextureCoordinatePolicy(Dome::TEX_UNFOLD);
-
-		// The cloud layer is generated
-		CloudLayerPerlin * lpCloudLayer = new CloudLayerPerlin(
-			lpSky,
-			CloudLayerPerlin::CLOUD_SHADING | CloudLayerPerlin::CLOUD_SHADOWING | CloudLayerPerlin::CLOUD_OCCLUSION);
-
-		lpCloudLayer->setDome(lLayerDome);
-		lpCloudLayer->setContrast(20);
-		lpCloudLayer->setCoveringRate(0.45f);
-		lpCloudLayer->setScale(1.0f);
-		lpCloudLayer->setAverageSize(1);
-        //lpCloudLayer->setLightDirection(Vector3(1.0f, 0.0f, 0.0f));
-		Vector3 lSunDirection = lpSun->getCartesianPosition();
-		lSunDirection.normalize();
-
-		lpCloudLayer->setLightDirection(lSunDirection); // Direction of the sun specified above
-		lpCloudLayer->setCloudColor(Vector3(1.0f, 1.0f, 1.0f));
-		lpCloudLayer->setNoiseParameters(Vector4(13.0f, 43.0f, 101.0f, 0.5f));
-		lpCloudLayer->setIntensityParameters(Vector4(0.005f, 0.5f, 1.0f, 0.0f));
-		lpCloudLayer->setColorParameters(Vector4(0.6f, 3.0f, 0.1f, 0.0f));
-		lpCloudLayer->setLightParameters(Vector4(0.6f, 0.4f, -3.0f, 0.5f));
-		lpCloudLayer->setVelocity(Vector2f(0.005f, 0.001f));
-
-		// The perlin cloud texture is generated (optional)
-		PerlinNoise2d lNoise;
-		lNoise.setAmplitudes(PerlinNoise2d::geometricSequence(5, 0.5f, 1.0f));
-		lNoise.setFrequencies(PerlinNoise2d::geometricSequence(5, 2, 4));
-		lNoise.setBoundaryPolicy(PerlinNoise2d::BOUNDARY_REPEAT);
-		lNoise.setOctaveGenerationPolicy(PerlinNoise2d::OCTAVE_POSITIVE);
-		lNoise.setSize(128);
-		lNoise.setRandomSeed(15);
-
-		lpCloudLayer->setPerlin(lNoise);
-
-		Image lPerlinPict;
-		lNoise.toImage(lPerlinPict);
-		lPerlinPict.save("PerlinCloud.jpg", Image::JPEG);
-
-		// The noise texture is retrieved, its random seed is set
-		lNoise = lpCloudLayer->getNoise();
-		lNoise.setRandomSeed(10);
-
-		lpCloudLayer->setNoise(lNoise);
-
-		Image lPerlinPict2;
-		lpCloudLayer->getNoise().toImage(lPerlinPict2);
-		lPerlinPict2.save("PerlinNoise.jpg", Image::JPEG);
-
-		// Finally, the layer is added to the sky
-		lpSky->addCloudLayer(lpCloudLayer);
-
-	/*
-		lpSky = new SkyTexture(pTerrain);
-		lpSky->setDomePrecision(3);
-
-		Texture2D * lpTexture = new Texture2D(lpSky, basePath + "hemispherical_2048.png");
-        lpTexture->setWarp(TextureRepeat);
-		lpTexture->create(True);
-
-		lpSky->setTexture(lpTexture);
-	*/
-		pTerrain->setSky(lpSky);
-
-        lpFont = lTerrainApp->getGui()->getFontManager()->addTrueTypeFont(basePath.makeFullFileName("gui/arial.ttf"));
-		lpFont->setTextHeight(12);
-        lpFont->setColor(Color(0.0f, 0.0f, 0.0f));
-
-		lpSky->init();
-
-        // Run the event loop
-        Application::run();
-
-        // Destroy any content
-        deletePtr(lTerrainApp);
-
-		return 0;
-	}
+        m_app = new TerrainSample(basePath);
+
+        return 0;
+    }
+
+    virtual Int32 onStop() override
+    {
+        deletePtr(m_app);
+        return 0;
+    }
+
+    virtual Int32 onPause() override
+    {
+        // m_app->pause();
+        return 0;
+    }
+
+    virtual Int32 onResume() override
+    {
+        // m_app->resume();
+        return 0;
+    }
+
+    virtual Int32 onSave() override
+    {
+        // m_app->save();
+        return 0;
+    }
+
+private:
+
+    TerrainSample *m_app;
 };
 
-O3D_NOCONSOLE_MAIN(TerrainSample, O3D_DEFAULT_CLASS_SETTINGS)
+O3D_NOCONSOLE_MAIN(MyActivity, O3D_DEFAULT_CLASS_SETTINGS)

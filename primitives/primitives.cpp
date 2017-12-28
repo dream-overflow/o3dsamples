@@ -75,6 +75,33 @@ using namespace o3d;
  */
 class PrimitivesSample : public EvtHandler
 {
+private:
+
+    AppWindow *m_appWindow;
+
+    Renderer* m_glRenderer;
+
+    Scene *m_scene;
+
+    Cube* primitive;
+    Cylinder* cylinder;
+    Sphere* sphere;
+    Cube* solidPrimitive;
+    Cylinder* solidCylinder;
+    Sphere* solidSphere;
+    Mesh* texturedSphere;
+    Surface* surface;
+    Surface* solidSurface;
+    IsoSphere* isoSphere;
+    IsoSphere* solidIsoSphere;
+    Dome* dome;
+    Dome* solidDome;
+    Mesh* texturedDome;
+
+    GeometryData *geom;
+
+    Int32 object;
+
 public:
 
     class Drawer : public ShadowVolumeForward
@@ -134,35 +161,6 @@ public:
             camera.clearCameraChanged();
         }
     };
-
-private:
-
-    AppWindow *m_appWindow;
-
-    Renderer* m_glRenderer;
-
-    Scene *m_scene;
-
-    Cube* primitive;
-    Cylinder* cylinder;
-    Sphere* sphere;
-    Cube* solidPrimitive;
-    Cylinder* solidCylinder;
-    Sphere* solidSphere;
-    Mesh* texturedSphere;
-    Surface* surface;
-    Surface* solidSurface;
-    IsoSphere* isoSphere;
-    IsoSphere* solidIsoSphere;
-    Dome* dome;
-    Dome* solidDome;
-    Mesh* texturedDome;
-
-    GeometryData *geom;
-
-    Int32 object;
-
-public:
 
     PrimitivesSample(Dir &basePath) :
             geom(nullptr),
@@ -274,10 +272,32 @@ public:
         //getWindow()->grabMouse();
         //getWindow()->getInput().getMouse()->setMouseSmoother(True);
         //getWindow()->getInput().getMouse()->setSmootherPeriod(0.01);
+
+        Camera *lpFPSCamera = new Camera(getScene());
+        getScene()->getViewPortManager()->addScreenViewPort(
+                    lpFPSCamera, new Drawer(getScene(), this), 0);
+
+        lpFPSCamera->setName("CameraFPS");
+        lpFPSCamera->setZnear(0.25f);
+        lpFPSCamera->setZfar(10000.0f);
+        lpFPSCamera->computePerspective();
+        lpFPSCamera->disableVisibility();
+
+        Node *cameraNode = getScene()->getHierarchyTree()->addNode(lpFPSCamera);
+        FTransform *ltransfrom = new FTransform;
+
+        ltransfrom->translate(Vector3(0.0f,0.f,8.0f));
+
+        cameraNode->addTransform(ltransfrom);
+
+        getScene()->getContext()->setBackgroundColor(0.633f,0.792f,.914f,0.0f);
 	}
 
     virtual ~PrimitivesSample()
     {
+        if (m_appWindow) {
+            onDestroy();
+        }
 	}
 
     AppWindow* getWindow() { return m_appWindow; }
@@ -286,6 +306,10 @@ public:
 
     void onDestroy()
     {
+        if (!m_appWindow) {
+            return;
+        }
+
         deletePtr(geom);
 
         deletePtr(primitive);
@@ -487,12 +511,28 @@ public:
             togglePrimitive();
         }
     }
+};
+
+class MyActivity : public Activity
+{
+public:
 
     static Int32 main()
     {
         MemoryManager::instance()->enableLog(MemoryManager::MEM_RAM,128);
         MemoryManager::instance()->enableLog(MemoryManager::MEM_GFX);
 
+        Application::setActivity(new MyActivity);
+
+        Application::start();
+        Application::run();
+        Application::stop();
+
+        return 0;
+    }
+
+    virtual Int32 onStart() override
+    {
         Dir basePath("media");
         if (!basePath.exists()) {
             basePath = Dir("../media");
@@ -502,33 +542,38 @@ public:
             }
         }
 
-        PrimitivesSample *primitivesApp = new PrimitivesSample(basePath);
-
-        Camera *lpFPSCamera = new Camera(primitivesApp->getScene());
-        primitivesApp->getScene()->getViewPortManager()->addScreenViewPort(
-                    lpFPSCamera, new Drawer(primitivesApp->getScene(), primitivesApp), 0);
-
-        lpFPSCamera->setName("CameraFPS");
-        lpFPSCamera->setZnear(0.25f);
-        lpFPSCamera->setZfar(10000.0f);
-        lpFPSCamera->computePerspective();
-        lpFPSCamera->disableVisibility();
-
-        Node *cameraNode = primitivesApp->getScene()->getHierarchyTree()->addNode(lpFPSCamera);
-        FTransform *ltransfrom = new FTransform;
-
-        ltransfrom->translate(Vector3(0.0f,0.f,8.0f));
-
-        cameraNode->addTransform(ltransfrom);
-
-        primitivesApp->getScene()->getContext()->setBackgroundColor(0.633f,0.792f,.914f,0.0f);
-
-        Application::run();
-
-        deletePtr(primitivesApp);
+        m_app = new PrimitivesSample(basePath);
 
         return 0;
     }
+
+    virtual Int32 onStop() override
+    {
+        deletePtr(m_app);
+        return 0;
+    }
+
+    virtual Int32 onPause() override
+    {
+        // m_app->pause();
+        return 0;
+    }
+
+    virtual Int32 onResume() override
+    {
+        // m_app->resume();
+        return 0;
+    }
+
+    virtual Int32 onSave() override
+    {
+        // m_app->save();
+        return 0;
+    }
+
+private:
+
+    PrimitivesSample *m_app;
 };
 
-O3D_NOCONSOLE_MAIN(PrimitivesSample, O3D_DEFAULT_CLASS_SETTINGS)
+O3D_NOCONSOLE_MAIN(MyActivity, O3D_DEFAULT_CLASS_SETTINGS)

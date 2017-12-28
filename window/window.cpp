@@ -28,11 +28,11 @@
 using namespace o3d;
 
 /**
- * @brief The SoundSample class.
+ * @brief The WindowSample class.
  * @date 2004-01-01
  * @author Frederic SCHERMA (frederic.scherma@dreamoverflow.org)
  */
-class Window : public EvtHandler
+class WindowSample : public EvtHandler
 {
 private:
 
@@ -44,44 +44,7 @@ private:
 
 public:
 
-	static Int32 main()
-    {
-    //	{
-        //		PerlinNoise2d lPerlin;
-        //		Image lPicture;
-        //		Bool lRet = lPerlin.ToPicture(lPicture);
-        //		lPicture.save("PerlinGen.jpg", Image::Jpeg);
-    //	}
-
-        Dir basePath("media");
-        if (!basePath.exists()) {
-            basePath = Dir("../media");
-            if (!basePath.exists()) {
-                Application::message("Missing media content", "Error");
-                return -1;
-            }
-        }
-
-        Window *apps = new Window(basePath);
-
-        File iconFile(basePath.makeFullFileName("icon.bmp"));
-        if (iconFile.exists()) {
-            apps->getWindow()->setIcon(iconFile.getFullFileName());
-        }
-
-        apps->getScene()->getContext()->setBackgroundColor(Color(1.0f,0,0,1));
-		// Unlock the mouse position
-        apps->getWindow()->getInput().getMouse()->setGrab(False);
-
-        // Run the event loop
-        Application::run();
-
-        // Destroy any content
-        deletePtr(apps);
-		return 0;
-	}
-
-    Window(Dir &basePath) :
+    WindowSample(Dir &basePath) :
         m_camera(nullptr)
 	{
         m_appWindow = new AppWindow;
@@ -91,6 +54,11 @@ public:
 
         m_appWindow->setTitle("Objective-3D Window sample");
         m_appWindow->create(800, 600, AppWindow::COLOR_RGBA8, AppWindow::DEPTH_24_STENCIL_8, AppWindow::NO_MSAA, False, False);
+
+        File iconFile(basePath.makeFullFileName("icon.bmp"));
+        if (iconFile.exists()) {
+            m_appWindow->setIcon(iconFile.getFullFileName());
+        }
 
         // Resize the window to an available fullscreen resolution (@see Video class).
         // m_appWindow->setFullScreen(True);
@@ -102,9 +70,9 @@ public:
         m_scene->setSceneName("window");
         m_scene->defaultAttachment(m_appWindow);
 
-		m_appWindow->onClose.connect(this, &Window::onClose);
-		m_appWindow->onDraw.connect(this, &Window::onDraw);
-        m_appWindow->onDestroy.connect(this, &Window::onDestroy);
+        m_appWindow->onClose.connect(this, &WindowSample::onClose);
+        m_appWindow->onDraw.connect(this, &WindowSample::onDraw);
+        m_appWindow->onDestroy.connect(this, &WindowSample::onDestroy);
 
 		// create a simple camera
 		m_camera = new Camera(getScene());
@@ -119,10 +87,17 @@ public:
 		MTransform *transform = new MTransform;
 		node->addTransform(transform);
 		transform->setPosition(Vector3(0.f, 0.f, 1.f));
+
+        m_scene->getContext()->setBackgroundColor(Color(1.0f,0,0,1));
+        // Lock the mouse position
+        //  m_appWindow->getInput().getMouse()->setGrab(False);
 	}
 
-    virtual ~Window()
+    virtual ~WindowSample()
     {
+        if (m_appWindow) {
+            onDestroy();
+        }
     }
 
     AppWindow* getWindow() { return m_appWindow; }
@@ -131,13 +106,17 @@ public:
 
     void onDestroy()
     {
-        this->getWindow()->logFps();
+        if (!m_appWindow) {
+            return;
+        }
 
-        // it is deleted by the application
-        m_appWindow = nullptr;
+        this->getWindow()->logFps();
 
         deletePtr(m_scene);
         deletePtr(m_glRenderer);
+
+        // it is deleted by the application
+        m_appWindow = nullptr;
     }
 
 	// draw a triangle
@@ -169,5 +148,68 @@ private:
 	Camera *m_camera;
 };
 
+class MyActivity : public Activity
+{
+public:
+
+    static Int32 main()
+    {
+        MemoryManager::instance()->enableLog(MemoryManager::MEM_RAM,128);
+        MemoryManager::instance()->enableLog(MemoryManager::MEM_GFX);
+
+        Application::setActivity(new MyActivity);
+
+        Application::start();
+        Application::run();
+        Application::stop();
+
+        return 0;
+    }
+
+    virtual Int32 onStart() override
+    {
+        Dir basePath("media");
+        if (!basePath.exists()) {
+            basePath = Dir("../media");
+            if (!basePath.exists()) {
+                Application::message("Missing media content", "Error");
+                return -1;
+            }
+        }
+
+        m_app = new WindowSample(basePath);
+
+        return 0;
+    }
+
+    virtual Int32 onStop() override
+    {
+        deletePtr(m_app);
+        return 0;
+    }
+
+    virtual Int32 onPause() override
+    {
+        // m_app->pause();
+        return 0;
+    }
+
+    virtual Int32 onResume() override
+    {
+        // m_app->resume();
+        return 0;
+    }
+
+    virtual Int32 onSave() override
+    {
+        // m_app->save();
+        return 0;
+    }
+
+private:
+
+    WindowSample *m_app;
+};
+
 // We Call our application
-O3D_NOCONSOLE_MAIN(Window, O3D_DEFAULT_CLASS_SETTINGS)
+O3D_NOCONSOLE_MAIN(MyActivity, O3D_DEFAULT_CLASS_SETTINGS)
