@@ -1136,6 +1136,56 @@ public:
             m_animationPlayer->enqueueAnimRange("idle1", AnimationPlayer::MODE_LOOP);
         }
 
+        // jump on double tap
+        if (touch->isDoubleTap()) {
+            Node *dwarf = dynamicCast<Node*>(getScene()->getSceneObjectManager()->searchName("dwarf1"));
+            if (dwarf) {
+                // simulate the plane collision
+                if (dwarf->getRigidBody()->getPosition().y() < 0.0f) {
+                    Vector3 pos = dwarf->getRigidBody()->getPosition();
+                    Vector3 speed = dwarf->getRigidBody()->getSpeed();
+                    pos.y() = 0.0f;
+                    speed.y() = 0.0f;
+                    dwarf->getRigidBody()->setSpeed(speed);
+                    dwarf->getRigidBody()->setPosition(pos);
+                }
+
+                Float dwarfImpulse = 0, dwarfJumpImpulse = 0;
+                System::print("", dwarf->getRigidBody()->getP());
+                if (o3d::abs(dwarf->getRigidBody()->getP().y()) <= 0.01f) {
+                    dwarfJumpImpulse = 70000.f;
+                }
+
+                static Float rotY = 0.f;
+                Float oldRotY = rotY;
+                rotY += m_dwarfRotVelocity.y();
+
+                if (rotY != oldRotY) {
+                    dwarfImpulse = m_dwarfPosVelocity.z();
+                }
+
+                Quaternion rot;
+                rot.fromAxisAngle3(Vector3(0.f, 1.f, 0.f), -rotY);
+
+                dwarf->getRigidBody()->setRotation(rot);
+
+                if (o3d::abs(dwarfJumpImpulse) > o3d::Limits<Float>::epsilon()) {
+                    dwarf->getRigidBody()->addForceImpulse(Vector3(0.f, dwarfJumpImpulse, 0.f));
+                }
+
+                if ((o3d::abs(dwarfImpulse) > o3d::Limits<Float>::epsilon()) || (rotY != oldRotY)) {
+                    Matrix3 rotMat;
+                    rotMat.rotateY(rotY);
+
+                    Vector3 impulse = rotMat * Vector3(0.f, 0.f, dwarfImpulse);
+                    dwarf->getRigidBody()->setP(Vector3(0.f, dwarf->getRigidBody()->getP().y(), 0.f));
+                    dwarf->getRigidBody()->addForceImpulse(impulse);
+
+                    m_dwarfPosVelocity.z() = dwarfImpulse;
+                }
+            }
+        }
+
         // jump on long tap
         if (touch->isLongTap()) {
             toggleDrawMode();
