@@ -409,7 +409,7 @@ public:
         lightNode4->addTransform(lightTransform4);
 
         // Y- down screen and Z+ comes to you
-        lightTransform4->setDirectionZ(Vector3(0.0f, -1.0f, 0.0f));
+        lightTransform4->setDirectionZ(Vector3(0, -1.0f, 0.0f));
         #endif
 
         //
