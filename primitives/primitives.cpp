@@ -181,20 +181,24 @@ public:
         m_scene->setSceneName("primitives");
         m_scene->defaultAttachment(m_appWindow);
 
-        primitive = new Cube(3.f,3, Primitive::WIRED_MODE);
-        solidPrimitive = new Cube(3.f,3);
-        cylinder = new Cylinder(3.f,0.f,1.5f,10,4, Primitive::WIRED_MODE);
-        solidCylinder = new Cylinder(3.f,0.f,5.f,15,3);
+        // @todo non meta and meta
+        primitive = new Cube(3.f,3, Cube::META_CUBE); // Cube::GRID_CUBE // Primitive::WIRED_MODE | Primitive::ALTERNATE_TRIANGLE);
+        solidPrimitive = new Cube(3.f, 3);
+        cylinder = new Cylinder(3.f, 0.f, 1.5f, 10,4, Primitive::WIRED_MODE);
+        solidCylinder = new Cylinder(3.f, 0.f, 5.f, 15,3);
         sphere = new Sphere(3, 10, 10, Primitive::WIRED_MODE);
         solidSphere = new Sphere(3, 10, 10);
         texturedSphere = new Mesh(getScene());
-        surface = new Surface(3,3,3,5,Surface::SIMPLE_GRID);
-        solidSurface = new Surface(3,3,3,1,Surface::ONE_SIDED);
+        surface = new Surface(3,3,3,5,Surface::WIRED_MODE | Surface::ALTERNATE_TRIANGLE); // SIMPLE_GRID);
+        solidSurface = new Surface(3,3,3,1,Surface::DOUBLE_SIDED);
         isoSphere = new IsoSphere(3.f,2, Primitive::WIRED_MODE | IsoSphere::HALF_SPHERE);
         solidIsoSphere = new IsoSphere(3.f,2);
         dome = new Dome(10.f,7,4, Primitive::WIRED_MODE);
         solidDome = new Dome(10.f,7,4);
         texturedDome = new Mesh(getScene());
+
+        object = -1;
+        togglePrimitive();
 
 		// Generation of meshes
         MeshData *lpSphereData = new MeshData(texturedSphere);
@@ -374,13 +378,13 @@ public:
         object++;
         deletePtr(geom);
 
-        if (object == 14) {
+        if (object == 13) {
             object = 0;
         }
 
         switch (object) {
             case 0:
-                texturedDome->disable();
+                // texturedDome->disable();
                 geom = new GeometryData(m_scene, *primitive);
                 break;
             case 1:
@@ -421,7 +425,7 @@ public:
                 geom = new GeometryData(m_scene, *solidDome);
                 break;
             case 13:
-                texturedDome->enable();
+                // texturedDome->enable();
                 break;
             default:
                 break;
@@ -463,6 +467,7 @@ public:
     {
         m_scene->getPrimitiveManager()->bind();
         m_scene->getPrimitiveManager()->drawLocalAxis();
+        m_scene->getPrimitiveManager()->setScale(Vector3(1, 1, 1));
 
         if (geom) {
             Camera *lpCamera = (Camera*)getScene()->getSceneObjectManager()->searchName("CameraFPS");

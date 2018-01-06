@@ -417,7 +417,7 @@ public:
         //
 
         // Add a simple plane for simulate a ground to project shadow on
-        Surface surface(1000, 1000, 4, 4);
+        Surface surface(1000, 1000, 4, 4, Surface::FILLED_MODE | Surface::ALTERNATE_TRIANGLE);
         Mesh *meshSurface = new Mesh(getScene());
         meshSurface->setName("plane");
         MeshData *meshData = new MeshData(getScene());
@@ -967,6 +967,16 @@ public:
             } else {
                 getWindow()->grabMouse(True);
                 System::print("Grab mouse", "Change");
+            }
+        }
+
+        if (event.isPressed() && (event.key() == KEY_F10)) {
+            if (getScene()->getContext()->getDrawingMode() == Context::DRAWING_FILLED) {
+                getScene()->getContext()->setDrawingMode(Context::DRAWING_WIREFRAME);
+                System::print("Wired mode", "Change");
+            } else {
+                getScene()->getContext()->setDrawingMode(Context::DRAWING_FILLED);
+                System::print("Filled mode", "Change");
             }
         }
 
