@@ -18,7 +18,7 @@
 #include <o3d/engine/object/camera.h>
 #include <o3d/engine/object/mtransform.h>
 #include <o3d/engine/hierarchy/hierarchytree.h>
-#include <o3d/engine/object/primitivemanager.h>
+#include <o3d/engine/primitive/primitivemanager.h>
 #include <o3d/engine/viewport.h>
 #include <o3d/engine/renderer.h>
 #include <o3d/core/display.h>

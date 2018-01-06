@@ -24,9 +24,12 @@
 #include <o3d/engine/texture/texturemanager.h>
 #include <o3d/engine/hierarchy/node.h>
 #include <o3d/engine/hierarchy/hierarchytree.h>
-#include <o3d/engine/object/primitive.h>
-#include <o3d/engine/object/dome.h>
-#include <o3d/engine/object/isosphere.h>
+#include <o3d/engine/primitive/cube.h>
+#include <o3d/engine/primitive/cylinder.h>
+#include <o3d/engine/primitive/dome.h>
+#include <o3d/engine/primitive/sphere.h>
+#include <o3d/engine/primitive/isosphere.h>
+#include <o3d/engine/primitive/surface.h>
 #include <o3d/engine/object/ftransform.h>
 #include <o3d/engine/object/mtransform.h>
 #include <o3d/engine/object/camera.h>
@@ -36,7 +39,7 @@
 #include <o3d/engine/material/ambientmaterial.h>
 #include <o3d/engine/material/lambertmaterial.h>
 
-#include <o3d/engine/object/primitivemanager.h>
+#include <o3d/engine/primitive/primitivemanager.h>
 #include <o3d/engine/shadow/shadowvolumeforward.h>
 
 #include <o3d/geom/frustum.h>

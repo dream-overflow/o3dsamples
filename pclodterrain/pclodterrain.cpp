@@ -15,7 +15,7 @@
 #include <o3d/engine/sky/skyobject.h>
 #include <o3d/engine/sky/cloudlayerperlin.h>
 #include <o3d/engine/object/worldlabel.h>
-#include <o3d/engine/object/primitivemanager.h>
+#include <o3d/engine/primitive/primitivemanager.h>
 #include <o3d/engine/object/camera.h>
 #include <o3d/engine/object/light.h>
 #include <o3d/engine/object/ftransform.h>

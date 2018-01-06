@@ -49,7 +49,8 @@
 #include <o3d/engine/effect/skybox.h>
 #include <o3d/engine/effect/lenseffect.h>
 
-#include <o3d/engine/object/primitive.h>
+#include <o3d/engine/primitive/sphere.h>
+#include <o3d/engine/primitive/surface.h>
 #include <o3d/engine/object/ftransform.h>
 #include <o3d/engine/object/mtransform.h>
 #include <o3d/engine/object/camera.h>
