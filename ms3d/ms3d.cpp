@@ -195,11 +195,14 @@ public:
         m_glRenderer = new Renderer;
 
         m_appWindow->setTitle("Objective-3D Ms3d sample");
+#ifdef O3D_ANDROID
+        m_appWindow->create(800, 600, AppWindow::COLOR_RGBA8, AppWindow::DEPTH_24_STENCIL_8, AppWindow::NO_MSAA, False, True);
+#else
         m_appWindow->create(800, 600, AppWindow::COLOR_RGBA8, AppWindow::DEPTH_24_STENCIL_8, AppWindow::MSAA4X, False, True);
-
+#endif
         // @todo init debug mode crash on Windows
-        m_glRenderer->create(m_appWindow); //, True);
-        // m_glRenderer->setDebug();
+        m_glRenderer->create(m_appWindow, True);
+        m_glRenderer->setDebug();
         // m_glRenderer->setVSyncMode(Renderer::VSYNC_YES);
 
         // create a scene and attach it to the window
