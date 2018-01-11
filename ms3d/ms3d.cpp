@@ -1008,7 +1008,7 @@ public:
             }
 
             Float dwarfImpulse = 0, dwarfJumpImpulse = 0;
-            System::print("", dwarf->getRigidBody()->getP());
+            // System::print("", dwarf->getRigidBody()->getP());
             if (o3d::abs(dwarf->getRigidBody()->getP().y()) <= 0.01f) {
                 if (event.isPressed() && !event.isRepeat()) {
                     if (event.key() == KEY_UP) {
@@ -1136,9 +1136,18 @@ public:
             Camera *lpCamera = (Camera*)getScene()->getSceneObjectManager()->searchName("Camera");
             lpCamera->getNode()->getTransform()->translate(Vector3(0, 0, z));
         } else {
+            // @todo according to a multi point or what else ? or to sensors... translate or an icon
             Camera *lpCamera = (Camera*)getScene()->getSceneObjectManager()->searchName("Camera");
-            lpCamera->getNode()->getTransform()->rotate(Y,-touch->getDeltaX()*0.005f);
-            lpCamera->getNode()->getTransform()->rotate(X,-touch->getDeltaY()*0.005f);
+            //lpCamera->getNode()->getTransform()->rotate(Y,-touch->getDeltaX()*0.005f);
+            //lpCamera->getNode()->getTransform()->rotate(X,-touch->getDeltaY()*0.005f);
+
+            // translate camera
+            // Get the time (in ms) elapsed since the last update
+            // Float elapsed = getScene()->getFrameManager()->getFrameDuration();
+            Vector3 camPos(touch->getDeltaX()*0.5, -touch->getDeltaY()*0.5, 0);
+
+            // move the camera
+            lpCamera->getNode()->getTransform()->translate(camPos/**elapsed*/);
         }
     }
 
