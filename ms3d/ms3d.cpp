@@ -579,7 +579,7 @@ public:
 
         dwarfRigidBody->setUpMassSphere(1.0f, 5.f);
 
-        GravityForce *gravityForce = new GravityForce(getScene(), Vector3(0.f, -98.1f, 0.f));
+        GravityForce *gravityForce = new GravityForce(getScene(), Vector3(0.f, -981.f, 0.f));
         //getScene()->getPhysicEntityManager()->getForceManager().addElement(gravityForce);
         ForceManager *dwarfForceManager = new ForceManager(dwarfRigidBody);
         dwarfRigidBody->setForceManager(dwarfForceManager);
@@ -870,12 +870,19 @@ public:
 			}
 
             // simulate the plane collision
-            if (dwarf->getRigidBody()->getPosition().y() < 0.0f) {
+            if ((dwarf->getRigidBody()->getPosition().y() < 0.0001f) &&
+                (dwarf->getRigidBody()->getP().y() < 0.0)) {
+            //if (dwarf->getRigidBody()->getPosition().y() < 0.0) {
                 Vector3 pos = dwarf->getRigidBody()->getPosition();
                 Vector3 speed = dwarf->getRigidBody()->getSpeed();
                 pos.y() = 0.0f;
-                speed.y() = 0.0f;
-                dwarf->getRigidBody()->setSpeed(speed);
+                if (speed.y() < 0) {
+                    speed.y() = 0.0f;
+                    //dwarf->getRigidBody()->setSpeed(speed);
+                }
+                Vector3 p = dwarf->getRigidBody()->getP();
+                p.y() = 0;
+                dwarf->getRigidBody()->setP(p);
                 dwarf->getRigidBody()->setPosition(pos);
             }
 
@@ -997,26 +1004,18 @@ public:
 
         Node *dwarf = dynamicCast<Node*>(getScene()->getSceneObjectManager()->searchName("dwarf1"));
         if (dwarf) {
-            // simulate the plane collision
-            if (dwarf->getRigidBody()->getPosition().y() < 0.0f) {
-                Vector3 pos = dwarf->getRigidBody()->getPosition();
-                Vector3 speed = dwarf->getRigidBody()->getSpeed();
-                pos.y() = 0.0f;
-                speed.y() = 0.0f;
-                dwarf->getRigidBody()->setSpeed(speed);
-                dwarf->getRigidBody()->setPosition(pos);
-            }
-
             Float dwarfImpulse = 0, dwarfJumpImpulse = 0;
             // System::print("", dwarf->getRigidBody()->getP());
-            if (o3d::abs(dwarf->getRigidBody()->getP().y()) <= 0.01f) {
+            // if (o3d::abs(dwarf->getRigidBody()->getP().y()) <= 0.001f) {
+            // if (o3d::abs(dwarf->getRigidBody()->getSpeed().y()) == 0.0) {
+            if (dwarf->getRigidBody()->getPosition().y() == 0.0) {
                 if (event.isPressed() && !event.isRepeat()) {
                     if (event.key() == KEY_UP) {
                         dwarfImpulse = -40000.f;
                     } else if (event.key() == KEY_DOWN) {
                         dwarfImpulse = 40000.f;
                     } else if (event.key() == KEY_SPACE) {
-                        dwarfJumpImpulse = 70000.f;
+                        dwarfJumpImpulse = 175000.f;
                     }
                 } else if (event.isReleased()) {
                     if ((event.key() == KEY_UP) || (event.key() == KEY_DOWN)) {
@@ -1101,7 +1100,7 @@ public:
             System::print("Toggle light4", "Change");
         }
 
-        if (event.isPressed() && (event.key() == KEY_SPACE)) {
+        if (event.isPressed() && (event.key() == KEY_I)) {
   			m_animationPlayer->togglePlayPause();
             System::print("Toggle player play/pause", "Change");
         }
@@ -1173,38 +1172,13 @@ public:
                     dwarf->getRigidBody()->setPosition(pos);
                 }
 
-                Float dwarfImpulse = 0, dwarfJumpImpulse = 0;
-                System::print("", dwarf->getRigidBody()->getP());
+                Float dwarfJumpImpulse = 0;
                 if (o3d::abs(dwarf->getRigidBody()->getP().y()) <= 0.01f) {
-                    dwarfJumpImpulse = 70000.f;
+                    dwarfJumpImpulse = 175000.f;
                 }
-
-                static Float rotY = 0.f;
-                Float oldRotY = rotY;
-                rotY += m_dwarfRotVelocity.y();
-
-                if (rotY != oldRotY) {
-                    dwarfImpulse = m_dwarfPosVelocity.z();
-                }
-
-                Quaternion rot;
-                rot.fromAxisAngle3(Vector3(0.f, 1.f, 0.f), -rotY);
-
-                dwarf->getRigidBody()->setRotation(rot);
 
                 if (o3d::abs(dwarfJumpImpulse) > o3d::Limits<Float>::epsilon()) {
                     dwarf->getRigidBody()->addForceImpulse(Vector3(0.f, dwarfJumpImpulse, 0.f));
-                }
-
-                if ((o3d::abs(dwarfImpulse) > o3d::Limits<Float>::epsilon()) || (rotY != oldRotY)) {
-                    Matrix3 rotMat;
-                    rotMat.rotateY(rotY);
-
-                    Vector3 impulse = rotMat * Vector3(0.f, 0.f, dwarfImpulse);
-                    dwarf->getRigidBody()->setP(Vector3(0.f, dwarf->getRigidBody()->getP().y(), 0.f));
-                    dwarf->getRigidBody()->addForceImpulse(impulse);
-
-                    m_dwarfPosVelocity.z() = dwarfImpulse;
                 }
             }
         }
