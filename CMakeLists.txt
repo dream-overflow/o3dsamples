@@ -181,6 +181,10 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
 file(COPY ${OBJECTIVE3D_SHADERS_ZIP} DESTINATION ${CMAKE_BINARY_DIR})
 
+# could be usefull for some IDEs based on cmake to retrieve src for debugging
+# @todo how to do that using IMPORT/EXPORT library options
+# include_directories(${CMAKE_BINARY_DIR}/../../o3d/src)
+
 #----------------------------------------------------------
 # targets
 #----------------------------------------------------------
