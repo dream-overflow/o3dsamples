@@ -516,7 +516,7 @@ public:
 
 		// primitive draw
 		{
-			PrimitiveAccess primitive = getScene()->getPrimitiveManager()->access();
+            PrimitiveAccess primitive = getScene()->getPrimitiveManager()->access(DrawInfo());
 
 			getScene()->getContext()->modelView().translate(Vector3(0.2f, 0.2f, 0.0f));
 

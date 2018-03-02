@@ -122,7 +122,7 @@ public:
 	// draw a triangle
 	void onDraw()
 	{
-		PrimitiveAccess access = getScene()->getPrimitiveManager()->access();
+        PrimitiveAccess access = getScene()->getPrimitiveManager()->access(DrawInfo());
 
 		getScene()->getContext()->projection().set(m_camera->getProjectionMatrix());
 		getScene()->getContext()->modelView().set(m_camera->getModelviewMatrix());

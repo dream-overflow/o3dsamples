@@ -468,7 +468,7 @@ public:
 
     void onSceneDraw()
     {
-        m_scene->getPrimitiveManager()->bind();
+        m_scene->getPrimitiveManager()->bind(DrawInfo());
         m_scene->getPrimitiveManager()->drawLocalAxis();
         m_scene->getPrimitiveManager()->setScale(Vector3(1, 1, 1));
 
