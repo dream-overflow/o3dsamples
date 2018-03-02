@@ -265,7 +265,7 @@ public:
                                         0);
 
         Texture2D *lpTexture = new Texture2D(getScene());
-        lpTexture->create(False, 800, 600, PF_RGBA_U8);
+        lpTexture->create(False, 800, 600, PF_RGBA_8);
 
         FeedbackViewPort *pFbViewPort = getScene()->getViewPortManager()->addFeedbackViewPort(
                     lpCamera,
