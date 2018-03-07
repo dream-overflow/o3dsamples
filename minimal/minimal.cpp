@@ -510,5 +510,19 @@ public:
 	}
 };
 
+class MyAppSettings : public AppSettings
+{
+public:
+
+    MyAppSettings() : AppSettings()
+    {
+        sizeOfFastAlloc16 = 16384;
+        sizeOfFastAlloc32 = 16384;
+        sizeOfFastAlloc64 = 16384;
+        useDisplay = False;
+        clearLog = True;
+    }
+};
+
 // We Call our application using the defaults settings
-O3D_CONSOLE_MAIN(Minimal, O3D_DEFAULT_CLASS_SETTINGS)
+O3D_CONSOLE_MAIN(Minimal, MyAppSettings)  // O3D_DEFAULT_CLASS_SETTINGS)
