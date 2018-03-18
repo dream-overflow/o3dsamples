@@ -1112,12 +1112,22 @@ public:
 
         if (event.isPressed() && (event.key() == KEY_F2)) {
             FeedbackViewPort *vp = o3d::dynamicCast<FeedbackViewPort*>(getScene()->getViewPortManager()->getViewPort(2));
-			Image im;
-			const UInt8 *d = vp->mapData();
-			im.loadBuffer(vp->getDataWidth(), vp->getDataHeight(), vp->getDataSize(), vp->getPixelFormat(), d);
-            im.save("feedback.png", Image::PNG);
-            im.save("feedback.jpg", Image::JPEG);
-			vp->unmapData();
+            if (vp->getActivity()) {
+                // feedback-viewport used by GBuffer capture
+                Image im;
+                const UInt8 *d = vp->mapData();
+                if (d) {
+                    im.loadBuffer(vp->getDataWidth(), vp->getDataHeight(), vp->getDataSize(), vp->getPixelFormat(), d);
+                    im.vFlip();
+                    im.save("feedback.png", Image::PNG);
+                    im.save("feedback.jpg", Image::JPEG);
+                }
+                vp->unmapData();
+            } else {
+                // back-buffer standard screen-shot
+                m_glRenderer->screenShot("feedback.png", Image::PNG, 255, True);
+                m_glRenderer->screenShot("feedback.jpg", Image::JPEG, 255);
+            }
             System::print("Take a screenshot using the feeback viewport", "Action");
 		}
 
